@@ -3,6 +3,7 @@
 from configparser import ConfigParser   
 import logging
 import os
+from server import Server
 
 
 def initialize_config():
@@ -22,10 +23,10 @@ def initialize_config():
 
     config_params = {}
     try:
-        config_params["port"] = int(os.getenv('SERVER_PORT', config["DEFAULT"]["SERVER_PORT"]))
-        config_params["listen_backlog"] = int(os.getenv('SERVER_LISTEN_BACKLOG', config["DEFAULT"]["SERVER_LISTEN_BACKLOG"]))
+        config_params["listen_new_connection_port"] = int(os.getenv('LISTEN_NEW_CONNECTION_PORT', config["DEFAULT"]["LISTEN_NEW_CONNECTION_PORT"]))
+        config_params["listen_result_query_port"] = int(os.getenv('LISTEN_RESULT_QUERY_PORT', config["DEFAULT"]["LISTEN_RESULT_QUERY_PORT"]))
         config_params["logging_level"] = os.getenv('LOGGING_LEVEL', config["DEFAULT"]["LOGGING_LEVEL"])
-        config_params["number_clients"] = os.getenv('NUMBER_CLIENTS')
+        config_params["listen_backlog"] = int(os.getenv('SERVER_LISTEN_BACKLOG', config["DEFAULT"]["SERVER_LISTEN_BACKLOG"]))
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -36,22 +37,24 @@ def initialize_config():
 
 def main():
 
-    '''
+    
     config_params = initialize_config()
+    listen_new_connection_port = config_params["listen_new_connection_port"]
+    listen_result_query_port = config_params["listen_result_query_port"]
     logging_level = config_params["logging_level"]
-    port = config_params["port"]
     listen_backlog = config_params["listen_backlog"]
-    number_clients = config_params["number_clients"]
-    '''
-    initialize_log('INFO')
+    
+    initialize_log(logging_level)
 
     # Log config parameters at the beginning of the program to verify the configuration
     # of the component
-    #logging.debug(f"action: config | result: success | port: {port} | "
-    #              f"listen_backlog: {listen_backlog} | logging_level: {logging_level} | number_clients: {number_clients}")
+    logging.debug(f"action: config | result: success | listen_result_query_port: {listen_new_connection_port} |" 
+                  f"listen_result_query_port: {listen_result_query_port} | logging_level: {logging_level}")
 
     # Initialize server and start server loop
-    logging.info('LEVANTE EL SERVER')
+
+    server = Server(listen_new_connection_port, listen_result_query_port, listen_backlog)
+    server.start()
 
 def initialize_log(logging_level):
     """
