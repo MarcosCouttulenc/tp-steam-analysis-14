@@ -2,6 +2,11 @@ import logging
 #import pika
 import socket
 
+from common.message import *
+from common.protocol import *
+from common.model.game import Game
+
+
 class Client:
     def __init__(self, server_ip, server_port):
         self.server_ip = server_ip
@@ -10,32 +15,24 @@ class Client:
     def start(self):
         logging.info('action: client_start | result: success')
         
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect((self.server_ip, int(self.server_port)))
+        client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_sock.connect((self.server_ip, int(self.server_port)))
 
+        protocol = Protocol(client_sock)
 
-        # Recibir y enviar mensaje al servidor
-        response = client_socket.recv(1024).decode()
-        logging.info(f'action: client_msg_received | result: success | msg: {response}')
+        msg_server = protocol.receive()
+        msg_welcome_client = MessageWelcomeClient.from_message(msg_server)
+        if msg_welcome_client == None:
+            logging.info(f'action: client_msg_received | result: invalid_msg | msg: {msg_server}')
+            return
 
-        message_client = response + "client"
+        logging.info(f'action: client_msg_received | result: success | msg: {msg_welcome_client}')
+        
+        game = Game(1, "Fifa")
+        message_game = MessageGameInfo(game)
+        protocol.send(message_game)
 
-        client_socket.send(message_client.encode())
+        logging.info(f'action: client_msg_sent | result: success | msg: {message_game}')
 
-        logging.info(f'action: client_msg_sent | result: success | msg: {message_client}')
-
-        client_socket.close()
-    #def send_message(message):
-        # logging.info(f"Sending Message: {message}")
-        # conn = pika.BlockingConnection([pika.ConnectionParameters(host='rabbitmq')])
-        # channel = conn.channel()
-
-        # channel.queue_declare(queue = 'task_queue', durable=True)
-
-        # channel.basic_publish(exchange='',
-        #                       routing_key='task_queue',
-        #                       body=message,
-        #                       properties=pika.BasicProperties(delivery_mode=2,))
-
-        # conn.close()
+        client_sock.close()
 

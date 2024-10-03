@@ -1,6 +1,9 @@
 import logging
 import socket
 import errno
+
+from common.message import *
+from common.protocol import *
 # import pika
 
 class Server:
@@ -24,8 +27,6 @@ class Server:
         Then connection created is printed and returned
         """
 
-
-        # logging.info('action: accept_connections | result: in_progress')
         try:
             c, addr = self.new_connection_socket.accept()
             logging.info(f'action: accept_connections | result: success | ip: {addr[0]}')
@@ -37,25 +38,31 @@ class Server:
             else:
                 raise
     
-    def receive_message(self, skt):
-        data = skt.recv(1024)
-        return data.decode('utf-8')
+    #def receive_message(self, skt):
+    #    data = skt.recv(1024)
+    #    return data.decode('utf-8')
     
-    def send_message(self, skt, msg):
-        msg = "{}\n".format(msg).encode('utf-8')
-        skt.send(msg)
+    #def send_message(self, skt, msg):
+    #    msg = "{}\n".format(msg).encode('utf-8')
+    #    skt.send(msg)
     
     def start(self):
+        client_id = "1"
         client_sock = self.__accept_new_connection()
 
-        msg_to_send = 'Te pusiste nerviosa? :J'
-        self.send_message(client_sock, msg_to_send)
-        logging.info(f'action: server_msg_sent | result: success | msg: {msg_to_send}')
+        protocol = Protocol(client_sock)
 
-        rta = self.receive_message(client_sock)
-        logging.info(f'action: server_msg_received | result: success | msg: {rta}')
-    
-    
+        msg_welcome_client = MessageWelcomeClient(client_id, self.listen_result_query_port)
+        protocol.send(msg_welcome_client)
+        logging.info(f'action: server_msg_sent | result: success | msg: {msg_welcome_client}')
+
+        msg_response_client = protocol.receive()
+        msg_game = MessageGameInfo.from_message(msg_response_client)
+        if msg_game == None:
+            logging.info(f'action: server_msg_received | result: invalid_msg | msg: {msg_response_client}')
+            return
+
+        logging.info(f'action: server_msg_received | result: success | msg: {msg_game}')
     
     
     #def start(self):
