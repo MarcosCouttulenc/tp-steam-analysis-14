@@ -35,18 +35,19 @@ def initialize_config():
 
 
 def main():
+    '''
     config_params = initialize_config()
     logging_level = config_params["logging_level"]
     port = config_params["port"]
     listen_backlog = config_params["listen_backlog"]
     number_clients = config_params["number_clients"]
-
-    initialize_log(logging_level)
+    '''
+    initialize_log('INFO')
 
     # Log config parameters at the beginning of the program to verify the configuration
     # of the component
-    logging.debug(f"action: config | result: success | port: {port} | "
-                  f"listen_backlog: {listen_backlog} | logging_level: {logging_level} | number_clients: {number_clients}")
+    #logging.debug(f"action: config | result: success | port: {port} | "
+    #              f"listen_backlog: {listen_backlog} | logging_level: {logging_level} | number_clients: {number_clients}")
 
     # Initialize server and start server loop
     logging.info('LEVANTE EL CLIENT')
@@ -63,6 +64,7 @@ def initialize_log(logging_level):
         level=logging_level,
         datefmt='%Y-%m-%d %H:%M:%S',
     )
+
 
 
 if __name__ == "__main__":
