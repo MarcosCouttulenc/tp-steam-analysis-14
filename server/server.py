@@ -56,14 +56,16 @@ class Server:
         protocol.send(msg_welcome_client)
         logging.info(f'action: server_msg_sent | result: success | msg: {msg_welcome_client}')
 
-        msg_response_client = protocol.receive()
-        msg_game = MessageGameInfo.from_message(msg_response_client)
-        if msg_game == None:
-            logging.info(f'action: server_msg_received | result: invalid_msg | msg: {msg_response_client}')
-            return
+        end_of_data = False
+        while (not end_of_data):
+            receive_batch = protocol.receive_batch()
+            if receive_batch == None:
+                logging.info(f'action: server_msg_received | result: invalid_msg | msg: {receive_batch}')
+                return
 
-        logging.info(f'action: server_msg_received | result: success | msg: {msg_game}')
-    
+            for message in receive_batch:
+                msg_game = MessageGameInfo.from_message(message)
+                logging.info(f'action: server_msg_received | result: success | msg: {msg_game}')
     
     #def start(self):
         # logging.basicConfig(level=logging.DEBUG)

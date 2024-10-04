@@ -23,8 +23,7 @@ class MessageSerializer:
         data_batch += END_OF_BATCH
 
     def deserialize_batch(self, messages_batch_str: str) -> list[Message]:
-        data_batch = message_str.decode('utf-8').split(END_OF_MESSAGE)
+        data_batch = messages_batch_str.decode('utf-8').split(END_OF_MESSAGE)
         lst_messages = []
         lst_messages.append(self.deserialize(message_data) for message_data in data_batch)
         return lst_messages
-            

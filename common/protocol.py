@@ -9,6 +9,9 @@ class Protocol:
     def __init__(self, socket):
         self.socket = socket
         self.message_serializer = MessageSerializer()
+        self.previus_batch = ""
+        self.previus_message = ""
+
 
     def receive_batch(self) -> list[Message]:
         """
@@ -16,7 +19,8 @@ class Protocol:
         """
 
         buffer = b""
-
+        buffer += self.previus_batch
+        self.previus_batch = ""
         while True:
             data = self.socket.recv(BUFFER_RECEIVE_BATCH_SIZE_BYTES)
             
@@ -28,6 +32,7 @@ class Protocol:
             #Si hay un END_OF_BATCH_BYTES en el buffer entonces cortamos el buffer ahi.
             if END_OF_BATCH_BYTES in buffer:
                 data_batch = buffer[:buffer.index(END_OF_BATCH_BYTES)].strip()
+                self.previus_batch = buffer[buffer.index(END_OF_BATCH_BYTES):]
                 return self.message_serializer.deserialize_batch(data_batch)
 
     def send_batch(self, messages: list[Message]):
@@ -52,6 +57,8 @@ class Protocol:
         """
 
         buffer = b""
+        buffer += self.previus_message
+        self.previus_message = ""
 
         while True:
             data = self.socket.recv(BUFFER_RECEIVE_SIZE_BYTES)
@@ -64,6 +71,7 @@ class Protocol:
             #Si hay un END_OF_MESSAGE_BYTES en el buffer entonces cortamos el buffer ahi.
             if END_OF_MESSAGE_BYTES in buffer:
                 data_message = buffer[:buffer.index(END_OF_MESSAGE_BYTES)].strip()
+                self.previus_message = buffer[buffer.index(END_OF_MESSAGE_BYTES):]
                 return self.message_serializer.deserialize(data_message)
 
     def send(self, message: Message):

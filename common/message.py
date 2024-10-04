@@ -3,6 +3,7 @@ from common.model.review import Review
 
 MESSAGE_TYPE_GAME_DATA = "game"
 MESSAGE_TYPE_REVIEW_DATA = "review"
+MESSAGE_TYPE_END_OF_DATASET = "end-of-dataset"
 
 MESSAGE_TYPE_SERVER_WELCOME_CLIENT = "server-welcome-client"
 
@@ -36,7 +37,11 @@ class MessageGameInfo(Message):
     def __init__(self, game: Game):
         self.game = game
 
-        message_payload = str(game.id) + "|" + game.name
+        message_payload = (str(game.id) + "|" + game.name + "|" + str(game.linux) + "|" + str(game.windows) + 
+                        "|" + str(game.mac) + "|" + str(game.positive_reviews) + "|" + str(game.negative_reviews) + 
+                        "|" + game.categories + "|" + game.genre + "|" + game.playTime
+        )
+
         super().__init__(MESSAGE_TYPE_GAME_DATA, message_payload)
 
     def __str__(self) -> str:
@@ -48,7 +53,7 @@ class MessageGameInfo(Message):
             return None
 
         data = message.message_payload.split('|')
-        game = Game(data[0], data[1])
+        game = Game(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9])
         return cls(game)
 
 
@@ -96,3 +101,24 @@ class MessageWelcomeClient(Message):
 
         data = message.message_payload.split('|')
         return cls(data[0], data[1])
+
+'''
+Mensaje que envia el cliente cuando termina de enviar el dataset
+'''
+class MessageEndOfDataset(Message):
+    def __init__(self, status):
+        self.status = status
+
+        message_payload = status
+        super().__init__(MESSAGE_TYPE_END_OF_DATASET, message_payload)
+
+    def __str__(self) -> str:
+        return super().__str__()
+
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageEndOfDataset':
+        if message.message_type != MESSAGE_TYPE_END_OF_DATASET:
+            return None
+
+        data = message.message_payload.split('|')
+        return cls(data[0])
