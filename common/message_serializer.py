@@ -20,10 +20,13 @@ class MessageSerializer:
 
     def serialize_batch(self, messages: list[Message]) -> str:
         data_batch = [self.serialize(message) for message in messages]
-        data_batch += END_OF_BATCH
+        data_batch_bytes = b''.join(data_batch)
+        data_batch_bytes += END_OF_BATCH_BYTES
+        return data_batch_bytes
 
     def deserialize_batch(self, messages_batch_str: str) -> list[Message]:
-        data_batch = messages_batch_str.decode('utf-8').split(END_OF_MESSAGE)
+        data_batch = messages_batch_str.split(END_OF_MESSAGE_BYTES)
         lst_messages = []
-        lst_messages.append(self.deserialize(message_data) for message_data in data_batch)
+        for message_data in data_batch:
+            lst_messages.append(self.deserialize(message_data))
         return lst_messages

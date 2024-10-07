@@ -38,14 +38,6 @@ class Server:
             else:
                 raise
     
-    #def receive_message(self, skt):
-    #    data = skt.recv(1024)
-    #    return data.decode('utf-8')
-    
-    #def send_message(self, skt, msg):
-    #    msg = "{}\n".format(msg).encode('utf-8')
-    #    skt.send(msg)
-    
     def start(self):
         client_id = "1"
         client_sock = self.__accept_new_connection()
@@ -56,6 +48,13 @@ class Server:
         protocol.send(msg_welcome_client)
         logging.info(f'action: server_msg_sent | result: success | msg: {msg_welcome_client}')
 
+        self.process_client_messages(protocol)
+
+        
+
+    def process_client_messages(self, protocol):
+        logging.info(f'action: process_client_messages | result: start | msg: success')
+
         end_of_data = False
         while (not end_of_data):
             receive_batch = protocol.receive_batch()
@@ -64,20 +63,15 @@ class Server:
                 return
 
             for message in receive_batch:
-                msg_game = MessageGameInfo.from_message(message)
-                logging.info(f'action: server_msg_received | result: success | msg: {msg_game}')
-    
-    #def start(self):
-        # logging.basicConfig(level=logging.DEBUG)
-        # logging.info('action: server_start | result: success')
+                if message.is_game():
+                    msg_game = MessageGameInfo.from_message(message)
+                    logging.info(f'action: server_msg_received | result: success | msg: {msg_game}')
+                elif message.is_review():
+                    msg_review = MessageReviewInfo.from_message(message)
+                    logging.info(f'action: server_msg_received | result: success | msg: {msg_review}')
+                else:
+                    msg_end_of_dataset = MessageEndOfDataset.from_message(message)
+                    logging.info(f'action: server_msg_received | result: success | msg: {msg_end_of_dataset}')
+                    end_of_data = True
 
-        # # Conectar a RabbitMQ
-        # connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
-        # channel = connection.channel()
-
-        # channel.queue_declare(queue='task_queue', durable=True)
-        
-        # channel.basic_consume(queue='task_queue', on_message_callback=callback, auto_ack=True)
-        
-        # logging.info('Waiting for messages...')
-        # channel.start_consuming()
+        logging.info(f'action: process_client_messages | result: success | msg: success')

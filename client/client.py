@@ -21,11 +21,11 @@ class Client:
         self.get_welcome_message()
 
         self.send_games()
-
+        
         self.send_reviews()
 
         self.notify_end_of_data()
-
+        
         self.client_sock.close()
 
     def get_welcome_message(self):
@@ -41,28 +41,37 @@ class Client:
         logging.info('action: send_games | result: start')
 
         batch_size = 10
-        batch_list = [MessageGameInfo]
+        batch_list = []
 
         try: 
-            with open('games.csv', 'r') as file:
+            with open('100games.csv', 'r') as file:
                 csvReader = csv.reader(file)
                 for row in csvReader:
                     game_data = Game(
-                        row["AppID"], row["Name"],row["Linux"],row["Windows"],row["Mac"],row["Positive"],
-                        row["Negative"],row["Average playtime forever"],row["Categories"],row["Genres"]
+                        row[0],  # AppID
+                        row[1],  # Name
+                        row[21], # Linux
+                        row[19], # Windows
+                        row[20], # Mac
+                        row[17], # Positive
+                        row[18], # Negative
+                        row[30], # Average playtime forever
+                        row[27], # Categories
+                        row[28]  # Genres
                     )
 
-                    batch_list.append(MessageGameInfo(game_data))
+                    messageGI = MessageGameInfo(game_data)
+                    batch_list.append(messageGI)
 
                     if len(batch_list) == batch_size:
                         self.protocol.send_batch(batch_list)
                         logging.info(f'action: send_games | result: success | msg: sent {len(batch_list)} games')
                         batch_list = []
 
-                if batch_list:
+                if len(batch_list) > 0:
                     self.protocol.send_batch(batch_list)
                     logging.info(f'action: send_games | result: success | msg: sent {len(batch_list)} games')
-                    batch_list = [MessageGameInfo]
+                    batch_list = []
 
         except Exception as e:
             logging.info(f'action: send_games | result: error | msg: {e}')

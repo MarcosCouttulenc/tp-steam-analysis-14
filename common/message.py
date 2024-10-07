@@ -19,6 +19,8 @@ class Message:
     def __init__(self, message_type, message_payload):
         self.message_type = message_type
         self.message_payload = message_payload
+        #print(message_type)
+        #print(message_payload)
 
     def is_game(self) -> bool:
         return (self.message_type == MESSAGE_TYPE_GAME_DATA)
@@ -43,6 +45,10 @@ class MessageGameInfo(Message):
         )
 
         super().__init__(MESSAGE_TYPE_GAME_DATA, message_payload)
+
+        # print("\n\n imprimo el payload\n ")
+        # print(self.message_type)
+        # print("\n\nfin del payload\n")
 
     def __str__(self) -> str:
         return super().__str__()
