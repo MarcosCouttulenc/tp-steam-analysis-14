@@ -3,7 +3,7 @@
 from configparser import ConfigParser   
 import logging
 import os
-from workers.worker_game_validator.worker_game_validator import WorkerGameValidator
+from worker_game_validator import WorkerGameValidator
 
 def initialize_config():
     config = ConfigParser(os.environ)
@@ -34,8 +34,8 @@ def main():
     logging.debug(f"action: config | result: success | queue_name_origin: {queue_name_origin} | queues_name_destiny: {queues_name_destiny}" 
                   f"| logging_level: {logging_level}")
 
-    server = WorkerGameValidator(queue_name_origin, queues_name_destiny)
-    server.start()
+    worker_game_validator = WorkerGameValidator(queue_name_origin, queues_name_destiny)
+    worker_game_validator.start()
 
 def initialize_log(logging_level):
     logging.basicConfig(

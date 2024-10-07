@@ -3,6 +3,5 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY common/ ./common
 COPY middleware/ ./middleware
-COPY server /
-RUN python -m unittest tests/test_common.py
+COPY worker_mac /
 ENTRYPOINT ["python", "/main.py"]

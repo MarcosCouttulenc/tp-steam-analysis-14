@@ -5,7 +5,6 @@ POP_QUEUE_NAME = "queue-mac"
 PUSH_QUEUE_NAME = "queue-query1-mac"
 CHANNEL_NAME =  "rabbitmq"
 
-
 class MACOSWorker:
     def __init__(self):
         self.running = True
@@ -13,19 +12,14 @@ class MACOSWorker:
 
     
     def start(self):
-
         while self.running:
-            message: MessageGameInfo = self.service_queues.pop(POP_QUEUE_NAME)
-            self.process_message(message)
+            self.service_queues.pop(POP_QUEUE_NAME, self.process_message)
 
     
-    def process_message(self, message: MessageGameInfo):
+    def process_message(self, ch, method, properties, message):
         print(f"Processing message: {message}")
-        if (message.game.mac):
-            print(f"Game {message.game.name} is available for MACOS")
-            #enviar a la query1
-            self.service_queues.push(PUSH_QUEUE_NAME, " ")
-        else: pass
+        self.service_queues.ack(ch, method)
+        return
 
 
 

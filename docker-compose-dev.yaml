@@ -30,7 +30,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management  # Imagen de RabbitMQ con la interfaz de administración
-    container_name: rabbitmq
+    container_name: rabbitmq    
     ports:
       - "5672:5672"       # RabbitMQ server (para comunicación de cola)
       - "15672:15672"     # RabbitMQ management UI (interfaz web de administración)
@@ -39,10 +39,18 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=admin  # Usuario por defecto para RabbitMQ
       - RABBITMQ_DEFAULT_PASS=admin  # Contraseña por defecto para RabbitMQ
+      - RABBITMQ_LOG_LEVEL=warning  # Solo mostrar warning
 
-
-
-
+  worker_game_validator:
+    container_name: worker_game_validator
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
 
 networks:
   testing_net:

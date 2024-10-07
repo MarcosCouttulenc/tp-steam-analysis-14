@@ -4,7 +4,10 @@ import errno
 
 from common.message import *
 from common.protocol import *
-# import pika
+from common.message_serializer import MessageSerializer
+from middleware.queue import ServiceQueues
+
+CHANNEL_NAME =  "rabbitmq"
 
 class Server:
     def __init__(self, listen_new_connection_port, listen_result_query_port, listen_backlog):
@@ -18,6 +21,8 @@ class Server:
         self.emit_result_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.emit_result_socket.bind(('', listen_result_query_port))
         self.emit_result_socket.listen(listen_backlog)
+
+        self.service_queues = ServiceQueues(CHANNEL_NAME)
     
     def __accept_new_connection(self):
         """
@@ -56,6 +61,7 @@ class Server:
         logging.info(f'action: process_client_messages | result: start | msg: success')
 
         end_of_data = False
+
         while (not end_of_data):
             receive_batch = protocol.receive_batch()
             if receive_batch == None:
@@ -65,6 +71,7 @@ class Server:
             for message in receive_batch:
                 if message.is_game():
                     msg_game = MessageGameInfo.from_message(message)
+                    self.service_queues.push("queue-games", message)
                     logging.info(f'action: server_msg_received | result: success | msg: {msg_game}')
                 elif message.is_review():
                     msg_review = MessageReviewInfo.from_message(message)

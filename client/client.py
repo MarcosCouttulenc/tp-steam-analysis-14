@@ -44,7 +44,7 @@ class Client:
         batch_list = []
 
         try: 
-            with open('100games.csv', 'r') as file:
+            with open('5games.csv', 'r') as file:
                 csvReader = csv.reader(file)
                 for row in csvReader:
                     game_data = Game(
