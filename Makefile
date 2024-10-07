@@ -31,7 +31,7 @@ docker-image-worker-game-validator:
 	docker build -f ./worker_game_validator/Dockerfile -t "worker_game_validator:latest" .  # Construir imagen del worker game validator
 .PHONY: docker-image-worker-game-validator
 
-docker-image: docker-image-server docker-image-client docker-image-worker-game-validator # Construir imágenes
+docker-image: docker-image-server docker-image-client docker-image-worker-game-validator docker-image-worker-mac # Construir imágenes
 .PHONY: docker-image
 
 docker-compose-up: docker-image

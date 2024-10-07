@@ -18,19 +18,16 @@ class WorkerGameValidator:
             count += 1
 
 
-    def on_pop_message(self, ch, method, properties, body):
+    def on_pop_message(self, ch, method, properties, message):
         #TODO: save in db.
-        print("\n\n se ejecuto el on_pop_message!!! \n")
-        message_serializer = MessageSerializer()
-        message = message_serializer.deserialize(body)
         logging.info(f'action: on_pop_message | result: start | body: {message}')
-        '''
+
         for queue_name_destiny in self.queues_name_destiny:
             self.service_queues.push(queue_name_destiny, message)
             logging.info(f'action: on_pop_message | result: push | queue: {queue_name_destiny}  | body: {message}')
 
         logging.info(f'action: on_pop_message | result: ack')
-'''
+
         self.service_queues.ack(ch, method)
 
         logging.info(f'action: on_pop_message | result: success')

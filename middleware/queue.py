@@ -36,16 +36,16 @@ class ServiceQueues:
         message_serializer = MessageSerializer()
         self.channel.queue_declare(queue=queue_name, durable=True)
 
-        #def new_callback(ch, method, properties, body):
-        #    message = message_serializer.deserialize(body)
-        #    callback(ch, method, properties, message)
-
-        print("\n\n se registro el pop \n")
+        def new_callback(ch, method, properties, body):
+            message = message_serializer.deserialize(body)
+            callback(ch, method, properties, message)
 
         self.channel.basic_consume(
             queue=queue_name, 
-            on_message_callback=callback,
+            on_message_callback=new_callback,
         )
+
+        self.channel.start_consuming()
 
     def ack(self, ch, method):
         ch.basic_ack(delivery_tag = method.delivery_tag)

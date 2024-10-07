@@ -41,6 +41,17 @@ services:
       - RABBITMQ_DEFAULT_PASS=admin  # Contraseña por defecto para RabbitMQ
       - RABBITMQ_LOG_LEVEL=warning  # Solo mostrar warning
 
+  worker_mac:
+    container_name: worker_mac
+    image: worker_mac:latest
+    environment:     
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
   worker_game_validator:
     container_name: worker_game_validator
     image: worker_game_validator:latest
