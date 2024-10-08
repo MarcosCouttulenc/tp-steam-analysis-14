@@ -1,4 +1,5 @@
 from database import gameDataBase
+from database import BaseDateWorker
 from configparser import ConfigParser   
 import logging
 import os
@@ -26,6 +27,7 @@ def initialize_config():
 
 def main():
     config_params = initialize_config()
+    queue_name_origin = config_params["queue_name_origin"]
     logging_level = config_params["logging_level"]
     
     initialize_log(logging_level)
@@ -33,12 +35,9 @@ def main():
     logging.debug(f"action: config | result: success ")
 
     data_base =  gameDataBase()
-    data_base.start()
+    data_base_worker = BaseDateWorker(queue_name_origin, data_base)
+    data_base_worker.start()
 
-    service_queues = ServiceQueues(CHANNEL_NAME)
-
-    while True:
-            service_queues.pop(self.queue_name_origin, self.process_message)
 
 
 def initialize_log(logging_level):
