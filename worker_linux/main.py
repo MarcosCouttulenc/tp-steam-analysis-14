@@ -1,4 +1,4 @@
-from worker_mac import MACOSWorker
+from worker_linux import LinuxWorker
 from configparser import ConfigParser   
 import logging
 import os
@@ -32,8 +32,8 @@ def main():
     logging.debug(f"action: config | result: success | queue_name_origin: {queue_name_origin} | queues_name_destiny: {queues_name_destiny}" 
                   f"| logging_level: {logging_level}")
 
-    print("action: MACOSWorker - start")
-    macos_worker = MACOSWorker(queue_name_origin, queues_name_destiny)
+    print("action: LinuxWorker - start")
+    macos_worker = LinuxWorker(queue_name_origin, queues_name_destiny)
     macos_worker.start()
 
 

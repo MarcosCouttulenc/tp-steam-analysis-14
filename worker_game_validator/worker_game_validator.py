@@ -1,4 +1,5 @@
 import logging
+logging.basicConfig(level=logging.CRITICAL)
 from middleware.queue import ServiceQueues
 from common.message_serializer import MessageSerializer
 

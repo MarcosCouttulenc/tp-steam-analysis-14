@@ -1,8 +1,8 @@
 import csv
 
 class Game:
-    def __init__(self, id, name,linux,windows,mac,positive_reviews,
-                 negative_reviews,playTime,categories, genre,):
+    def __init__(self, id ,name,windows,mac,linux,positive_reviews,
+                 negative_reviews,categories, genre, playTime, release_date):
         self.id = id
         self.name = name
         self.positive_reviews = positive_reviews
@@ -13,6 +13,7 @@ class Game:
         self.categories = categories
         self.genre = genre
         self.playTime = playTime
+        self.release_date = release_date
 
 
 

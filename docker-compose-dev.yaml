@@ -40,6 +40,8 @@ services:
       - RABBITMQ_DEFAULT_USER=admin  # Usuario por defecto para RabbitMQ
       - RABBITMQ_DEFAULT_PASS=admin  # Contraseña por defecto para RabbitMQ
       - RABBITMQ_LOG_LEVEL=warning  # Solo mostrar warning
+    volumes:
+      - ./middleware/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
 
   worker_mac:
     container_name: worker_mac
@@ -52,9 +54,42 @@ services:
     depends_on:
       - rabbitmq
 
+  worker_linux:
+    container_name: worker_linux
+    image: worker_linux:latest
+    environment:     
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_windows:
+    container_name: worker_windows
+    image: worker_windows:latest
+    environment:     
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
   worker_game_validator:
     container_name: worker_game_validator
     image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  query1_reducer:
+    container_name: query1_reducer
+    image: query1_reducer:latest
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG

@@ -50,14 +50,15 @@ class Client:
                     game_data = Game(
                         row[0],  # AppID
                         row[1],  # Name
-                        row[21], # Linux
-                        row[19], # Windows
-                        row[20], # Mac
-                        row[17], # Positive
-                        row[18], # Negative
-                        row[30], # Average playtime forever
-                        row[27], # Categories
-                        row[28]  # Genres
+                        row[17], # Windows
+                        row[18], # Mac
+                        row[19], # Linux
+                        row[23], # Positive
+                        row[24], # Negative
+                        row[35], # Categories
+                        row[36], # Genres
+                        row[29], # Average playtime forever
+                        row[2]   # Release date
                     )
 
                     messageGI = MessageGameInfo(game_data)

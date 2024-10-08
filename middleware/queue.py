@@ -37,7 +37,7 @@ class ServiceQueues:
         self.channel.queue_declare(queue=queue_name, durable=True)
 
         def new_callback(ch, method, properties, body):
-            message = message_serializer.deserialize(body)
+            message = message_serializer.deserialize(body.strip())
             callback(ch, method, properties, message)
 
         self.channel.basic_consume(

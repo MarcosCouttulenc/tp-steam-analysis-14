@@ -27,11 +27,23 @@ docker-image-worker-mac:
 	docker build -f ./worker_mac/Dockerfile -t "worker_mac:latest" .  # Construir imagen del worker mac
 .PHONY: docker-image-worker-mac
 
+docker-image-worker-linux:
+	docker build -f ./worker_linux/Dockerfile -t "worker_linux:latest" .  # Construir imagen del worker linux
+.PHONY: docker-image-worker-linux
+
+docker-image-worker-windows:
+	docker build -f ./worker_windows/Dockerfile -t "worker_windows:latest" .  # Construir imagen del worker windows
+.PHONY: docker-image-worker-windows
+
 docker-image-worker-game-validator:
 	docker build -f ./worker_game_validator/Dockerfile -t "worker_game_validator:latest" .  # Construir imagen del worker game validator
 .PHONY: docker-image-worker-game-validator
 
-docker-image: docker-image-server docker-image-client docker-image-worker-game-validator docker-image-worker-mac # Construir imágenes
+docker-image-query1-reducer:
+	docker build -f ./query1_reducer/Dockerfile -t "query1_reducer:latest" .  # Construir imagen del query1 reducer
+.PHONY: docker-image-query1-reducer
+
+docker-image: docker-image-server docker-image-client docker-image-worker-game-validator docker-image-worker-mac docker-image-worker-linux docker-image-worker-windows docker-image-query1-reducer # Construir imágenes
 .PHONY: docker-image
 
 docker-compose-up: docker-image

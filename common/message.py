@@ -4,8 +4,11 @@ from common.model.review import Review
 MESSAGE_TYPE_GAME_DATA = "game"
 MESSAGE_TYPE_REVIEW_DATA = "review"
 MESSAGE_TYPE_END_OF_DATASET = "end-of-dataset"
+MESSAGE_TYPE_QUERY_ONE_UPDATE = "query-one-update"
 
 MESSAGE_TYPE_SERVER_WELCOME_CLIENT = "server-welcome-client"
+FALSE_STRING = "False"
+TRUE_STRING = "True"
 
 '''
 Todos los mensajes estan conformados por un tipo y un payload,
@@ -15,6 +18,15 @@ y luego el payload es la informacion del mensaje.
 Un mensaje va a estar serializado como:
 tipo|dato1|dato2| ... |datoN , en la primera posicion vamos a tener siempre el tipo
 '''
+
+def string_to_boolean(string_variable):
+    ##print(f"\n\n ESTA LLEGANDO: {string_variable}\n\n")
+    if string_variable == TRUE_STRING:
+        return True
+    elif string_variable == FALSE_STRING:
+        return False
+    else:
+        raise Exception("Variable booleana incorrecta")
 class Message:
     def __init__(self, message_type, message_payload):
         self.message_type = message_type
@@ -39,9 +51,9 @@ class MessageGameInfo(Message):
     def __init__(self, game: Game):
         self.game = game
 
-        message_payload = (str(game.id) + "|" + game.name + "|" + str(game.linux) + "|" + str(game.windows) + 
-                        "|" + str(game.mac) + "|" + str(game.positive_reviews) + "|" + str(game.negative_reviews) + 
-                        "|" + game.categories + "|" + game.genre + "|" + game.playTime
+        message_payload = (str(game.id) + "|" + str(game.name) + "|" + str(game.windows) + "|" + str(game.mac) + 
+                        "|" + str(game.linux) + "|" + str(game.positive_reviews) + "|" + str(game.negative_reviews) + 
+                        "|" + str(game.categories) + "|" +  str(game.genre) + "|" + str(game.playTime) + "|" + str(game.release_date)
         )
 
         super().__init__(MESSAGE_TYPE_GAME_DATA, message_payload)
@@ -49,9 +61,25 @@ class MessageGameInfo(Message):
         # print("\n\n imprimo el payload\n ")
         # print(self.message_type)
         # print("\n\nfin del payload\n")
+    
+    def pretty_str(self):
+        rta = f"[id: {self.game.id}]\n"
+        rta += f"[name: {self.game.name}]\n"
+        rta += f"[windows: {str(self.game.windows)}]\n"
+        rta += f"[mac: {str(self.game.mac)}]\n"
+        rta += f"[linux: {str(self.game.linux)}]\n"
+        rta += f"[positive_reviews: {self.game.positive_reviews}]\n"
+        rta += f"[negative_reviews: {self.game.negative_reviews}]\n"
+        rta += f"[categories: {self.game.categories}]\n"
+        rta += f"[genre: {self.game.genre}]\n"
+        rta += f"[playtime: {self.game.playTime}]\n"
+        rta += f"[release_date: {self.game.release_date}]\n"
+        return rta
+
 
     def __str__(self) -> str:
         return super().__str__()
+
 
     @classmethod
     def from_message(cls, message: Message) -> 'MessageGameInfo':
@@ -59,7 +87,7 @@ class MessageGameInfo(Message):
             return None
 
         data = message.message_payload.split('|')
-        game = Game(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9])
+        game = Game(data[0], data[1], string_to_boolean(data[2]), string_to_boolean(data[3]), string_to_boolean(data[4]), int(data[5]), int(data[6]), data[7], data[8], int(data[9]), data[10])
         return cls(game)
 
 
@@ -128,3 +156,22 @@ class MessageEndOfDataset(Message):
 
         data = message.message_payload.split('|')
         return cls(data[0])
+
+
+class MessageQueryOneUpdate(Message):
+    def __init__(self, op_system_supported):
+        self.op_system_supported = op_system_supported
+        
+        super().__init__(MESSAGE_TYPE_QUERY_ONE_UPDATE, op_system_supported)
+    
+    def __str__(self) -> str:
+        return super().__str__()
+
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageQueryOneUpdate':
+        if message.message_type != MESSAGE_TYPE_QUERY_ONE_UPDATE:
+            return None
+
+        # El payload de este tipo de mensaje solo contiene el sistema operativo soportado
+        return cls(message.message_payload)
+    
