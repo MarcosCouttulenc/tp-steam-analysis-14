@@ -39,11 +39,23 @@ docker-image-worker-game-validator:
 	docker build -f ./worker_game_validator/Dockerfile -t "worker_game_validator:latest" .  # Construir imagen del worker game validator
 .PHONY: docker-image-worker-game-validator
 
+docker-image-worker-indie:
+	docker build -f ./worker_indie/Dockerfile -t "worker_indie:latest" .  # Construir imagen del worker indie
+.PHONY: docker-image-worker-indie
+
+docker-image-worker-2010:
+	docker build -f ./worker_2010/Dockerfile -t "worker_2010:latest" .  # Construir imagen del worker 2010
+.PHONY: docker-image-worker-2010
+
 docker-image-query1-reducer:
 	docker build -f ./query1_reducer/Dockerfile -t "query1_reducer:latest" .  # Construir imagen del query1 reducer
 .PHONY: docker-image-query1-reducer
 
-docker-image: docker-image-server docker-image-client docker-image-worker-game-validator docker-image-worker-mac docker-image-worker-linux docker-image-worker-windows docker-image-query1-reducer # Construir imágenes
+docker-image-query2-reducer:
+	docker build -f ./query2_reducer/Dockerfile -t "query2_reducer:latest" .  # Construir imagen del query2 reducer
+.PHONY: docker-image-query2-reducer
+
+docker-image: docker-image-server docker-image-client docker-image-worker-game-validator docker-image-worker-mac docker-image-worker-linux docker-image-worker-windows docker-image-query1-reducer docker-image-query2-reducer docker-image-worker-indie docker-image-worker-2010 # Construir imágenes
 .PHONY: docker-image
 
 docker-compose-up: docker-image

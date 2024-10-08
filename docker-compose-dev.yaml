@@ -87,9 +87,42 @@ services:
     depends_on:
       - rabbitmq
 
+  worker_indie:
+    container_name: worker_indie
+    image: worker_indie:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+    
+  worker_2010:
+    container_name: worker_2010
+    image: worker_2010:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
   query1_reducer:
     container_name: query1_reducer
     image: query1_reducer:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  query2_reducer:
+    container_name: query2_reducer
+    image: query2_reducer:latest
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG

@@ -3,5 +3,5 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY common/ ./common
 COPY middleware/ ./middleware
-COPY worker_indie /
+COPY worker_2010 /
 ENTRYPOINT ["python", "/main.py"]

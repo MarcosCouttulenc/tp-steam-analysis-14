@@ -26,10 +26,10 @@ class LinuxWorker:
         #logging.critical(f"Processing message: {mes.pretty_str()}")
         #logging.critical(f"\nVALOR BOOLEANO DE MAC: {mes.game.mac}\n")
         if mes.game.linux:
-            logging.critical(f"JUEGO Linux FILTRADO: {mes.game.name}")
+            #logging.critical(f"JUEGO Linux FILTRADO: {mes.game.name}")
             update_message = Message(MESSAGE_TYPE_QUERY_ONE_UPDATE, PAYLOAD)
 
-            logging.info(f"Juego: {mes.game.name} | Pusheando a {self.queue_name_destiny} | Msg: {update_message.message_payload}")
+            #logging.info(f"Juego: {mes.game.name} | Pusheando a {self.queue_name_destiny} | Msg: {update_message.message_payload}")
 
             self.service_queues.push(self.queue_name_destiny, update_message)
             #logging.info(f"JUEGO MAC FILTRADO: {message.game.name}")
