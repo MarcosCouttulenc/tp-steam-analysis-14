@@ -1,8 +1,7 @@
-from query1_reducer import QueryOneReducer
+from query1_file import QueryOneFile
 from configparser import ConfigParser   
 import logging
 import os
-import logging
 
 def initialize_config():
     config = ConfigParser(os.environ)
@@ -13,6 +12,7 @@ def initialize_config():
     try:
         config_params["queue_name_origin"] = os.getenv('QUEUE_NAME_ORIGIN', config["DEFAULT"]["QUEUE_NAME_ORIGIN"])
         config_params["logging_level"] = os.getenv('LOGGING_LEVEL', config["DEFAULT"]["LOGGING_LEVEL"])
+        config_params["file_path"] = os.getenv('FILE_PATH', config["DEFAULT"]["FILE_PATH"])
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -24,12 +24,13 @@ def main():
     config_params = initialize_config()
     queue_name_origin = config_params["queue_name_origin"]
     logging_level = config_params["logging_level"]
+    file_path = config_params["file_path"]
     
     initialize_log(logging_level)
     
     logging.debug(f"action: config | result: success | queue_name_origin: {queue_name_origin} | logging_level: {logging_level}")
 
-    query_one_reducer_worker = QueryOneReducer(queue_name_origin)
+    query_one_reducer_worker = QueryOneFile(queue_name_origin, file_path)
     query_one_reducer_worker.start()
 
 

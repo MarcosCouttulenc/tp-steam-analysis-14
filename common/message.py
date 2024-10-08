@@ -5,6 +5,7 @@ MESSAGE_TYPE_GAME_DATA = "game"
 MESSAGE_TYPE_REVIEW_DATA = "review"
 MESSAGE_TYPE_END_OF_DATASET = "end-of-dataset"
 MESSAGE_TYPE_QUERY_ONE_UPDATE = "query-one-update"
+MESSAGE_TYPE_QUERY_ONE_FILE_UPDATE = "query-one-file-update"
 
 MESSAGE_TYPE_SERVER_WELCOME_CLIENT = "server-welcome-client"
 FALSE_STRING = "False"
@@ -172,6 +173,27 @@ class MessageQueryOneUpdate(Message):
         if message.message_type != MESSAGE_TYPE_QUERY_ONE_UPDATE:
             return None
 
-        # El payload de este tipo de mensaje solo contiene el sistema operativo soportado
+        # El payload de este tipo de mensaje solo contiene el sistema operativo soportad
         return cls(message.message_payload)
+
+class MessageQueryOneFileUpdate(Message):
+    def __init__(self, total_linux, total_mac, total_windows):
+        self.total_linux = total_linux
+        self.total_mac = total_mac
+        self.total_windows = total_windows
+        
+        message_payload = int(total_linux) + "|" + int(total_mac) + "|" + int(total_windows)
+        super().__init__(MESSAGE_TYPE_QUERY_ONE_FILE_UPDATE, message_payload)
+    
+    def __str__(self) -> str:
+        return super().__str__()
+
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageQueryOneFileUpdate':
+        if message.message_type != MESSAGE_TYPE_QUERY_ONE_UPDATE:
+            return None
+
+        data = message.message_payload.split('|')
+        return cls(int(data[0]), int(data[1]), int(data[2]))
+    
     

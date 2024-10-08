@@ -3,5 +3,5 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY common/ ./common
 COPY middleware/ ./middleware
-COPY query1_reducer /
+COPY query1_file /
 ENTRYPOINT ["python", "/main.py"]

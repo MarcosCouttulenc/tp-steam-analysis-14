@@ -3,6 +3,10 @@ from configparser import ConfigParser
 import logging
 import os
 import logging
+from middleware.queue import ServiceQueues
+
+CHANNEL_NAME =  "rabbitmq"
+
 
 def initialize_config():
     config = ConfigParser(os.environ)
@@ -30,6 +34,11 @@ def main():
 
     data_base =  gameDataBase()
     data_base.start()
+
+    service_queues = ServiceQueues(CHANNEL_NAME)
+
+    while True:
+            service_queues.pop(self.queue_name_origin, self.process_message)
 
 
 def initialize_log(logging_level):

@@ -1,6 +1,7 @@
 import os
 from common.model.game import Game
 
+
 def getFileName(game_id):
     gameData = game_id // 100000 
     return f"game_{gameData}.txt"
@@ -8,14 +9,12 @@ def getFileName(game_id):
 def getIndexName(game_id):
     index = game_id // 100000 
     return f"game_{index}_index.txt"
-class GameDatabaseWithIndex:
-    def __init__(self, data_file="games_data.txt", index_file="games_index.txt"):
-        self.data_file = data_file
-        self.index_file = index_file
-        self.index = {}
 
+class GameDatabase:
+    def __init__(self):
+        pass
         # Cargar el índice al iniciar la base de datos
-        self._load_index()
+        #self._load_index()
         
     # def _load_index(self):
     #     # Carga el archivo de índice si existe
@@ -25,7 +24,12 @@ class GameDatabaseWithIndex:
     #                 game_id, position = line.strip().split(';')
     #                 self.index[int(game_id)] = int(position)  # ID -> Offset
 
-    def _update_index(self,indexNumberFile, game_id, position):
+
+    def hash_function(self, game_id):
+        return game_id % 100000
+
+
+    def _update_index(self,indexNumberFile, game_id, position, hash_value):
         # Actualiza el índice en memoria y en el archivo de índice
         #self.index[game_id] = position
         with open(indexNumberFile, 'a') as file:
@@ -48,12 +52,12 @@ class GameDatabaseWithIndex:
                         "|" + str(game.categories) + "|" +  str(game.genre) + "|" + str(game.playTime) + "|" + str(game.release_date)
         )  # Formato: ID;Nombre;Género
             file.write(game_entry)  # Escribir el registro
-            self._update_index(file_name,game.id, position)
+            self._update_index(file_name,game.id, position, self.hash_function(game.id))
 
     def get_game(self, game):
         # Busca la posición del juego en el índice y lo recupera desde el archivo
         file_name, index_name = getFileName(game.id), getIndexName(game.id)
-        position = self.get_index(index_name,game.id)
+        position = self.get_index(index_name,game.id, self.hash_function(game.id))
         with open(file_name, 'r') as file:
             file.seek(position)  # Moverse a la pile.seek(position)  #posición del juego
             game_entry = file.readline().strip()  # Leer la línea completa
