@@ -1,4 +1,4 @@
-from query1_file import QueryOneFile
+from query1_file import QueryTwoFile
 from configparser import ConfigParser   
 import logging
 import os
@@ -34,8 +34,8 @@ def main():
     
     logging.debug(f"action: config | result: success | queue_name_origin: {queue_name_origin} | logging_level: {logging_level}")
 
-    query_one_reducer_worker = QueryOneFile(queue_name_origin, file_path, int(result_query_port), int(listen_backlog))
-    query_one_reducer_worker.start()
+    query_two_reducer_worker = QueryTwoFile(queue_name_origin, file_path, int(result_query_port), int(listen_backlog))
+    query_two_reducer_worker.start()
 
 
 def initialize_log(logging_level):

@@ -3,13 +3,15 @@ logging.basicConfig(level=logging.CRITICAL)
 from middleware.queue import ServiceQueues
 from common.message import Message
 from common.message import MessageGameInfo
+from common.message import MessageQueryTwoFileUpdate
 
 CHANNEL_NAME =  "rabbitmq"
 BUFFER_MAX_SIZE = 10
 
 class QueryTwoReducer:
-    def __init__(self, queue_name_origin):
+    def __init__(self, queue_name_origin, queues_name_destiny_str):
         self.queue_name_origin = queue_name_origin
+        self.queues_name_destiny = queues_name_destiny_str.split(",")
         self.running = True
         self.service_queues = ServiceQueues(CHANNEL_NAME)
         self.buffer = []
@@ -41,5 +43,8 @@ class QueryTwoReducer:
     def save_buffer_in_file_and_clean_it(self):
         # toma lo que hay en el buffer, lo guarda en el archivo y lo mantiene ordenado de mayor a menor segun
         # tiempo de juego.
-
+        for queue_name in self.queues_name_destiny:
+            msg = MessageQueryTwoFileUpdate(self.buffer)
+            self.service_queues.push(queue_name, msg)
+        
         self.buffer = []

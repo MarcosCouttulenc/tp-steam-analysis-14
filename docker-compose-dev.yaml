@@ -14,6 +14,17 @@ services:
     depends_on:
       - rabbitmq
 
+  result_responser:
+    container_name: result_responser
+    image: result_responser:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - server
+
   client:
     container_name: client
     image: client:latest  # Imagen separada para el cliente
@@ -26,7 +37,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - server
+      - result_responser
 
   rabbitmq:
     image: rabbitmq:3-management  # Imagen de RabbitMQ con la interfaz de administración
@@ -120,6 +131,17 @@ services:
     depends_on:
       - rabbitmq
 
+  query1_file:
+    container_name: query1_file
+    image: query1_file:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
   query2_reducer:
     container_name: query2_reducer
     image: query2_reducer:latest
@@ -130,6 +152,19 @@ services:
       - testing_net
     depends_on:
       - rabbitmq
+
+  database:
+    container_name: database
+    image: database:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  
 
 networks:
   testing_net:

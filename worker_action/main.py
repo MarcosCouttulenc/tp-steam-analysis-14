@@ -1,7 +1,8 @@
-from query1_file import QueryOneFile
+from worker_action import ACTIONWorker
 from configparser import ConfigParser   
 import logging
 import os
+import logging
 
 def initialize_config():
     config = ConfigParser(os.environ)
@@ -11,10 +12,8 @@ def initialize_config():
     config_params = {}
     try:
         config_params["queue_name_origin"] = os.getenv('QUEUE_NAME_ORIGIN', config["DEFAULT"]["QUEUE_NAME_ORIGIN"])
+        config_params["queues_name_destiny"] = os.getenv('QUEUES_NAME_DESTINY', config["DEFAULT"]["QUEUES_NAME_DESTINY"])
         config_params["logging_level"] = os.getenv('LOGGING_LEVEL', config["DEFAULT"]["LOGGING_LEVEL"])
-        config_params["file_path"] = os.getenv('FILE_PATH', config["DEFAULT"]["FILE_PATH"])
-        config_params["result_query_port"] = os.getenv('RESULT_QUERY_PORT', config["DEFAULT"]["RESULT_QUERY_PORT"])
-        config_params["listen_backlog"] = os.getenv('LISTEN_BACKLOG', config["DEFAULT"]["LISTEN_BACKLOG"])
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -25,17 +24,17 @@ def initialize_config():
 def main():
     config_params = initialize_config()
     queue_name_origin = config_params["queue_name_origin"]
+    queues_name_destiny = config_params["queues_name_destiny"]
     logging_level = config_params["logging_level"]
-    file_path = config_params["file_path"]
-    result_query_port = config_params["result_query_port"]
-    listen_backlog = config_params["listen_backlog"]
     
     initialize_log(logging_level)
     
-    logging.debug(f"action: config | result: success | queue_name_origin: {queue_name_origin} | logging_level: {logging_level}")
+    logging.debug(f"action: config | result: success | queue_name_origin: {queue_name_origin} | queues_name_destiny: {queues_name_destiny}" 
+                  f"| logging_level: {logging_level}")
 
-    query_one_reducer_worker = QueryOneFile(queue_name_origin, file_path, int(result_query_port), int(listen_backlog))
-    query_one_reducer_worker.start()
+    print("action: ACTIONWorker - start")
+    macos_worker = ACTIONWorker(queue_name_origin, queues_name_destiny)
+    macos_worker.start()
 
 
 def initialize_log(logging_level):

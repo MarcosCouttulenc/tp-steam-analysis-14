@@ -3,5 +3,5 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY common/ ./common
 COPY middleware/ ./middleware
-COPY database /
+COPY worker_review_validator /
 ENTRYPOINT ["python", "/main.py"]

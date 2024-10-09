@@ -1,8 +1,10 @@
 import logging
 import socket
 import csv
+import time
 
 from common.message import *
+from common.protocol import Protocol
 from common.protocol import *
 from common.model.game import Game
 
@@ -12,6 +14,7 @@ class Client:
         self.server_port = server_port
         self.client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_sock.connect((self.server_ip, int(self.server_port)))
+        self.listen_result_query_port = 0
 
         self.protocol = Protocol(self.client_sock)
 
@@ -28,6 +31,8 @@ class Client:
         
         self.client_sock.close()
 
+        self.ask_for_results()
+
     def get_welcome_message(self):
         logging.info('action: get_welcome_message | result: start')
 
@@ -36,6 +41,8 @@ class Client:
         if msg_welcome_client == None:
             logging.info(f'action: client_msg_received | result: invalid_msg | msg: {msg_server}')
             return
+
+        self.listen_result_query_port = int(msg_welcome_client.listen_result_query_port)
 
     def send_games(self):
         logging.info('action: send_games | result: start')
@@ -85,3 +92,24 @@ class Client:
         logging.info('action: notify_end_of_data | result: start')
         self.protocol.send_batch([MessageEndOfDataset("OK")])
         logging.info(f'action: notify_end_of_data | result: success')
+
+    def ask_for_results(self):
+        logging.info('action: ask_for_results | result: start')
+
+        while True:
+            result_responser_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            result_responser_sock.connect(("result_responser", int(self.listen_result_query_port)))
+
+            protocol_result_responser = Protocol(result_responser_sock)
+            
+            while True:
+                data = protocol_result_responser.receive_stream()
+                
+                if not data:
+                    break
+                
+                # Mostrar los datos recibidos por pantalla a medida que llegan
+                print(data)
+               
+            result_responser_sock.close()
+            time.sleep(5)  # Esperar 5 segundos antes de la próxima ejecución

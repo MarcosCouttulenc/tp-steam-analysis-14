@@ -3,8 +3,8 @@ import logging
 logging.basicConfig(level=logging.CRITICAL)
 from middleware.queue import ServiceQueues
 from common.message import Message
-from common.message import MessageQueryOneFileUpdate
-from common.message import MessageQueryOneResult
+from common.message import MessageQueryTwoFileUpdate
+from common.message import MessageQueryTwoResult
 from common.protocol import *
 import multiprocessing
 import socket
@@ -12,7 +12,7 @@ import errno
 
 CHANNEL_NAME = "rabbitmq"
 
-class QueryOneFile:
+class QueryTwoFile:
     def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog):
         self.queue_name_origin = queue_name_origin
         self.file_path = file_path
@@ -39,12 +39,12 @@ class QueryOneFile:
             client_sock = self.__accept_new_connection()
             
             with self.file_lock:
-                total_linux, total_windows, total_mac = self.get_file_snapshot()
+                top_ten = self.get_file_snapshot()
 
-            message_result = MessageQueryOneResult(total_linux, total_windows, total_mac)
+            message_result = MessageQueryTwoResult(top_ten)
             protocol = Protocol(client_sock)
             protocol.send(message_result)
-            #client_sock.close()
+            client_sock.close()
 
     def __accept_new_connection(self):
         try:
@@ -59,22 +59,13 @@ class QueryOneFile:
                 raise
             
     def get_file_snapshot(self):
-        total_linux = 0
-        total_mac = 0
-        total_windows = 0
+        top_ten = {}
+        with open(self.file_path, mode='r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                top_ten[row['game']] = row['playTime']
+        return top_ten
 
-        try:
-            with open(self.file_path, mode='r') as file:
-                reader = csv.DictReader(file)
-                for row in reader:
-                    total_linux += int(row['total_linux'])
-                    total_mac += int(row['total_mac'])
-                    total_windows += int(row['total_windows'])
-        except FileNotFoundError:
-            # Si el archivo no existe, los totales permanecen en 0
-            pass
-        
-        return total_linux, total_windows, total_mac
 
     
     def process_handle_result_updates(self):
@@ -82,42 +73,38 @@ class QueryOneFile:
             self.service_queues.pop(self.queue_name_origin, self.handle_new_update)
 
     def handle_new_update(self, ch, method, properties, message: Message):
-        msg_query_one_file_update = MessageQueryOneFileUpdate.from_message(message)
+        msg_query_two_file_update = MessageQueryTwoFileUpdate.from_message(message)
 
         with self.file_lock:
-            self.update_totals_from_csv(msg_query_one_file_update)
+            self.update_totals_from_csv(msg_query_two_file_update)
 
         self.service_queues.ack(ch, method)
 
 
     def update_totals_from_csv(self, msg_query_one_file_update):
-        current_total_linux = 0
-        current_total_mac = 0
-        current_total_windows = 0
-        
-        try:
+
+        old_top_ten = {}
+        try :
             with open(self.file_path, mode='r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
-                    current_total_linux = int(row['total_linux'])
-                    current_total_mac = int(row['total_mac'])
-                    current_total_windows = int(row['total_windows'])
+                    old_top_ten[row['game']] = row['playTime']
         except FileNotFoundError:
-            # Si el archivo no existe, los totales permanecen en 0
             pass
-        
-        updated_total_linux = current_total_linux + int(msg_query_one_file_update.total_linux)
-        updated_total_mac = current_total_mac + int(msg_query_one_file_update.total_mac)
-        updated_total_windows = current_total_windows + int(msg_query_one_file_update.total_windows)
 
-        logging.critical(f"---NUEVOS VALORES EN FILE---\nLINUX: {updated_total_linux} MAC: {updated_total_mac} WINDOWS: {updated_total_windows}")
-        
-        with open(self.file_path, mode='w', newline='') as file:
-            fieldnames = ['total_linux', 'total_mac', 'total_windows']
+        new_doc = (old_top_ten + msg_query_one_file_update)
+        new_top_ten = dict(sorted(new_doc.items(), key=lambda item: item[1], reverse=True)[:10])
+
+        logging.critical(f"---NUEVOS VALORES EN FILE---\n{new_top_ten}")
+
+
+        with open(self.file_path, mode='w') as file:
+            fieldnames = ['game', 'playTime']
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerow({
-                'total_linux': updated_total_linux,
-                'total_mac': updated_total_mac,
-                'total_windows': updated_total_windows
-            })
+            for game, playTime in new_top_ten.items():
+                writer.writerow({'game': game, 'playTime': playTime})
+        
+                    
+
+

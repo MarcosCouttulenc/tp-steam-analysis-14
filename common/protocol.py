@@ -45,10 +45,6 @@ class Protocol:
         """
 
         data = self.message_serializer.serialize_batch(messages)
-
-        # print("\n\n data: \n\n")
-        # print(data)
-
         sent_bytes = 0
         bytes_to_send = len(data)
 
@@ -100,4 +96,22 @@ class Protocol:
             if (n == 0):
                 return None
             sent_bytes += n
+
+
+    def send_stream(self, stream_message: str):
+        sent_bytes = 0
+        bytes_to_send = len(stream_message)
+
+        while sent_bytes < bytes_to_send:
+            n = self.socket.send(stream_message[sent_bytes:])
+            if (n == 0):
+                return None
+            sent_bytes += n
+
+    def receive_stream(self):
+        data = self.socket.recv(BUFFER_RECEIVE_SIZE_BYTES)
             
+        if not data:
+            return None
+
+        return data.decode("utf-8")

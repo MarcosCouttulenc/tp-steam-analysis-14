@@ -6,7 +6,7 @@ from common.message import MessageQueryOneUpdate
 from common.message import MessageQueryOneFileUpdate
 
 CHANNEL_NAME =  "rabbitmq"
-BUFFER_MAX_SIZE = 1000
+BUFFER_MAX_SIZE = 0
 
 class QueryOneReducer:
     def __init__(self, queue_name_origin, queues_name_destiny_str):
@@ -23,6 +23,7 @@ class QueryOneReducer:
         return rta
     
     def start(self):
+        self.init_buffer()
         while self.running:
             self.service_queues.pop(self.queue_name_origin, self.process_message)
 
@@ -47,4 +48,11 @@ class QueryOneReducer:
             )
             self.service_queues.push(queue_name, msg)
         #guardar en archivo.
-        self.totals = {}
+        self.init_buffer()
+
+    def init_buffer(self):
+        self.totals = {
+            'linux': 0,
+            'mac': 0,
+            'windows': 0
+        }

@@ -19,9 +19,9 @@ class Server:
         self.new_connection_socket.bind(('', listen_new_connection_port))
         self.new_connection_socket.listen(listen_backlog)
 
-        self.emit_result_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.emit_result_socket.bind(('', listen_result_query_port))
-        self.emit_result_socket.listen(listen_backlog)
+        #self.emit_result_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #self.emit_result_socket.bind(('', listen_result_query_port))
+        #self.emit_result_socket.listen(listen_backlog)
 
         self.service_queues = ServiceQueues(CHANNEL_NAME)
     

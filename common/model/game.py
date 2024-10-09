@@ -16,6 +16,9 @@ class Game:
     def is_indie(self) -> bool:
         return "Indie" in self.genre.split(",")
     
+    def is_action(self) -> bool:
+        return "Action" in self.genre.split(",")
+    
     def pretty_str(self):
         rta = f"[id: {self.id}]\n"
         rta += f"[name: {self.name}]\n"

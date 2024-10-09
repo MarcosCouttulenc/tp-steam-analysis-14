@@ -6,6 +6,9 @@ MESSAGE_TYPE_REVIEW_DATA = "review"
 MESSAGE_TYPE_END_OF_DATASET = "end-of-dataset"
 MESSAGE_TYPE_QUERY_ONE_UPDATE = "query-one-update"
 MESSAGE_TYPE_QUERY_ONE_FILE_UPDATE = "query-one-file-update"
+MESSAGE_TYPE_QUERY_TWO_FILE_UPDATE = "query-two-file-update"
+MESSAGE_QUERY_ONE_RESULT = "query-one-result"
+MESSAGE_QUERY_TWO_RESULT = "query-two-result"
 
 MESSAGE_TYPE_SERVER_WELCOME_CLIENT = "server-welcome-client"
 FALSE_STRING = "False"
@@ -182,7 +185,7 @@ class MessageQueryOneFileUpdate(Message):
         self.total_mac = total_mac
         self.total_windows = total_windows
         
-        message_payload = int(total_linux) + "|" + int(total_mac) + "|" + int(total_windows)
+        message_payload = str(total_linux) + "|" + str(total_mac) + "|" + str(total_windows)
         super().__init__(MESSAGE_TYPE_QUERY_ONE_FILE_UPDATE, message_payload)
     
     def __str__(self) -> str:
@@ -190,10 +193,75 @@ class MessageQueryOneFileUpdate(Message):
 
     @classmethod
     def from_message(cls, message: Message) -> 'MessageQueryOneFileUpdate':
-        if message.message_type != MESSAGE_TYPE_QUERY_ONE_UPDATE:
+        if message.message_type != MESSAGE_TYPE_QUERY_ONE_FILE_UPDATE:
+            return None
+
+        data = message.message_payload.split('|')
+        return cls(int(data[0]), int(data[1]), int(data[2]))
+
+class MessageQueryOneResult(Message):
+    def __init__(self, total_linux, total_mac, total_windows):
+        self.total_linux = total_linux
+        self.total_mac = total_mac
+        self.total_windows = total_windows
+
+        message_payload = str(total_linux) + "|" + str(total_mac) + "|" + str(total_windows)
+        super().__init__(MESSAGE_QUERY_ONE_RESULT, message_payload)
+    
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageQueryOneResult':
+        if message.message_type != MESSAGE_QUERY_ONE_RESULT:
             return None
 
         data = message.message_payload.split('|')
         return cls(int(data[0]), int(data[1]), int(data[2]))
     
+class MessageQueryTwoFileUpdate(Message):
+    def __init__(self, top_ten_buffer):
+        self.top_ten_buffer = top_ten_buffer
+        
+        message_payload = ""
+        for game in top_ten_buffer:
+            payload +=  game.name + "-" + str(game.playTime) + "|" 
+
+        message_payload = message_payload[:-1]
+
+        super().__init__(MESSAGE_TYPE_QUERY_TWO_FILE_UPDATE, message_payload)
     
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageQueryTwoFileUpdate':
+        if message.message_type != MESSAGE_TYPE_QUERY_TWO_FILE_UPDATE:
+            return None
+
+        data = message.message_payload.split('|')
+        top_ten_buffer = {}
+        for game in data:
+            game_data = game.split('-')
+            top_ten_buffer.append((game_data[0], int(game_data[1])))
+
+        return cls(top_ten_buffer)
+
+class MessageQueryTwoResult(Message):
+    def __init__(self, top_ten_buffer):
+        self.top_ten_buffer = top_ten_buffer
+        
+        message_payload = ""
+        for game in top_ten_buffer:
+            payload +=  game.name + "-" + str(game.playTime) + "|" 
+
+        message_payload = message_payload[:-1]
+
+        super().__init__(MESSAGE_QUERY_TWO_RESULT, message_payload)
+    
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageQueryTwoResult':
+        if message.message_type != MESSAGE_QUERY_TWO_RESULT:
+            return None
+
+        data = message.message_payload.split('|')
+        top_ten_buffer = {}
+        for game in data:
+            game_data = game.split('-')
+            top_ten_buffer.append((game_data[0], int(game_data[1])))
+
+        return cls(top_ten_buffer)
