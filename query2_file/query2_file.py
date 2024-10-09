@@ -96,15 +96,9 @@ class QueryTwoFile:
 
         new_doc = (old_top_ten + msg_query_one_file_update.top_ten_buffer)
 
-        print("NEW DOC ANTES DE ORDENARSE:")
-        print(new_doc)
-
-        #new_doc.sort(key=lambda game_data: game_data[1], reverse=True)
 
         new_doc_sorted = sorted(new_doc, key=lambda game_data: int(game_data[1]), reverse=True)
 
-        print("NEW DOC DESPUES DE ORDENARSE:")
-        print(new_doc_sorted)
 
         new_top_ten = new_doc_sorted[:10]
 

@@ -6,6 +6,7 @@ import os
 import socket
 
 from common.message import MessageQueryOneResult
+from common.message import MessageQueryTwoResult
 from common.protocol import *
 
 CHUNK_SIZE_FILE_READ = 1024
@@ -82,10 +83,25 @@ class ResultResponser:
         client_q1_sock.close()
 
     def get_query2_results(self):
+        query2_file_connection_data = self.query2_file_ip_port.split(',')
+
+        client_q2_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_q2_sock.connect((query2_file_connection_data[0], int(query2_file_connection_data[1])))
+
+        self.protocol = Protocol(client_q2_sock)
+
+        msg = self.protocol.receive()
+        msg_query2_two_result = MessageQueryTwoResult.from_message(msg)
+        if msg_query2_two_result == None:
+            return
+
+
+
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query2 Resultados:\n")
             file.write(f"----------------------------------------------------------\n")
-            file.write(f"Por el momento no hay resultados procesados \n")
+            for game_name, playtime in msg_query2_two_result.top_ten_buffer:
+                file.write(f"{game_name}: {playtime}\n")
             file.write(f"----------------------------------------------------------\n")
 
     def get_query3_results(self):
