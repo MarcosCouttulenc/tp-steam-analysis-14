@@ -222,7 +222,9 @@ class MessageQueryOneResult(Message):
 
         data = message.message_payload.split(DATA_DELIMITER)
         return cls(int(data[0]), int(data[1]), int(data[2]))
-    
+
+FIELD_DELIMITER = '%$'
+
 class MessageQueryTwoFileUpdate(Message):
     def __init__(self, top_ten_buffer):
         self.top_ten_buffer = top_ten_buffer
@@ -230,7 +232,7 @@ class MessageQueryTwoFileUpdate(Message):
         message_payload = ""
         for game_data in top_ten_buffer:
             #game_data: (name, playtime)
-            message_payload +=  game_data[0] + "-" + str(game_data[1]) + DATA_DELIMITER 
+            message_payload +=  game_data[0] + FIELD_DELIMITER + str(game_data[1]) + DATA_DELIMITER 
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
@@ -248,7 +250,7 @@ class MessageQueryTwoFileUpdate(Message):
         print(data)
 
         for game in data:
-            game_data = game.split('-')
+            game_data = game.split(FIELD_DELIMITER)
             #game_data: (name, playtime)
 
             top_ten_buffer.append((game_data[0], game_data[1]))
@@ -261,7 +263,7 @@ class MessageQueryTwoResult(Message):
         
         message_payload = ""
         for game in top_ten_buffer:
-            payload +=  game.name + "-" + str(game.playTime) + DATA_DELIMITER 
+            payload +=  game.name + FIELD_DELIMITER + str(game.playTime) + DATA_DELIMITER 
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
@@ -275,7 +277,7 @@ class MessageQueryTwoResult(Message):
         data = message.message_payload.split(DATA_DELIMITER)
         top_ten_buffer = {}
         for game in data:
-            game_data = game.split('-')
+            game_data = game.split(FIELD_DELIMITER)
             top_ten_buffer.append((game_data[0], int(game_data[1])))
 
         return cls(top_ten_buffer)

@@ -53,7 +53,7 @@ class Client:
         numero_mensaje_enivado = 0
 
         try: 
-            with open('5games.csv', 'r') as file:
+            with open('100games.csv', 'r') as file:
                 csvReader = csv.reader(file)
                 next(csvReader) #saltamos primera linea de headers
                 for row in csvReader:
