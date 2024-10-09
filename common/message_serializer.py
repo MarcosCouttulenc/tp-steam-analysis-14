@@ -6,6 +6,7 @@ END_OF_BATCH = "\n\n"
 END_OF_BATCH_BYTES = b"\n\n"
 DATA_DELIMITER = "$|"
 DATA_DELIMITER_BYTES = b"$|"
+LEN_END_OF_BATCH = len(END_OF_MESSAGE) + len(END_OF_BATCH)
 
 class MessageSerializer:
     

@@ -4,6 +4,7 @@ import socket
 import errno
 
 from common.message import *
+from common.protocol import Protocol
 from common.protocol import *
 from common.message_serializer import MessageSerializer
 from middleware.queue import ServiceQueues
@@ -68,7 +69,6 @@ class Server:
         while (not end_of_data):
             receive_batch = protocol.receive_batch()
             numero_menasje_recibido += len(receive_batch)
-            print(f"mensajes recibidos hasta ahora: {numero_menasje_recibido}")
             if receive_batch == None:
                 logging.critical(f'action: server_msg_received | result: invalid_msg | msg: {receive_batch}')
                 return
@@ -76,6 +76,8 @@ class Server:
             for message in receive_batch:
                 if message.is_game():
                     msg_game = MessageGameInfo.from_message(message)
+
+
                     self.service_queues.push("queue-games", message)
                     #logging.critical(f'action: server_msg_received | result: success | msg: {msg_game}')
                 elif message.is_review():

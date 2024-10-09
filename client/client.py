@@ -1,4 +1,5 @@
 import logging
+logging.basicConfig(level=logging.CRITICAL)
 import socket
 import csv
 import time
@@ -47,7 +48,7 @@ class Client:
     def send_games(self):
         logging.info('action: send_games | result: start')
 
-        batch_size = 10
+        batch_size = 50
         batch_list = []
         numero_mensaje_enivado = 0
 
@@ -82,8 +83,8 @@ class Client:
                         row[2].strip()   # Release date
                     )
 
+
                     messageGI = MessageGameInfo(game_data)
-                    print(messageGI)
                     batch_list.append(messageGI)
 
                     if len(batch_list) == batch_size:
@@ -133,3 +134,6 @@ class Client:
                
             result_responser_sock.close()
             time.sleep(5)  # Esperar 5 segundos antes de la próxima ejecución
+
+
+

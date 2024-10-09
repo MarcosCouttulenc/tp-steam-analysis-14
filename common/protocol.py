@@ -1,8 +1,8 @@
 
 from common.message import Message
-from common.message_serializer import MessageSerializer, END_OF_BATCH_BYTES, END_OF_MESSAGE_BYTES
+from common.message_serializer import MessageSerializer, END_OF_BATCH_BYTES, END_OF_MESSAGE_BYTES, LEN_END_OF_BATCH
 
-BUFFER_RECEIVE_SIZE_BYTES = 1024
+BUFFER_RECEIVE_SIZE_BYTES = 1024*5
 BUFFER_RECEIVE_BATCH_SIZE_BYTES = BUFFER_RECEIVE_SIZE_BYTES * 3
 
 class Protocol:
@@ -23,8 +23,11 @@ class Protocol:
         self.previous_batch = b""
         
         if END_OF_BATCH_BYTES in buffer:
-            data_batch = buffer[:buffer.index(END_OF_BATCH_BYTES)].strip()
-            self.previous_batch = buffer[buffer.index(END_OF_BATCH_BYTES):].strip()
+            data_batch = buffer[:buffer.index(END_OF_BATCH_BYTES)]
+            self.previous_batch = buffer[buffer.index(END_OF_BATCH_BYTES) + LEN_END_OF_BATCH:]
+
+            #print(f"DATA BATCH (POR PRIMER IF)\n{data_batch}")
+
             return self.message_serializer.deserialize_batch(data_batch)
         
         while True:
@@ -36,8 +39,11 @@ class Protocol:
 
             #Si hay un END_OF_BATCH_BYTES en el buffer entonces cortamos el buffer ahi.
             if END_OF_BATCH_BYTES in buffer:
-                data_batch = buffer[:buffer.index(END_OF_BATCH_BYTES)].strip()
-                self.previous_batch = buffer[buffer.index(END_OF_BATCH_BYTES):].strip()
+                data_batch = buffer[:buffer.index(END_OF_BATCH_BYTES)]
+                self.previous_batch = buffer[buffer.index(END_OF_BATCH_BYTES) + LEN_END_OF_BATCH:]
+
+                #print(f"DATA BATCH (POR SEGUNDO IF)\n{data_batch}")
+
                 return self.message_serializer.deserialize_batch(data_batch)
 
     def send_batch(self, messages: list[Message]):
@@ -46,6 +52,8 @@ class Protocol:
         """
 
         data = self.message_serializer.serialize_batch(messages)
+
+
         sent_bytes = 0
         bytes_to_send = len(data)
 
