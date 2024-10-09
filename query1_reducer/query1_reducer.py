@@ -6,7 +6,7 @@ from common.message import MessageQueryOneUpdate
 from common.message import MessageQueryOneFileUpdate
 
 CHANNEL_NAME =  "rabbitmq"
-BUFFER_MAX_SIZE = 0
+BUFFER_MAX_SIZE = 50
 
 class QueryOneReducer:
     def __init__(self, queue_name_origin, queues_name_destiny_str):
@@ -29,15 +29,18 @@ class QueryOneReducer:
 
     
     def process_message(self, ch, method, properties, message: Message):
-        msg_query_one_update = MessageQueryOneUpdate.from_message(message)
-
-        if msg_query_one_update.op_system_supported not in self.totals:
-            self.totals[msg_query_one_update.op_system_supported] = 0
-
-        self.totals[msg_query_one_update.op_system_supported] += 1
-
-        if sum(self.totals.values()) >= BUFFER_MAX_SIZE:
+        if message.is_eof():
             self.save_buffer_in_file_and_clean_it()
+        else:
+            msg_query_one_update = MessageQueryOneUpdate.from_message(message)
+
+            if msg_query_one_update.op_system_supported not in self.totals:
+                self.totals[msg_query_one_update.op_system_supported] = 0
+
+            self.totals[msg_query_one_update.op_system_supported] += 1
+
+            if sum(self.totals.values()) >= BUFFER_MAX_SIZE:
+                self.save_buffer_in_file_and_clean_it()
 
         self.service_queues.ack(ch, method)
 

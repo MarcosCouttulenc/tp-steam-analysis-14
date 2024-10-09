@@ -87,6 +87,8 @@ class Server:
                     print("\n\nME LLEGO UN END OF DATA\n\n")
                     print(message)
                     msg_end_of_dataset = MessageEndOfDataset.from_message(message)
+
+                    self.service_queues.push("queue-games", message)
                     #logging.critical(f'action: server_msg_received | result: success | msg: {msg_end_of_dataset}')
                     end_of_data = True
 

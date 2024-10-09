@@ -45,6 +45,9 @@ class Message:
 
     def is_review(self) -> bool:
         return (self.message_type == MESSAGE_TYPE_REVIEW_DATA)
+    
+    def is_eof(self) -> bool:
+        return  (self.message_type == MESSAGE_TYPE_END_OF_DATASET)
 
     def __str__(self) -> str:
         return f"type: {self.message_type} | payload: {self.message_payload}"
