@@ -152,6 +152,17 @@ services:
       - testing_net
     depends_on:
       - rabbitmq
+  
+  query2_file:
+    container_name: query2_file
+    image: query2_file:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
 
   database:
     container_name: database

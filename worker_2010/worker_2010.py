@@ -29,15 +29,18 @@ class DecadeWorker:
 
     
     def process_message(self, ch, method, properties, message: Message):
-        mes = MessageGameInfo.from_message(message)
-        #logging.critical(f"Processing message: {mes.pretty_str()}")
-        #logging.critical(f"\nVALOR BOOLEANO DE MAC: {mes.game.mac}\n")
-        if self.is_from_2010_decade(mes.game.release_date):
-            #logging.critical(f"JUEGO DECADA 2010 FILTRADO: {mes.game.name}")
-
-            #logging.info(f"Juego: {mes.game.name} | Pusheando a {self.queue_name_destiny} | Msg: {message.message_payload}")
-
+        if message.is_eof():
             self.service_queues.push(self.queue_name_destiny, message)
+        else:
+            mes = MessageGameInfo.from_message(message)
+            #logging.critical(f"Processing message: {mes.pretty_str()}")
+            #logging.critical(f"\nVALOR BOOLEANO DE MAC: {mes.game.mac}\n")
+            if self.is_from_2010_decade(mes.game.release_date):
+                #logging.critical(f"JUEGO DECADA 2010 FILTRADO: {mes.game.name}")
+
+                #logging.info(f"Juego: {mes.game.name} | Pusheando a {self.queue_name_destiny} | Msg: {message.message_payload}")
+
+                self.service_queues.push(self.queue_name_destiny, message)
         self.service_queues.ack(ch, method)
         return
 

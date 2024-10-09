@@ -75,6 +75,8 @@ class QueryTwoFile:
     def handle_new_update(self, ch, method, properties, message: Message):
         msg_query_two_file_update = MessageQueryTwoFileUpdate.from_message(message)
 
+        print(f"VOY A ACTUALIZAR:\n{message.message_payload}")
+
         with self.file_lock:
             self.update_totals_from_csv(msg_query_two_file_update)
 
@@ -83,17 +85,20 @@ class QueryTwoFile:
 
     def update_totals_from_csv(self, msg_query_one_file_update):
 
-        old_top_ten = {}
+        old_top_ten = []
         try :
             with open(self.file_path, mode='r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
-                    old_top_ten[row['game']] = row['playTime']
+                    old_top_ten.append((row['game'], row['playTime']))
         except FileNotFoundError:
             pass
 
-        new_doc = (old_top_ten + msg_query_one_file_update)
-        new_top_ten = dict(sorted(new_doc.items(), key=lambda item: item[1], reverse=True)[:10])
+        new_doc = (old_top_ten + msg_query_one_file_update.top_ten_buffer)
+
+        new_doc.sort(key=lambda game_data: game_data[1], reverse=True)
+
+        new_top_ten = new_doc[:10]
 
         logging.critical(f"---NUEVOS VALORES EN FILE---\n{new_top_ten}")
 
@@ -102,7 +107,7 @@ class QueryTwoFile:
             fieldnames = ['game', 'playTime']
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
-            for game, playTime in new_top_ten.items():
+            for game, playTime in new_top_ten:
                 writer.writerow({'game': game, 'playTime': playTime})
         
                     

@@ -14,6 +14,8 @@ MESSAGE_TYPE_SERVER_WELCOME_CLIENT = "server-welcome-client"
 FALSE_STRING = "False"
 TRUE_STRING = "True"
 
+DATA_DELIMITER = "$|"
+
 '''
 Todos los mensajes estan conformados por un tipo y un payload,
 el tipo es para indicar que forma o contenido va a tener el payload
@@ -60,9 +62,9 @@ class MessageGameInfo(Message):
     def __init__(self, game: Game):
         self.game = game
 
-        message_payload = (str(game.id) + "$|" + str(game.name) + "$|" + str(game.windows) + "$|" + str(game.mac) + 
-                        "$|" + str(game.linux) + "$|" + str(game.positive_reviews) + "$|" + str(game.negative_reviews) + 
-                        "$|" + str(game.categories) + "$|" +  str(game.genre) + "$|" + str(game.playTime) + "$|" + str(game.release_date)
+        message_payload = (str(game.id) + DATA_DELIMITER + str(game.name) + DATA_DELIMITER + str(game.windows) + DATA_DELIMITER + str(game.mac) + 
+                        DATA_DELIMITER + str(game.linux) + DATA_DELIMITER + str(game.positive_reviews) + DATA_DELIMITER + str(game.negative_reviews) + 
+                        DATA_DELIMITER + str(game.categories) + DATA_DELIMITER +  str(game.genre) + DATA_DELIMITER + str(game.playTime) + DATA_DELIMITER + str(game.release_date)
         )
 
         super().__init__(MESSAGE_TYPE_GAME_DATA, message_payload)
@@ -95,7 +97,7 @@ class MessageGameInfo(Message):
         if message.message_type != MESSAGE_TYPE_GAME_DATA:
             return None
 
-        data = message.message_payload.split('$|')
+        data = message.message_payload.split(DATA_DELIMITER)
         game = Game(data[0], data[1], string_to_boolean(data[2]), string_to_boolean(data[3]), string_to_boolean(data[4]), int(data[5]), int(data[6]), data[7], data[8], int(data[9]), data[10])
         return cls(game)
 
@@ -107,7 +109,7 @@ class MessageReviewInfo(Message):
     def __init__(self, review: Review):
         self.review = review
 
-        message_payload = str(review.game_id) + "$|" + review.review
+        message_payload = str(review.game_id) + DATA_DELIMITER + review.review
         super().__init__(MESSAGE_TYPE_REVIEW_DATA, message_payload)
 
     def __str__(self) -> str:
@@ -118,7 +120,7 @@ class MessageReviewInfo(Message):
         if message.message_type != MESSAGE_TYPE_REVIEW_DATA:
             return None
 
-        data = message.message_payload.split('$|')
+        data = message.message_payload.split(DATA_DELIMITER)
         review = Review(data[0], data[1])
         return cls(review)
 
@@ -131,7 +133,7 @@ class MessageWelcomeClient(Message):
         self.client_id = client_id
         self.listen_result_query_port = listen_result_query_port
 
-        message_payload = str(client_id) + "$|" + str(listen_result_query_port)
+        message_payload = str(client_id) + DATA_DELIMITER + str(listen_result_query_port)
         super().__init__(MESSAGE_TYPE_SERVER_WELCOME_CLIENT, message_payload)
 
     def __str__(self) -> str:
@@ -142,7 +144,7 @@ class MessageWelcomeClient(Message):
         if message.message_type != MESSAGE_TYPE_SERVER_WELCOME_CLIENT:
             return None
 
-        data = message.message_payload.split('$|')
+        data = message.message_payload.split(DATA_DELIMITER)
         return cls(data[0], data[1])
 
 '''
@@ -163,7 +165,7 @@ class MessageEndOfDataset(Message):
         if message.message_type != MESSAGE_TYPE_END_OF_DATASET:
             return None
 
-        data = message.message_payload.split('$|')
+        data = message.message_payload.split(DATA_DELIMITER)
         return cls(data[0])
 
 
@@ -190,7 +192,7 @@ class MessageQueryOneFileUpdate(Message):
         self.total_mac = total_mac
         self.total_windows = total_windows
         
-        message_payload = str(total_linux) + "$|" + str(total_mac) + "$|" + str(total_windows)
+        message_payload = str(total_linux) + DATA_DELIMITER + str(total_mac) + DATA_DELIMITER + str(total_windows)
         super().__init__(MESSAGE_TYPE_QUERY_ONE_FILE_UPDATE, message_payload)
     
     def __str__(self) -> str:
@@ -201,7 +203,7 @@ class MessageQueryOneFileUpdate(Message):
         if message.message_type != MESSAGE_TYPE_QUERY_ONE_FILE_UPDATE:
             return None
 
-        data = message.message_payload.split('$|')
+        data = message.message_payload.split(DATA_DELIMITER)
         return cls(int(data[0]), int(data[1]), int(data[2]))
 
 class MessageQueryOneResult(Message):
@@ -210,7 +212,7 @@ class MessageQueryOneResult(Message):
         self.total_mac = total_mac
         self.total_windows = total_windows
 
-        message_payload = str(total_linux) + "$|" + str(total_mac) + "$|" + str(total_windows)
+        message_payload = str(total_linux) + DATA_DELIMITER + str(total_mac) + DATA_DELIMITER + str(total_windows)
         super().__init__(MESSAGE_QUERY_ONE_RESULT, message_payload)
     
     @classmethod
@@ -218,7 +220,7 @@ class MessageQueryOneResult(Message):
         if message.message_type != MESSAGE_QUERY_ONE_RESULT:
             return None
 
-        data = message.message_payload.split('$|')
+        data = message.message_payload.split(DATA_DELIMITER)
         return cls(int(data[0]), int(data[1]), int(data[2]))
     
 class MessageQueryTwoFileUpdate(Message):
@@ -226,10 +228,11 @@ class MessageQueryTwoFileUpdate(Message):
         self.top_ten_buffer = top_ten_buffer
         
         message_payload = ""
-        for game in top_ten_buffer:
-            payload +=  game.name + "-" + str(game.playTime) + "$|" 
+        for game_data in top_ten_buffer:
+            #game_data: (name, playtime)
+            message_payload +=  game_data[0] + "-" + str(game_data[1]) + DATA_DELIMITER 
 
-        message_payload = message_payload[:-1]
+        message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
         super().__init__(MESSAGE_TYPE_QUERY_TWO_FILE_UPDATE, message_payload)
     
@@ -238,11 +241,17 @@ class MessageQueryTwoFileUpdate(Message):
         if message.message_type != MESSAGE_TYPE_QUERY_TWO_FILE_UPDATE:
             return None
 
-        data = message.message_payload.split('$|')
-        top_ten_buffer = {}
+        data = message.message_payload.split(DATA_DELIMITER)
+        top_ten_buffer = []
+
+        print("DATA A AGREGAR AL TOP TEN BUFFER:")
+        print(data)
+
         for game in data:
             game_data = game.split('-')
-            top_ten_buffer.append((game_data[0], int(game_data[1])))
+            #game_data: (name, playtime)
+
+            top_ten_buffer.append((game_data[0], game_data[1]))
 
         return cls(top_ten_buffer)
 
@@ -252,9 +261,9 @@ class MessageQueryTwoResult(Message):
         
         message_payload = ""
         for game in top_ten_buffer:
-            payload +=  game.name + "-" + str(game.playTime) + "$|" 
+            payload +=  game.name + "-" + str(game.playTime) + DATA_DELIMITER 
 
-        message_payload = message_payload[:-1]
+        message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
         super().__init__(MESSAGE_QUERY_TWO_RESULT, message_payload)
     
@@ -263,7 +272,7 @@ class MessageQueryTwoResult(Message):
         if message.message_type != MESSAGE_QUERY_TWO_RESULT:
             return None
 
-        data = message.message_payload.split('$|')
+        data = message.message_payload.split(DATA_DELIMITER)
         top_ten_buffer = {}
         for game in data:
             game_data = game.split('-')

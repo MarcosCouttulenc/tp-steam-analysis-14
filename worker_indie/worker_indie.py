@@ -20,12 +20,17 @@ class WorkerIndie:
 
     
     def process_message(self, ch, method, properties, message: Message):
-        msg_game_info = MessageGameInfo.from_message(message)
-        
-        if msg_game_info.game.is_indie():
-            #logging.critical(f"JUEGO Indie FILTRADO: {msg_game_info.game.name}\n")
-            #logging.critical(f"Juego: {msg_game_info.game.name} | Pusheando a {self.queue_name_destiny} | Msg: {message.message_payload}")
+
+        if message.is_eof():
             self.service_queues.push(self.queue_name_destiny, message)
+        else:
+
+            msg_game_info = MessageGameInfo.from_message(message)
+            
+            if msg_game_info.game.is_indie():
+                #logging.critical(f"JUEGO Indie FILTRADO: {msg_game_info.game.name}\n")
+                #logging.critical(f"Juego: {msg_game_info.game.name} | Pusheando a {self.queue_name_destiny} | Msg: {message.message_payload}")
+                self.service_queues.push(self.queue_name_destiny, message)
 
         self.service_queues.ack(ch, method)
 

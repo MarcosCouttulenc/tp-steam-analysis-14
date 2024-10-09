@@ -59,6 +59,10 @@ docker-image-query1-file:
 	docker build -f ./query1_file/Dockerfile -t "query1_file:latest" .  # Construir imagen del query1 file
 .PHONY: docker-image-query1-file
 
+docker-image-query2-file:
+	docker build -f ./query2_file/Dockerfile -t "query2_file:latest" .  # Construir imagen del query2 file
+.PHONY: docker-image-query2-file
+
 docker-image-database:
 	docker build -f ./database/Dockerfile -t "database:latest" .  # Construir imagen de la base de datos
 .PHONY: docker-image-database
@@ -67,7 +71,7 @@ docker-image-result-responser:
 	docker build -f ./result_responser/Dockerfile -t "result_responser:latest" .  # Construir imagen de result-responser
 .PHONY: docker-image-result-responser
 
-docker-image: docker-image-server docker-image-client docker-image-worker-game-validator docker-image-worker-mac docker-image-worker-linux docker-image-worker-windows docker-image-query1-reducer docker-image-query2-reducer docker-image-worker-indie docker-image-worker-2010 docker-image-database docker-image-query1-file docker-image-result-responser # Construir imágenes
+docker-image: docker-image-server docker-image-client docker-image-worker-game-validator docker-image-worker-mac docker-image-worker-linux docker-image-worker-windows docker-image-query1-reducer docker-image-query2-reducer docker-image-worker-indie docker-image-worker-2010 docker-image-database docker-image-query1-file docker-image-result-responser docker-image-query2-file # Construir imágenes
 .PHONY: docker-image
 
 docker-compose-up: docker-image

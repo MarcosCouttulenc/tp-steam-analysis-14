@@ -6,7 +6,7 @@ from common.message import MessageGameInfo
 from common.message import MessageQueryTwoFileUpdate
 
 CHANNEL_NAME =  "rabbitmq"
-BUFFER_MAX_SIZE = 10
+BUFFER_MAX_SIZE = 0
 
 class QueryTwoReducer:
     def __init__(self, queue_name_origin, queues_name_destiny_str):
@@ -14,7 +14,7 @@ class QueryTwoReducer:
         self.queues_name_destiny = queues_name_destiny_str.split(",")
         self.running = True
         self.service_queues = ServiceQueues(CHANNEL_NAME)
-        self.buffer = []
+        self.buffer = [] # Se van a guardar tupla de (nombre, playtime)
     
     def start(self):
         while self.running:
@@ -22,21 +22,28 @@ class QueryTwoReducer:
 
     
     def process_message(self, ch, method, properties, message: Message):
-        msg_game_info = MessageGameInfo.from_message(message)
-        
-        #logging.critical(msg_game_info.pretty_str())
 
-        self.buffer.append(msg_game_info.game)
-        self.buffer.sort(key=lambda game: game.playTime, reverse=True)
+        if message.is_eof():
+            if len(self.buffer) > 0:
+                self.save_buffer_in_file_and_clean_it()
+        else:
+            msg_game_info = MessageGameInfo.from_message(message)
 
-        #logging.critical("----QUERY 2 HASTA AHORA----")
-        #for game_in_buffer in self.buffer:
-        #    logging.critical(game_in_buffer.pretty_str())
+            print(f"LLEGO AL REDUCER EL JUEGO:\n{msg_game_info.game.name}")
+            
+            #logging.critical(msg_game_info.pretty_str())
 
-        
+            self.buffer.append((msg_game_info.game.name, msg_game_info.game.playTime))
+            self.buffer.sort(key=lambda game_data: game_data[1], reverse=True) #game_data: (name, playtime)
 
-        if len(self.buffer) >= BUFFER_MAX_SIZE:
-            self.save_buffer_in_file_and_clean_it()
+            #logging.critical("----QUERY 2 HASTA AHORA----")
+            #for game_in_buffer in self.buffer:
+            #    logging.critical(game_in_buffer.pretty_str())
+
+            
+
+            if len(self.buffer) >= BUFFER_MAX_SIZE:
+                self.save_buffer_in_file_and_clean_it()
 
         self.service_queues.ack(ch, method)
 
@@ -45,6 +52,9 @@ class QueryTwoReducer:
         # tiempo de juego.
         for queue_name in self.queues_name_destiny:
             msg = MessageQueryTwoFileUpdate(self.buffer)
+
+            print(f"VOY A ENVIAR EL MSG:\n{msg.message_payload}")
+
             self.service_queues.push(queue_name, msg)
         
         self.buffer = []

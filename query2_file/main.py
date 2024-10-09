@@ -1,4 +1,4 @@
-from query1_file import QueryTwoFile
+from query2_file import QueryTwoFile
 from configparser import ConfigParser   
 import logging
 import os
