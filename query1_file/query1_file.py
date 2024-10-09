@@ -41,7 +41,7 @@ class QueryOneFile:
             with self.file_lock:
                 total_linux, total_windows, total_mac = self.get_file_snapshot()
 
-            message_result = MessageQueryOneResult(total_linux, total_windows, total_mac)
+            message_result = MessageQueryOneResult(total_linux, total_mac, total_windows)
             protocol = Protocol(client_sock)
             protocol.send(message_result)
             #client_sock.close()

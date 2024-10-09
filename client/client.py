@@ -29,7 +29,7 @@ class Client:
 
         self.notify_end_of_data()
         
-        self.client_sock.close()
+        #self.client_sock.close()
 
         self.ask_for_results()
 
@@ -49,39 +49,59 @@ class Client:
 
         batch_size = 10
         batch_list = []
+        numero_mensaje_enivado = 0
 
         try: 
-            with open('5games.csv', 'r') as file:
+            with open('fullgames.csv', 'r') as file:
                 csvReader = csv.reader(file)
+                next(csvReader) #saltamos primera linea de headers
                 for row in csvReader:
+                    # logging.critical(f'action: send_games | result: success | AppID: {row[0]}')
+                    # logging.critical(f'action: send_games | result: success | Name: {row[1]}')
+                    # logging.critical(f'action: send_games | result: success | Windows: {row[17]}')
+                    # logging.critical(f'action: send_games | result: success | Mac: {row[18]}')
+                    # logging.critical(f'action: send_games | result: success | Linux: {row[19]}')
+                    # logging.critical(f'action: send_games | result: success | Positive: {row[23]}')
+                    # logging.critical(f'action: send_games | result: success | Negative: {row[24]}')
+                    # logging.critical(f'action: send_games | result: success | Categories: {row[35]}')
+                    # logging.critical(f'action: send_games | result: success | Genres: {row[36]}')
+                    # logging.critical(f'action: send_games | result: success | Average playtime forever: {row[29]}')
+                    # logging.critical(f'action: send_games | result: success | Release date: {row[2]}')
+
                     game_data = Game(
-                        row[0],  # AppID
-                        row[1],  # Name
-                        row[17], # Windows
-                        row[18], # Mac
-                        row[19], # Linux
-                        row[23], # Positive
-                        row[24], # Negative
-                        row[35], # Categories
-                        row[36], # Genres
-                        row[29], # Average playtime forever
-                        row[2]   # Release date
+                        row[0].strip(),  # AppID
+                        row[1].strip(),  # Name
+                        row[17].strip(), # Windows
+                        row[18].strip(), # Mac
+                        row[19].strip(), # Linux
+                        row[23].strip(), # Positive
+                        row[24].strip(), # Negative
+                        row[35].strip(), # Categories
+                        row[36].strip(), # Genres
+                        row[29].strip(), # Average playtime forever
+                        row[2].strip()   # Release date
                     )
 
                     messageGI = MessageGameInfo(game_data)
+                    print(messageGI)
                     batch_list.append(messageGI)
 
                     if len(batch_list) == batch_size:
                         self.protocol.send_batch(batch_list)
                         logging.info(f'action: send_games | result: success | msg: sent {len(batch_list)} games')
                         batch_list = []
+                    
+                    #print(f"Numero mensaje enviado: {numero_mensaje_enivado}")
+                    numero_mensaje_enivado += 1
 
                 if len(batch_list) > 0:
+
                     self.protocol.send_batch(batch_list)
                     logging.info(f'action: send_games | result: success | msg: sent {len(batch_list)} games')
                     batch_list = []
 
         except Exception as e:
+            print("\n\n\n ERROR AL LEER CSV\n\n\n")
             logging.info(f'action: send_games | result: error | msg: {e}')
 
     def send_reviews(self):

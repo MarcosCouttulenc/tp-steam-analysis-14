@@ -35,11 +35,11 @@ class Server:
 
         try:
             c, addr = self.new_connection_socket.accept()
-            logging.info(f'action: accept_connections | result: success | ip: {addr[0]}')
+            #logging.critical(f'action: accept_connections | result: success | ip: {addr[0]}')
             return c
         except OSError as e:
             if e.errno == errno.EBADF:  # Bad file descriptor, server socket closed
-                logging.info('SOCKET CERRADO - ACCEPT_NEW_CONNECTIONS')
+                #logging.critical('SOCKET CERRADO - ACCEPT_NEW_CONNECTIONS')
                 return None
             else:
                 raise
@@ -52,34 +52,40 @@ class Server:
 
         msg_welcome_client = MessageWelcomeClient(client_id, self.listen_result_query_port)
         protocol.send(msg_welcome_client)
-        logging.info(f'action: server_msg_sent | result: success | msg: {msg_welcome_client}')
+        #logging.critical(f'action: server_msg_sent | result: success | msg: {msg_welcome_client}')
 
         self.process_client_messages(protocol)
 
         
 
     def process_client_messages(self, protocol):
-        logging.info(f'action: process_client_messages | result: start | msg: success')
+        #logging.critical(f'action: process_client_messages | result: start | msg: success')
 
         end_of_data = False
 
+        numero_menasje_recibido = 0
+
         while (not end_of_data):
             receive_batch = protocol.receive_batch()
+            numero_menasje_recibido += len(receive_batch)
+            print(f"mensajes recibidos hasta ahora: {numero_menasje_recibido}")
             if receive_batch == None:
-                logging.info(f'action: server_msg_received | result: invalid_msg | msg: {receive_batch}')
+                logging.critical(f'action: server_msg_received | result: invalid_msg | msg: {receive_batch}')
                 return
 
             for message in receive_batch:
                 if message.is_game():
                     msg_game = MessageGameInfo.from_message(message)
                     self.service_queues.push("queue-games", message)
-                    logging.info(f'action: server_msg_received | result: success | msg: {msg_game}')
+                    #logging.critical(f'action: server_msg_received | result: success | msg: {msg_game}')
                 elif message.is_review():
                     msg_review = MessageReviewInfo.from_message(message)
-                    logging.info(f'action: server_msg_received | result: success | msg: {msg_review}')
+                    #logging.critical(f'action: server_msg_received | result: success | msg: {msg_review}')
                 else:
+                    print("\n\nME LLEGO UN END OF DATA\n\n")
+                    print(message)
                     msg_end_of_dataset = MessageEndOfDataset.from_message(message)
-                    logging.info(f'action: server_msg_received | result: success | msg: {msg_end_of_dataset}')
+                    #logging.critical(f'action: server_msg_received | result: success | msg: {msg_end_of_dataset}')
                     end_of_data = True
 
-        logging.info(f'action: process_client_messages | result: success | msg: success')
+        #logging.critical(f'action: process_client_messages | result: success | msg: success')

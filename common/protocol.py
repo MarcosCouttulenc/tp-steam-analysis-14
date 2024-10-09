@@ -21,9 +21,10 @@ class Protocol:
         buffer = b""
         buffer += self.previous_batch
         self.previous_batch = b""
-
+        
         if END_OF_BATCH_BYTES in buffer:
             data_batch = buffer[:buffer.index(END_OF_BATCH_BYTES)].strip()
+            self.previous_batch = buffer[buffer.index(END_OF_BATCH_BYTES):].strip()
             return self.message_serializer.deserialize_batch(data_batch)
         
         while True:

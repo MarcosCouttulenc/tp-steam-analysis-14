@@ -4,8 +4,8 @@ END_OF_MESSAGE = "\n"
 END_OF_MESSAGE_BYTES = b"\n"
 END_OF_BATCH = "\n\n"
 END_OF_BATCH_BYTES = b"\n\n"
-DATA_DELIMITER = "|"
-DATA_DELIMITER_BYTES = b"|"
+DATA_DELIMITER = "$|"
+DATA_DELIMITER_BYTES = b"$|"
 
 class MessageSerializer:
     
@@ -15,6 +15,13 @@ class MessageSerializer:
 
     def deserialize(self, message_str: str) -> Message:
         data = message_str.decode('utf-8').split(DATA_DELIMITER)
+
+        # if data[0] == "Dupio":
+        #     print("\n\nDESERIALIZE\n\n")
+        #     print(message_str)
+        #     print(data[1:])
+        #     print("\n\npost DESERIALIZE\n\n")
+            
         #A la izquierda esta el tipo, todo lo que esta a la derecha es payload
         return Message(data[0], DATA_DELIMITER.join(data[1:]))
 
