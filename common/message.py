@@ -158,14 +158,22 @@ class MessageWelcomeClient(Message):
 Mensaje que envia el cliente cuando termina de enviar el dataset
 '''
 class MessageEndOfDataset(Message):
-    def __init__(self, type):
+    def __init__(self, type, last_eof=False):
         self.type = type
+        self.last_eof = last_eof
 
-        message_payload = type
+        message_payload = type + DATA_DELIMITER + str(last_eof)
         super().__init__(MESSAGE_TYPE_END_OF_DATASET, message_payload)
 
     def __str__(self) -> str:
         return super().__str__()
+
+    def set_last_eof(self):
+        self.last_eof = True
+        self.message_payload = self.type + DATA_DELIMITER + str(self.last_eof)
+
+    def is_last_eof(self):
+        return (self.last_eof == True)
 
     @classmethod
     def from_message(cls, message: Message) -> 'MessageEndOfDataset':
@@ -173,7 +181,7 @@ class MessageEndOfDataset(Message):
             return None
 
         data = message.message_payload.split(DATA_DELIMITER)
-        return cls(data[0])
+        return cls(data[0], string_to_boolean(data[1]))
 
 
 class MessageQueryOneUpdate(Message):

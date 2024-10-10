@@ -2,6 +2,7 @@ import logging
 logging.basicConfig(level=logging.CRITICAL)
 from middleware.queue import ServiceQueues
 from common.message import MessageGameInfo
+from common.message import MessageEndOfDataset
 from common.message import Message
 
 CHANNEL_NAME =  "rabbitmq"
@@ -23,20 +24,29 @@ class WINDOWSWorker:
     
     def process_message(self, ch, method, properties, message: Message):
         if message.is_eof():
-            self.service_queues.push(self.queue_name_destiny, message)
-        else:
-            mes = MessageGameInfo.from_message(message)
-            #logging.critical(f"Processing message: {mes.pretty_str()}")
-            #logging.critical(f"\nVALOR BOOLEANO DE MAC: {mes.game.mac}\n")
-            if mes.game.windows:
-                #logging.critical(f"JUEGO WINDOWS FILTRADO: {mes.game.name}")
-                update_message = Message(MESSAGE_TYPE_QUERY_ONE_UPDATE, PAYLOAD)
+            msg_eof = MessageEndOfDataset.from_message(message)
+            
+            if msg_eof.is_last_eof():
+                self.service_queues.push(self.queue_name_destiny, message)
+            
+            self.service_queues.ack(ch, method)
+            self.service_queues.close_connection()
+            self.running = False
+            return
 
-                #logging.info(f"Juego: {mes.game.name} | Pusheando a {self.queue_name_destiny} | Msg: {update_message.message_payload}")
+        mes = MessageGameInfo.from_message(message)
+        #logging.critical(f"Processing message: {mes.pretty_str()}")
+        #logging.critical(f"\nVALOR BOOLEANO DE MAC: {mes.game.mac}\n")
+        
+        if mes.game.windows:
+            #logging.critical(f"JUEGO WINDOWS FILTRADO: {mes.game.name}")
+            update_message = Message(MESSAGE_TYPE_QUERY_ONE_UPDATE, PAYLOAD)
 
-                self.service_queues.push(self.queue_name_destiny, update_message)
+            #logging.info(f"Juego: {mes.game.name} | Pusheando a {self.queue_name_destiny} | Msg: {update_message.message_payload}")
+
+            self.service_queues.push(self.queue_name_destiny, update_message)
+            
         self.service_queues.ack(ch, method)
-        return
 
 
 

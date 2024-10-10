@@ -566,6 +566,7 @@ services:
       - CANT_WINDOWS=3
       - CANT_LINUX=3
       - CANT_MAC=3
+      - CANT_INDIE=3
     networks:
       - testing_net
     depends_on:
@@ -580,6 +581,7 @@ services:
       - CANT_WINDOWS=3
       - CANT_LINUX=3
       - CANT_MAC=3
+      - CANT_INDIE=3
     networks:
       - testing_net
     depends_on:
@@ -594,6 +596,7 @@ services:
       - CANT_WINDOWS=3
       - CANT_LINUX=3
       - CANT_MAC=3
+      - CANT_INDIE=3
     networks:
       - testing_net
     depends_on:
@@ -608,6 +611,7 @@ services:
       - CANT_WINDOWS=3
       - CANT_LINUX=3
       - CANT_MAC=3
+      - CANT_INDIE=3
     networks:
       - testing_net
     depends_on:
@@ -622,6 +626,7 @@ services:
       - CANT_WINDOWS=3
       - CANT_LINUX=3
       - CANT_MAC=3
+      - CANT_INDIE=3
     networks:
       - testing_net
     depends_on:
@@ -636,6 +641,7 @@ services:
       - CANT_WINDOWS=3
       - CANT_LINUX=3
       - CANT_MAC=3
+      - CANT_INDIE=3
     networks:
       - testing_net
     depends_on:
@@ -650,6 +656,7 @@ services:
       - CANT_WINDOWS=3
       - CANT_LINUX=3
       - CANT_MAC=3
+      - CANT_INDIE=3
     networks:
       - testing_net
     depends_on:
@@ -664,6 +671,7 @@ services:
       - CANT_WINDOWS=3
       - CANT_LINUX=3
       - CANT_MAC=3
+      - CANT_INDIE=3
     networks:
       - testing_net
     depends_on:

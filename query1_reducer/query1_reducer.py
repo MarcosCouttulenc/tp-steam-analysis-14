@@ -7,6 +7,7 @@ from common.message import MessageQueryOneFileUpdate
 
 CHANNEL_NAME =  "rabbitmq"
 BUFFER_MAX_SIZE = 50
+CANT_EOFS_TIL_CLOSE = 3
 
 class QueryOneReducer:
     def __init__(self, queue_name_origin, queues_name_destiny_str):
@@ -15,6 +16,7 @@ class QueryOneReducer:
         self.running = True
         self.service_queues = ServiceQueues(CHANNEL_NAME)
         self.totals = {}
+        self.total_eofs = 0
     
     def pretty_str_totals(self):
         rta = "totals\n"
@@ -30,8 +32,14 @@ class QueryOneReducer:
     
     def process_message(self, ch, method, properties, message: Message):
         if message.is_eof():
-            self.save_buffer_in_file_and_clean_it()
-            self.running = False
+            self.total_eofs += 1
+            print(f"ME LLEGO EOF numero: {self.total_eofs}")
+            if  self.total_eofs >= CANT_EOFS_TIL_CLOSE:
+                self.save_buffer_in_file_and_clean_it()
+                self.running = False
+                self.service_queues.ack(ch, method)
+                self.service_queues.close_connection()
+                return
         else:
             msg_query_one_update = MessageQueryOneUpdate.from_message(message)
 
