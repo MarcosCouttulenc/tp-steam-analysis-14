@@ -82,6 +82,8 @@ class QueryTwoFile:
 
         #print(f"VOY A ACTUALIZAR:\n{message.message_payload}")
 
+        #logging.critical(f"QUERY2_FILE: NUEVA ACTUALIZACION")
+
         with self.file_lock:
             self.update_totals_from_csv(msg_query_two_file_update)
 

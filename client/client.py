@@ -59,6 +59,9 @@ class Client:
                 csvReader = csv.reader(file)
                 next(csvReader) #saltamos primera linea de headers
                 for row in csvReader:
+
+                    
+
                     # logging.critical(f'action: send_games | result: success | AppID: {row[0]}')
                     # logging.critical(f'action: send_games | result: success | Name: {row[1]}')
                     # logging.critical(f'action: send_games | result: success | Windows: {row[17]}')
@@ -84,6 +87,9 @@ class Client:
                         row[29].strip(), # Average playtime forever
                         row[2].strip()   # Release date
                     )
+
+
+                    #logging.critical(f"SIGO ENVIANDO, JUEGO: {game_data.name}")
 
                     messageGI = MessageGameInfo(game_data)
                     batch_list.append(messageGI)
@@ -113,7 +119,7 @@ class Client:
         batch_list = []
 
         try:
-            with open('fullreviews.csv', 'r') as file:
+            with open('10reviews.csv', 'r') as file:
                 csvReader = csv.reader(file)
                 next(csvReader) #saltamos primera linea de headers
                 for row in csvReader:

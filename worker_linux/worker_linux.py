@@ -27,6 +27,9 @@ class LinuxWorker:
         else:
 
             mes = MessageGameInfo.from_message(message)
+
+            #logging.critical(f"LINUX: JUEGO {mes.game.name}")
+
             #logging.critical(f"Processing message: {mes.pretty_str()}")
             #logging.critical(f"\nVALOR BOOLEANO DE MAC: {mes.game.mac}\n")
             if mes.game.linux:
