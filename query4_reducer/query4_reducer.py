@@ -36,9 +36,6 @@ class QueryFourReducer:
                 self.buffer[msg_review_info.review.game_name] = 0
             self.buffer[msg_review_info.review.game_name] += 1
 
-            logging.critical("----QUERY 4 HASTA AHORA----")
-            for name, cant_reseñas in self.buffer.items():
-                logging.critical(f"name: {name} | cant: {cant_reseñas}")
 
 
             if len(self.buffer) >= BUFFER_MAX_SIZE:
@@ -59,7 +56,6 @@ class QueryFourReducer:
             list_of_tuples = self.buffer_to_list_of_tuples()
             msg = MessageQueryFourFileUpdate(list_of_tuples)
 
-            print(f"VOY A ENVIAR EL MSG:\n{msg.message_payload}")
 
             self.service_queues.push(queue_name, msg)
         

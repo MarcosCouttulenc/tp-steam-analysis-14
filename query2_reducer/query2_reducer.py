@@ -29,7 +29,7 @@ class QueryTwoReducer:
         else:
             msg_game_info = MessageGameInfo.from_message(message)
 
-            print(f"LLEGO AL REDUCER EL JUEGO:\n{msg_game_info.game.name}")
+            #print(f"LLEGO AL REDUCER EL JUEGO:\n{msg_game_info.game.name}")
             
             #logging.critical(msg_game_info.pretty_str())
 
@@ -56,7 +56,7 @@ class QueryTwoReducer:
         for queue_name in self.queues_name_destiny:
             msg = MessageQueryTwoFileUpdate(self.buffer)
 
-            print(f"VOY A ENVIAR EL MSG:\n{msg.message_payload}")
+            #print(f"VOY A ENVIAR EL MSG:\n{msg.message_payload}")
 
             self.service_queues.push(queue_name, msg)
         

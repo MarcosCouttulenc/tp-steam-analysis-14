@@ -131,6 +131,39 @@ services:
     depends_on:
       - rabbitmq
 
+  worker_game_validator1:
+    container_name: worker_game_validator1
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_game_validator2:
+    container_name: worker_game_validator2
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_game_validator3:
+    container_name: worker_game_validator3
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
   worker_indie:
     container_name: worker_indie
     image: worker_indie:latest
@@ -276,6 +309,83 @@ services:
 
   worker_review_validator:
     container_name: worker_review_validator
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator1:
+    container_name: worker_review_validator1
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator2:
+    container_name: worker_review_validator2
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator3:
+    container_name: worker_review_validator3
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator4:
+    container_name: worker_review_validator4
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator5:
+    container_name: worker_review_validator5
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator6:
+    container_name: worker_review_validator6
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator8:
+    container_name: worker_review_validator8
     image: worker_review_validator:latest
     environment:
       - PYTHONUNBUFFERED=1

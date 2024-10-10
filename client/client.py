@@ -55,7 +55,7 @@ class Client:
         numero_mensaje_enivado = 0
 
         try: 
-            with open('dbTest.csv', 'r') as file:
+            with open('fullgames.csv', 'r') as file:
                 csvReader = csv.reader(file)
                 next(csvReader) #saltamos primera linea de headers
                 for row in csvReader:
@@ -103,17 +103,17 @@ class Client:
 
         except Exception as e:
             print("\n\n\n ERROR AL LEER CSV DE JUEGOS\n\n\n")
-            logging.info(f'action: send_games | result: error | msg: {e}')
+            logging.critical(f'action: send_games | result: error | msg: {e}')
 
 
     def send_reviews(self):
         logging.info('action: send_reviews | result: start')
         
-        batch_size = 50
+        batch_size = 1000
         batch_list = []
 
         try:
-            with open('10reviews.csv', 'r') as file:
+            with open('fullreviews.csv', 'r') as file:
                 csvReader = csv.reader(file)
                 next(csvReader) #saltamos primera linea de headers
                 for row in csvReader:

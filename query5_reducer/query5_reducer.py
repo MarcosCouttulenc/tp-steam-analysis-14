@@ -42,11 +42,6 @@ class QueryFiveReducer:
             else:
                 self.buffer[msg_review_info.review.game_name][1] += 1
 
-            logging.critical("----QUERY 5 HASTA AHORA----")
-            for name, cant_reseñas in self.buffer.items():
-                logging.critical(f"name: {name} | cant_pos: {cant_reseñas[0]} | cant_neg: {cant_reseñas[1]}")
-
-
             if self.current_reduced >= BUFFER_MAX_SIZE:
                 self.current_reduced = 0
                 self.save_buffer_in_file_and_clean_it()
@@ -65,9 +60,6 @@ class QueryFiveReducer:
         for queue_name in self.queues_name_destiny:
             list_of_tuples = self.buffer_to_list_of_tuples()
             msg = MessageQueryFiveFileUpdate(list_of_tuples)
-
-            print(f"VOY A ENVIAR EL MSG:\n{msg.message_payload}")
-
             self.service_queues.push(queue_name, msg)
         
         self.buffer = {}

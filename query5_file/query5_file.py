@@ -23,7 +23,8 @@ class QueryFiveFile:
         self.file_lock = multiprocessing.Lock()
         self.running = True
         self.service_queues = ServiceQueues(CHANNEL_NAME)
-        self.totals = {}
+        manager = multiprocessing.Manager()
+        self.totals = manager.dict()
     
     def start(self):
         process_updates = multiprocessing.Process(target=self.process_handle_result_updates, args=())
@@ -45,7 +46,7 @@ class QueryFiveFile:
             message_result = MessageQueryFiveResult(file_snapshot)
             protocol = Protocol(client_sock)
             protocol.send(message_result)
-            client_sock.close()
+            #client_sock.close()
 
     def __accept_new_connection(self):
         try:
@@ -64,6 +65,9 @@ class QueryFiveFile:
 
         percentil_90 = self.get_percentil_90()
 
+        if percentil_90 == None:
+            return file_snapshot
+
         for name, cant_reviews in self.totals.items():
             if cant_reviews[1] > percentil_90:
                 file_snapshot.append(name)
@@ -73,9 +77,16 @@ class QueryFiveFile:
         return file_snapshot
 
     def get_percentil_90(self):
+
+        if len(self.totals) == 0:
+            return None
+
         neg_reviews = [neg for pos, neg in self.totals.values()]
         neg_reviews_sorted = sorted(neg_reviews)
         percentil_90_pos = int(0.90 * (len(neg_reviews_sorted) - 1))
+
+        #logging.critical(f"neg_len:{len(neg_reviews_sorted)} | percentil_pos: {percentil_90_pos}")
+
         percentil_90 = neg_reviews_sorted[percentil_90_pos]
         return percentil_90
 
@@ -85,9 +96,7 @@ class QueryFiveFile:
 
     def handle_new_update(self, ch, method, properties, message: Message):
         msg_query_five_file_update = MessageQueryFiveFileUpdate.from_message(message)
-
-        print(f"VOY A ACTUALIZAR:\n{message.message_payload}")
-
+        
         with self.file_lock:
             self.update_totals(msg_query_five_file_update)
 

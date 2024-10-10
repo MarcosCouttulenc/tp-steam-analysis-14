@@ -44,7 +44,7 @@ class QueryTwoFile:
             message_result = MessageQueryTwoResult(top_ten)
             protocol = Protocol(client_sock)
             protocol.send(message_result)
-            client_sock.close()
+            #client_sock.close()
 
     def __accept_new_connection(self):
         try:
@@ -80,7 +80,7 @@ class QueryTwoFile:
     def handle_new_update(self, ch, method, properties, message: Message):
         msg_query_two_file_update = MessageQueryTwoFileUpdate.from_message(message)
 
-        print(f"VOY A ACTUALIZAR:\n{message.message_payload}")
+        #print(f"VOY A ACTUALIZAR:\n{message.message_payload}")
 
         with self.file_lock:
             self.update_totals_from_csv(msg_query_two_file_update)
@@ -107,7 +107,7 @@ class QueryTwoFile:
 
         new_top_ten = new_doc_sorted[:10]
 
-        logging.critical(f"---NUEVOS VALORES EN FILE---\n{new_top_ten}")
+        #logging.critical(f"---NUEVOS VALORES EN FILE---\n{new_top_ten}")
 
 
         with open(self.file_path, mode='w') as file:

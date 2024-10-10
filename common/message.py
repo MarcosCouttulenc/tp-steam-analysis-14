@@ -304,7 +304,7 @@ class MessageQueryThreeResult(Message):
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
-        super().__init__(MESSAGE_TYPE_QUERY_THREE_FILE_UPDATE, message_payload)
+        super().__init__(MESSAGE_QUERY_THREE_RESULT, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageQueryThreeResult':

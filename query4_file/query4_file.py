@@ -23,7 +23,8 @@ class QueryFourFile:
         self.file_lock = multiprocessing.Lock()
         self.running = True
         self.service_queues = ServiceQueues(CHANNEL_NAME)
-        self.totals = {}
+        manager = multiprocessing.Manager()
+        self.totals = manager.dict()
     
     def start(self):
         process_updates = multiprocessing.Process(target=self.process_handle_result_updates, args=())
@@ -45,7 +46,7 @@ class QueryFourFile:
             message_result = MessageQueryFourResult(games_with_more_50000_positive_reviews)
             protocol = Protocol(client_sock)
             protocol.send(message_result)
-            client_sock.close()
+            #client_sock.close()
 
     def __accept_new_connection(self):
         try:
@@ -60,6 +61,7 @@ class QueryFourFile:
                 raise
             
     def get_file_snapshot(self):
+        print(self.totals)
         games_with_more_50000_positive_reviews = []
 
         for name, cant_reviews in self.totals.items():
@@ -76,7 +78,7 @@ class QueryFourFile:
     def handle_new_update(self, ch, method, properties, message: Message):
         msg_query_four_file_update = MessageQueryFourFileUpdate.from_message(message)
 
-        print(f"VOY A ACTUALIZAR:\n{message.message_payload}")
+        #print(f"VOY A ACTUALIZAR:\n{message.message_payload}")
 
         with self.file_lock:
             self.update_totals(msg_query_four_file_update)

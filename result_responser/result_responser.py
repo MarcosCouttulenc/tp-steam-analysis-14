@@ -121,7 +121,7 @@ class ResultResponser:
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query3 Resultados:\n")
             file.write(f"----------------------------------------------------------\n")
-            for game_name, total_pos_reviews in msg_query3_three_result.totals:
+            for game_name, total_pos_reviews in msg_query3_three_result.top_five_buffer:
                 file.write(f"{game_name}: {total_pos_reviews}\n")
             file.write(f"----------------------------------------------------------\n")
 

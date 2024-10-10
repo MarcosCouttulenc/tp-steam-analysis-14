@@ -29,19 +29,13 @@ class QueryThreeReducer:
                 self.save_buffer_in_file_and_clean_it()
         else:
             msg_review_info = MessageReviewInfo.from_message(message)
-
-
+            
             #guardo en el buffer dict o actualizo si ya estaba la clave: (name, cant_reseñas_positivas)
             if msg_review_info.review.is_positive():
 
                 if not msg_review_info.review.game_name in self.buffer:
                     self.buffer[msg_review_info.review.game_name] = 0
                 self.buffer[msg_review_info.review.game_name] += 1
-
-                logging.critical("----QUERY 3 HASTA AHORA----")
-                for name, cant_reseñas in self.buffer.items():
-                    logging.critical(f"name: {name} | cant: {cant_reseñas}")
-
 
                 if len(self.buffer) >= BUFFER_MAX_SIZE:
                     self.save_buffer_in_file_and_clean_it()
@@ -60,9 +54,6 @@ class QueryThreeReducer:
         for queue_name in self.queues_name_destiny:
             list_of_tuples = self.buffer_to_list_of_tuples()
             msg = MessageQueryThreeFileUpdate(list_of_tuples)
-
-            print(f"VOY A ENVIAR EL MSG:\n{msg.message_payload}")
-
             self.service_queues.push(queue_name, msg)
         
         self.buffer = {}

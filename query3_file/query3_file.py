@@ -23,11 +23,13 @@ class QueryThreeFile:
         self.file_lock = multiprocessing.Lock()
         self.running = True
         self.service_queues = ServiceQueues(CHANNEL_NAME)
-        self.totals = {}
+        manager = multiprocessing.Manager()
+        self.totals = manager.dict()
     
     def start(self):
         process_updates = multiprocessing.Process(target=self.process_handle_result_updates, args=())
         process_queries = multiprocessing.Process(target=self.process_handle_result_queries, args=())
+
 
         process_updates.start()
         process_queries.start()
@@ -40,12 +42,15 @@ class QueryThreeFile:
             client_sock = self.__accept_new_connection()
             
             with self.file_lock:
-                top_ten = self.get_file_snapshot()
+                top_five = self.get_file_snapshot()
 
-            message_result = MessageQueryThreeResult(top_ten)
+
+            message_result = MessageQueryThreeResult(top_five)
+
+
             protocol = Protocol(client_sock)
             protocol.send(message_result)
-            client_sock.close()
+            #client_sock.close()
 
     def __accept_new_connection(self):
         try:
@@ -60,11 +65,18 @@ class QueryThreeFile:
                 raise
             
     def get_file_snapshot(self):
-        top_five = []
-        top_five_list = list(sorted(self.totals.items(), key=lambda item: item[1])[:5])
+        
+        total_list = []
+        for name, cant_reviews in self.totals.items():
+            total_list.append((name, cant_reviews))
 
-        for name, cant_reviews in top_five_list:
-            top_five.append((name, cant_reviews))
+        
+        total_list_sorted = sorted(total_list, key=lambda item: item[1], reverse=True)
+
+
+        
+        top_five = total_list_sorted[:5]
+
 
         return top_five
 
@@ -76,7 +88,6 @@ class QueryThreeFile:
     def handle_new_update(self, ch, method, properties, message: Message):
         msg_query_three_file_update = MessageQueryThreeFileUpdate.from_message(message)
 
-        print(f"VOY A ACTUALIZAR:\n{message.message_payload}")
 
         with self.file_lock:
             self.update_totals(msg_query_three_file_update)
