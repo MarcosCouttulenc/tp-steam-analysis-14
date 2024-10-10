@@ -59,13 +59,18 @@ class QueryTwoFile:
                 raise
             
     def get_file_snapshot(self):
-        top_ten = {}
-        with open(self.file_path, mode='r') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                top_ten[row['game']] = row['playTime']
+        top_ten = []
+        try:
+            with open(self.file_path, mode='r') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    top_ten.append((row['game'], row['playTime']))
+            return top_ten
+        except FileNotFoundError:
+            # Si el archivo no existe, los totales permanecen en 0
+            pass
+        print(f"---SNAPSHOT ACTUAL. VOY A MANDAR:---\n{top_ten}")
         return top_ten
-
 
     
     def process_handle_result_updates(self):

@@ -91,6 +91,7 @@ class ResultResponser:
         self.protocol = Protocol(client_q2_sock)
 
         msg = self.protocol.receive()
+        
         msg_query2_two_result = MessageQueryTwoResult.from_message(msg)
         if msg_query2_two_result == None:
             return

@@ -263,7 +263,8 @@ class MessageQueryTwoResult(Message):
         
         message_payload = ""
         for game in top_ten_buffer:
-            payload +=  game.name + FIELD_DELIMITER + str(game.playTime) + DATA_DELIMITER 
+            message_payload +=  game[0] + FIELD_DELIMITER + str(game[1]) + DATA_DELIMITER 
+
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
@@ -274,8 +275,17 @@ class MessageQueryTwoResult(Message):
         if message.message_type != MESSAGE_QUERY_TWO_RESULT:
             return None
 
+        # print("ESTOY DENTRO DE FROM_MESSAGE Y LLEGA ESTO: \n\n")
+        # print(message.message_payload)
+        # print("\n\n")
         data = message.message_payload.split(DATA_DELIMITER)
-        top_ten_buffer = {}
+        # print("DESPUES DEL SPLIT: \n\n")
+        # print(data)
+        # print("\n\n")
+        top_ten_buffer = []
+        if message.message_payload == "":
+            print("NO HAY NADA\n\n")
+            return cls(top_ten_buffer)
         for game in data:
             game_data = game.split(FIELD_DELIMITER)
             top_ten_buffer.append((game_data[0], int(game_data[1])))
