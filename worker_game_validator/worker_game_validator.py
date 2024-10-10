@@ -33,7 +33,7 @@ class WorkerGameValidator:
             msg_eof = MessageEndOfDataset.from_message(message)
             
             if msg_eof.is_last_eof():
-                self.send_eofs(message)
+                self.send_eofs(msg_eof)
             
             self.service_queues.ack(ch, method)
             self.service_queues.close_connection()
@@ -49,22 +49,24 @@ class WorkerGameValidator:
         #logging.critical(f'action: on_pop_message | result: ack')
         self.service_queues.ack(ch, method)
 
-    def send_eofs(self, message):
-        self.send_eofs_to_queue(self.queue_windows, self.cant_windows, message)
-        self.send_eofs_to_queue(self.queue_linux, self.cant_linux, message)
-        self.send_eofs_to_queue(self.queue_mac, self.cant_mac, message)
-        self.send_eofs_to_queue(self.queue_indie, self.cant_indie, message)
+    def send_eofs(self, msg_eof):
+        self.send_eofs_to_queue(self.queue_windows, self.cant_windows, msg_eof)
+        self.send_eofs_to_queue(self.queue_linux, self.cant_linux, msg_eof)
+        self.send_eofs_to_queue(self.queue_mac, self.cant_mac, msg_eof)
+        self.send_eofs_to_queue(self.queue_indie, self.cant_indie, msg_eof)
         # La cantidad de workers de bdd es siempre 1
-        self.send_eofs_to_queue(self.queue_bdd, 1, message)
+        self.send_eofs_to_queue(self.queue_bdd, 1, msg_eof)
     
-    def send_eofs_to_queue(self, queue_name, queue_cant, message):
+    def send_eofs_to_queue(self, queue_name, queue_cant, msg_eof):
+        msg_eof.set_not_last_eof()
+        
         for _ in range(queue_cant-1):
-            self.service_queues.push(queue_name, message)
-        mes_eof = MessageEndOfDataset.from_message(message)
-        mes_eof.set_last_eof()
+            self.service_queues.push(queue_name, msg_eof)
+            
+        msg_eof.set_last_eof()
         print("MENSAJE LAST ENVIANDO:")
-        print(mes_eof.message_payload)
-        self.service_queues.push(queue_name, mes_eof)
+        print(msg_eof.message_payload)
+        self.service_queues.push(queue_name, msg_eof)
     
 
 

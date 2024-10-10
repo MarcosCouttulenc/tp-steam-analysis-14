@@ -4,6 +4,7 @@ from middleware.queue import ServiceQueues
 from common.message import Message
 from common.message import MessageGameInfo
 from common.message import MessageQueryTwoFileUpdate
+from common.message import MessageEndOfDataset
 
 CHANNEL_NAME =  "rabbitmq"
 BUFFER_MAX_SIZE = 0
@@ -22,31 +23,40 @@ class QueryTwoReducer:
 
     
     def process_message(self, ch, method, properties, message: Message):
-
         if message.is_eof():
+            msg_eof = MessageEndOfDataset.from_message(message)
+            print(f"ME LLEGO EOF")
+            if  msg_eof.is_last_eof():
+                print("push eof")
+            
             if len(self.buffer) > 0:
                 self.save_buffer_in_file_and_clean_it()
-        else:
-            msg_game_info = MessageGameInfo.from_message(message)
 
-            #print(f"LLEGO AL REDUCER EL JUEGO:\n{msg_game_info.game.name}")
-            
-            #logging.critical(msg_game_info.pretty_str())
+            self.running = False
+            self.service_queues.ack(ch, method)
+            self.service_queues.close_connection()
+            return
+    
+        msg_game_info = MessageGameInfo.from_message(message)
 
-            self.buffer.append((msg_game_info.game.name, msg_game_info.game.playTime))
-            # print("\n\n buffer actual\n\n")
-            # print(self.buffer)
-            # print("\n\n")
-            self.buffer.sort(key=lambda game_data: game_data[1], reverse=True) #game_data: (name, playtime)
+        #print(f"LLEGO AL REDUCER EL JUEGO:\n{msg_game_info.game.name}")
+        
+        #logging.critical(msg_game_info.pretty_str())
 
-            #logging.critical("----QUERY 2 HASTA AHORA----")
-            #for game_in_buffer in self.buffer:
-            #    logging.critical(game_in_buffer.pretty_str())
+        self.buffer.append((msg_game_info.game.name, msg_game_info.game.playTime))
+        # print("\n\n buffer actual\n\n")
+        # print(self.buffer)
+        # print("\n\n")
+        self.buffer.sort(key=lambda game_data: game_data[1], reverse=True) #game_data: (name, playtime)
 
-            
+        #logging.critical("----QUERY 2 HASTA AHORA----")
+        #for game_in_buffer in self.buffer:
+        #    logging.critical(game_in_buffer.pretty_str())
 
-            if len(self.buffer) >= BUFFER_MAX_SIZE:
-                self.save_buffer_in_file_and_clean_it()
+        
+
+        if len(self.buffer) >= BUFFER_MAX_SIZE:
+            self.save_buffer_in_file_and_clean_it()
 
         self.service_queues.ack(ch, method)
 

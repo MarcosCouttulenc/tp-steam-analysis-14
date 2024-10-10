@@ -36,6 +36,7 @@ class QueryOneReducer:
             print(f"ME LLEGO EOF numero: {self.total_eofs}")
             if  self.total_eofs >= CANT_EOFS_TIL_CLOSE:
                 self.save_buffer_in_file_and_clean_it()
+                #push eof to query1_file
                 self.running = False
                 self.service_queues.ack(ch, method)
                 self.service_queues.close_connection()

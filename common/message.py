@@ -171,6 +171,10 @@ class MessageEndOfDataset(Message):
     def set_last_eof(self):
         self.last_eof = True
         self.message_payload = self.type + DATA_DELIMITER + str(self.last_eof)
+    
+    def set_not_last_eof(self):
+        self.last_eof = False
+        self.message_payload = self.type + DATA_DELIMITER + str(self.last_eof)
 
     def is_last_eof(self):
         return (self.last_eof == True)
