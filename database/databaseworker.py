@@ -39,7 +39,7 @@ class DataBaseWorker():
             msg = protocol.receive()
             msg_query = MessageQueryGameDatabase.from_message(msg)
             game = self.data_base.get_game(msg_query.game_id)
-            logging.critical(f"Voy a responser game info de id: {msg_query.game_id}")
+            #logging.critical(f"Voy a responser game info de id: {msg_query.game_id}")
             msg_game_info = MessageGameInfo(game)
             protocol.send(msg_game_info)
 

@@ -16,6 +16,7 @@ class QueryFourReducer:
         self.running = True
         self.service_queues = ServiceQueues(CHANNEL_NAME)
         self.buffer = {} # Se van a guardar par de (nombre, cant_reseñas)
+        self.curr_cant = 0
     
     def start(self):
         while self.running:
@@ -31,6 +32,7 @@ class QueryFourReducer:
             msg_review_info = MessageReviewInfo.from_message(message)
 
 
+            self.curr_cant += 1            
             #guardo en el buffer dict o actualizo si ya estaba la clave: (name, cant_reseñas_positivas)
             if not msg_review_info.review.game_name in self.buffer:
                 self.buffer[msg_review_info.review.game_name] = 0
@@ -38,7 +40,7 @@ class QueryFourReducer:
 
 
 
-            if len(self.buffer) >= BUFFER_MAX_SIZE:
+            if self.curr_cant >= BUFFER_MAX_SIZE:
                 self.save_buffer_in_file_and_clean_it()
 
         self.service_queues.ack(ch, method)
@@ -59,4 +61,5 @@ class QueryFourReducer:
 
             self.service_queues.push(queue_name, msg)
         
+        self.curr_cant = 0
         self.buffer = {}

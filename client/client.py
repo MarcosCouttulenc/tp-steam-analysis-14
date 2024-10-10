@@ -60,21 +60,6 @@ class Client:
                 csvReader = csv.reader(file)
                 next(csvReader) #saltamos primera linea de headers
                 for row in csvReader:
-
-                    
-
-                    # logging.critical(f'action: send_games | result: success | AppID: {row[0]}')
-                    # logging.critical(f'action: send_games | result: success | Name: {row[1]}')
-                    # logging.critical(f'action: send_games | result: success | Windows: {row[17]}')
-                    # logging.critical(f'action: send_games | result: success | Mac: {row[18]}')
-                    # logging.critical(f'action: send_games | result: success | Linux: {row[19]}')
-                    # logging.critical(f'action: send_games | result: success | Positive: {row[23]}')
-                    # logging.critical(f'action: send_games | result: success | Negative: {row[24]}')
-                    # logging.critical(f'action: send_games | result: success | Categories: {row[35]}')
-                    # logging.critical(f'action: send_games | result: success | Genres: {row[36]}')
-                    # logging.critical(f'action: send_games | result: success | Average playtime forever: {row[29]}')
-                    # logging.critical(f'action: send_games | result: success | Release date: {row[2]}')
-
                     game_data = Game(
                         row[0].strip(),  # AppID
                         row[1].strip(),  # Name
@@ -116,11 +101,12 @@ class Client:
     def send_reviews(self):
         logging.info('action: send_reviews | result: start')
         
-        batch_size = 1000
+        batch_size = 50
         batch_list = []
+        cant_sent = 0
 
         try:
-            with open('10reviews.csv', 'r') as file:
+            with open('data5porcent.csv', 'r') as file:
                 csvReader = csv.reader(file)
                 next(csvReader) #saltamos primera linea de headers
                 for row in csvReader:
@@ -134,15 +120,18 @@ class Client:
 
                     messageRI = MessageReviewInfo(game_review)
                     batch_list.append(messageRI)
+                    
 
                     if len(batch_list) == batch_size:
                         self.protocol.send_batch(batch_list)
-                        logging.info(f'action: send_reviews| result: success | msg: sent {len(batch_list)} reviews')
+                        cant_sent += batch_size
+                        logging.critical(f'action: send_reviews| result: success | msg: sent {cant_sent} reviews')
                         batch_list = []
 
                 if len(batch_list) > 0:
                     self.protocol.send_batch(batch_list)
-                    logging.info(f'action: reviews | result: success | msg: sent {len(batch_list)} reviews')
+                    cant_sent += len(batch_list)
+                    logging.info(f'action: reviews | result: success | msg: sent {cant_sent} reviews')
                     batch_list = []
                     self.protocol.send_batch([MessageEndOfDataset("Review")])
 

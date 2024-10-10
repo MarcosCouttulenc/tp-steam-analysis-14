@@ -41,9 +41,9 @@ class QueryFourFile:
             client_sock = self.__accept_new_connection()
             
             with self.file_lock:
-                games_with_more_50000_positive_reviews = self.get_file_snapshot()
+                games_with_more_5000_positive_reviews = self.get_file_snapshot()
 
-            message_result = MessageQueryFourResult(games_with_more_50000_positive_reviews)
+            message_result = MessageQueryFourResult(games_with_more_5000_positive_reviews)
             protocol = Protocol(client_sock)
             protocol.send(message_result)
             #client_sock.close()
@@ -62,13 +62,13 @@ class QueryFourFile:
             
     def get_file_snapshot(self):
         print(self.totals)
-        games_with_more_50000_positive_reviews = []
+        games_with_more_5000_positive_reviews = []
 
         for name, cant_reviews in self.totals.items():
-            if (cant_reviews > 50000):
-                games_with_more_50000_positive_reviews.append((name, cant_reviews))
+            if (cant_reviews > 5000):
+                games_with_more_5000_positive_reviews.append((name, cant_reviews))
             
-        return games_with_more_50000_positive_reviews
+        return games_with_more_5000_positive_reviews
 
     
     def process_handle_result_updates(self):

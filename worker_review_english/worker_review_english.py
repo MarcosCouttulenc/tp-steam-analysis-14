@@ -1,3 +1,4 @@
+import langid
 import logging
 logging.basicConfig(level=logging.CRITICAL)
 from middleware.queue import ServiceQueues
@@ -5,7 +6,6 @@ from common.message import MessageReviewInfo
 from common.message import Message
 
 CHANNEL_NAME =  "rabbitmq"
-
 
 class EnglishWorker:
     def __init__(self, queue_name_origin, queue_name_destiny):
@@ -24,8 +24,6 @@ class EnglishWorker:
         if message.is_eof():
             self.service_queues.push(self.queue_name_destiny, message)
         else:
-
-
             msg_review_info = MessageReviewInfo.from_message(message)
             
             if self.is_in_english(msg_review_info.review.review_text):
@@ -34,8 +32,9 @@ class EnglishWorker:
         self.service_queues.ack(ch, method)
     
     def is_in_english(self, text):
-        return True
+        idioma, confianza = langid.classify(text)
 
+        return (idioma == 'en')
 
 
 

@@ -21,3 +21,6 @@ class Review:
     def is_positive(self):
         return int(self.score) > 0
     
+    def is_negative(self):
+        return int(self.score) < 0
+    

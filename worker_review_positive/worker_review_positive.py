@@ -25,8 +25,10 @@ class PositiveWorker:
                 self.service_queues.push(queue_name_destiny, message)
         else:
             msg_review_info = MessageReviewInfo.from_message(message)
+
+            #print(message)
             
-            if msg_review_info.review.is_positive():
+            if msg_review_info.review.is_negative():
                 for queue_name_destiny in self.queues_name_destiny:
                     self.service_queues.push(queue_name_destiny, message)
 
