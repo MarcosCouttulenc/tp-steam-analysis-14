@@ -26,6 +26,7 @@ def initialize_config():
         config_params["server_port"] = os.getenv('SERVER_PORT', config["DEFAULT"]["SERVER_PORT"])
         config_params["server_ip"] = os.getenv('SERVER_IP', config["DEFAULT"]["SERVER_IP"])
         config_params["logging_level"] = os.getenv('LOGGING_LEVEL', config["DEFAULT"]["LOGGING_LEVEL"])
+        config_params["result_responser_ip"] = os.getenv('RESULT_RESPONSER_IP', config["DEFAULT"]["RESULT_RESPONSER_IP"])
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -40,18 +41,18 @@ def main():
     logging_level = config_params["logging_level"]
     server_port = config_params["server_port"]
     server_ip = config_params["server_ip"]
+    result_responser_ip = config_params["result_responser_ip"]
 
-    
     initialize_log(logging_level)
 
     # Log config parameters at the beginning of the program to verify the configuration
     # of the component
     logging.debug(f"action: config | result: success | server_port: {server_port} | "
-                  f"server_ip: {server_ip} | logging_level: {logging_level}")
+                  f"server_ip: {server_ip} | result_responser_ip: {result_responser_ip} | logging_level: {logging_level}")
 
     # Initialize server and start server loop
 
-    client = Client(server_ip, server_port)
+    client = Client(server_ip, server_port, result_responser_ip)
     client.start()
 
 def initialize_log(logging_level):

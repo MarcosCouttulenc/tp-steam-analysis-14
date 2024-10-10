@@ -55,6 +55,22 @@ docker-image-query2-reducer:
 	docker build -f ./query2_reducer/Dockerfile -t "query2_reducer:latest" .  # Construir imagen del query2 reducer
 .PHONY: docker-image-query2-reducer
 
+docker-image-query3-reducer:
+	docker build -f ./query3_reducer/Dockerfile -t "query3_reducer:latest" .  # Construir imagen del query3 reducer
+.PHONY: docker-image-query3-reducer
+
+docker-image-query3-reducer:
+	docker build -f ./query3_reducer/Dockerfile -t "query3_reducer:latest" .  # Construir imagen del query3 reducer
+.PHONY: docker-image-query3-reducer
+
+docker-image-query4-reducer:
+	docker build -f ./query4_reducer/Dockerfile -t "query4_reducer:latest" .  # Construir imagen del query4 reducer
+.PHONY: docker-image-query4-reducer
+
+docker-image-query5-reducer:
+	docker build -f ./query5_reducer/Dockerfile -t "query5_reducer:latest" .  # Construir imagen del query5 reducer
+.PHONY: docker-image-query5-reducer
+
 docker-image-query1-file:
 	docker build -f ./query1_file/Dockerfile -t "query1_file:latest" .  # Construir imagen del query1 file
 .PHONY: docker-image-query1-file
@@ -62,6 +78,18 @@ docker-image-query1-file:
 docker-image-query2-file:
 	docker build -f ./query2_file/Dockerfile -t "query2_file:latest" .  # Construir imagen del query2 file
 .PHONY: docker-image-query2-file
+
+docker-image-query3-file:
+	docker build -f ./query3_file/Dockerfile -t "query3_file:latest" .  # Construir imagen del query3 file
+.PHONY: docker-image-query3-file
+
+docker-image-query4-file:
+	docker build -f ./query4_file/Dockerfile -t "query4_file:latest" .  # Construir imagen del query4 file
+.PHONY: docker-image-query4-file
+
+docker-image-query5-file:
+	docker build -f ./query5_file/Dockerfile -t "query5_file:latest" .  # Construir imagen del query5 file
+.PHONY: docker-image-query5-file
 
 docker-image-database:
 	docker build -f ./database/Dockerfile -t "database:latest" .  # Construir imagen de la base de datos
@@ -71,7 +99,28 @@ docker-image-result-responser:
 	docker build -f ./result_responser/Dockerfile -t "result_responser:latest" .  # Construir imagen de result-responser
 .PHONY: docker-image-result-responser
 
-docker-image: docker-image-server docker-image-client docker-image-worker-game-validator docker-image-worker-mac docker-image-worker-linux docker-image-worker-windows docker-image-query1-reducer docker-image-query2-reducer docker-image-worker-indie docker-image-worker-2010 docker-image-database docker-image-query1-file docker-image-result-responser docker-image-query2-file # Construir imágenes
+docker-image-worker-review-validator:
+	docker build -f ./worker_review_validator/Dockerfile -t "worker_review_validator:latest" .  # Construir imagen de worker_review_validator
+.PHONY: docker-image-worker-review-validator
+
+docker-image-worker-review-indie:
+	docker build -f ./worker_review_indie/Dockerfile -t "worker_review_indie:latest" .  # Construir imagen de worker_review_indie
+.PHONY: docker-image-worker-review-indie
+
+docker-image-worker-review-positive:
+	docker build -f ./worker_review_positive/Dockerfile -t "worker_review_positive:latest" .  # Construir imagen de worker_review_positive
+.PHONY: docker-image-worker-review-positive
+
+docker-image-worker-review-english:
+	docker build -f ./worker_review_english/Dockerfile -t "worker_review_english:latest" .  # Construir imagen de worker_review_english
+.PHONY: docker-image-worker-review-english
+
+docker-image-worker-review-action:
+	docker build -f ./worker_review_action/Dockerfile -t "worker_review_action:latest" .  # Construir imagen de worker_review_action
+.PHONY: docker-image-worker-review-action
+
+
+docker-image: docker-image-server docker-image-client docker-image-worker-game-validator docker-image-worker-mac docker-image-worker-linux docker-image-worker-windows docker-image-query1-reducer docker-image-query2-reducer docker-image-query3-reducer docker-image-query4-reducer docker-image-query5-reducer docker-image-worker-indie docker-image-worker-2010 docker-image-database docker-image-query1-file docker-image-result-responser docker-image-query2-file docker-image-worker-review-validator docker-image-worker-review-action docker-image-worker-review-english docker-image-worker-review-positive docker-image-worker-review-indie docker-image-query3-file docker-image-query4-file docker-image-query5-file # Construir imágenes
 .PHONY: docker-image
 
 docker-compose-up: docker-image

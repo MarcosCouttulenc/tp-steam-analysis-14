@@ -31,6 +31,7 @@ class QueryOneReducer:
     def process_message(self, ch, method, properties, message: Message):
         if message.is_eof():
             self.save_buffer_in_file_and_clean_it()
+            self.running = False
         else:
             msg_query_one_update = MessageQueryOneUpdate.from_message(message)
 

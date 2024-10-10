@@ -10,17 +10,14 @@ class WorkerGameValidator:
         self.service_queues = ServiceQueues(CHANNEL_NAME)
         self.queue_name_origin = queue_name_origin
         self.queues_name_destiny = queues_name_destiny_str.split(',')
+        self.running = True 
 
     def start(self):
         logging.info(f'action: start | result: success')
-        count = 0
-        while True and count < 5:
+        while self.running:
             self.service_queues.pop(self.queue_name_origin, self.on_pop_message)
-            count += 1
-
 
     def on_pop_message(self, ch, method, properties, message):
-        #TODO: save in db.
         logging.info(f'action: on_pop_message | result: start | body: {message}')
 
         for queue_name_destiny in self.queues_name_destiny:
@@ -30,5 +27,8 @@ class WorkerGameValidator:
         logging.info(f'action: on_pop_message | result: ack')
 
         self.service_queues.ack(ch, method)
+
+        if message.is_eof():
+            self.running = False   
 
         logging.info(f'action: on_pop_message | result: success')

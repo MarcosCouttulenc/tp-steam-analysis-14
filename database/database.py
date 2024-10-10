@@ -2,7 +2,7 @@ import os
 from common.model.game import Game
 import logging
 logging.basicConfig(level=logging.CRITICAL)
-
+FIELD_DELIMITER = '%$'
 
 def getFileName(game_id):
     gameData = int(game_id) // 100000 
@@ -32,7 +32,7 @@ class DataBase:
         return int(game_id) % 100000
 
 
-    def _update_index(self,indexNumberFile, game_id, position, hash_value):
+    def _update_index(self,indexNumberFile, game_id, position):
         # Actualiza el índice en memoria y en el archivo de índice
         #self.index[game_id] = position
         with open(indexNumberFile, 'a') as file:
@@ -41,8 +41,9 @@ class DataBase:
     def get_index(self, index_file,game_id):
         with open(index_file, 'r') as file:
             for line in file:
-                game_id, position = line.strip().split(';')
-                self.index[int(game_id)] = int(position)
+                id, position = line.strip().split(';')
+                if id == str(game_id):
+                    return int(position)
         
     def store_game(self, game : Game):
         file_name,index_name = getFileName(game.id),getIndexName(game.id)
@@ -53,26 +54,38 @@ class DataBase:
         with open(file_name, 'a+') as file:
             file.seek(0, os.SEEK_END)
             position = file.tell()  # Obtener posición actual en bytes antes de escribir
-            game_entry = (str(game.id) + "|" + str(game.name) + "|" + str(game.windows) + "|" + str(game.mac) + 
-                        "|" + str(game.linux) + "|" + str(game.positive_reviews) + "|" + str(game.negative_reviews) + 
-                        "|" + str(game.categories) + "|" +  str(game.genre) + "|" + str(game.playTime) + "|" + str(game.release_date)
+            game_entry = (str(game.id) + FIELD_DELIMITER + str(game.name) + FIELD_DELIMITER + str(game.windows) + FIELD_DELIMITER + str(game.mac) + 
+                        FIELD_DELIMITER + str(game.linux) + FIELD_DELIMITER + str(game.positive_reviews) + FIELD_DELIMITER + str(game.negative_reviews) + 
+                        FIELD_DELIMITER + str(game.categories) + FIELD_DELIMITER +  str(game.genre) + FIELD_DELIMITER + str(game.playTime) + 
+                        FIELD_DELIMITER + str(game.release_date) + '\n'
         )  # Formato: ID;Nombre;Género
             file.write(game_entry)  # Escribir el registro
-            self._update_index(index_name,game.id, position, self.hash_function(game.id))
+
+            #self._update_index(index_name,game.id, position, self.hash_function(game.id))
+            self._update_index(index_name,game.id, position)
+
             self.total_games += 1  # Incrementar el contador de juegos
 
-    def get_game(self, game):
+    def get_game(self, game_id):
         # Busca la posición del juego en el índice y lo recupera desde el archivo
-        file_name, index_name = getFileName(game.id), getIndexName(game.id)
-        position = self.get_index(index_name,game.id, self.hash_function(game.id))
+        file_name, index_name = getFileName(game_id), getIndexName(game_id)
+
+        position = self.get_index(index_name,game_id)
+        #position = self.get_index(index_name,game.id, self.hash_function(game.id))
+
         with open(file_name, 'r') as file:
+           #print(f"Estoy en el archivo{file_name} y segun el {index_name} tengo que ir a la posicion {position}: \n\n")
             file.seek(position)  # Moverse a la pile.seek(position)  #posición del juego
             game_entry = file.readline().strip()  # Leer la línea completa
+            #print("JUEGO ENCONTRADO: \n\n")
+            #print(game_entry)
             if game_entry:
-                return game_entry.split('|')  # Retornar como lista
+                game_data = game_entry.split(FIELD_DELIMITER)
+                return Game(game_data[0], game_data[1], game_data[2], game_data[3], game_data[4],
+                            game_data[5], game_data[6], game_data[7], game_data[8], game_data[9],
+                            game_data[10])
 
-        return None  # Si no encuentra el registro
-
+        return Game(-1, "", "False", "False", "False", 0, 0, "", "", 0, "")
 
     def load_games(self):
         #imprimir todo lo que tengo almacenado.

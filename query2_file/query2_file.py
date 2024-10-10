@@ -69,7 +69,7 @@ class QueryTwoFile:
         except FileNotFoundError:
             # Si el archivo no existe, los totales permanecen en 0
             pass
-        print(f"---SNAPSHOT ACTUAL. VOY A MANDAR:---\n{top_ten}")
+        #print(f"---SNAPSHOT ACTUAL. VOY A MANDAR:---\n{top_ten}")
         return top_ten
 
     

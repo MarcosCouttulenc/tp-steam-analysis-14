@@ -8,13 +8,15 @@ from common.message import *
 from common.protocol import Protocol
 from common.protocol import *
 from common.model.game import Game
+from common.model.review import Review
 
 class Client:
-    def __init__(self, server_ip, server_port):
+    def __init__(self, server_ip, server_port, result_responser_ip):
         self.server_ip = server_ip
         self.server_port = server_port
         self.client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_sock.connect((self.server_ip, int(self.server_port)))
+        self.result_responser_ip = result_responser_ip
         self.listen_result_query_port = 0
 
         self.protocol = Protocol(self.client_sock)
@@ -53,7 +55,7 @@ class Client:
         numero_mensaje_enivado = 0
 
         try: 
-            with open('fullgames.csv', 'r') as file:
+            with open('dbTest.csv', 'r') as file:
                 csvReader = csv.reader(file)
                 next(csvReader) #saltamos primera linea de headers
                 for row in csvReader:
@@ -83,7 +85,6 @@ class Client:
                         row[2].strip()   # Release date
                     )
 
-
                     messageGI = MessageGameInfo(game_data)
                     batch_list.append(messageGI)
 
@@ -92,26 +93,59 @@ class Client:
                         logging.info(f'action: send_games | result: success | msg: sent {len(batch_list)} games')
                         batch_list = []
                     
-                    #print(f"Numero mensaje enviado: {numero_mensaje_enivado}")
                     numero_mensaje_enivado += 1
 
                 if len(batch_list) > 0:
-
                     self.protocol.send_batch(batch_list)
                     logging.info(f'action: send_games | result: success | msg: sent {len(batch_list)} games')
                     batch_list = []
+                    self.protocol.send_batch([MessageEndOfDataset("Game")])
 
         except Exception as e:
-            print("\n\n\n ERROR AL LEER CSV\n\n\n")
+            print("\n\n\n ERROR AL LEER CSV DE JUEGOS\n\n\n")
             logging.info(f'action: send_games | result: error | msg: {e}')
+
 
     def send_reviews(self):
         logging.info('action: send_reviews | result: start')
+        
+        batch_size = 50
+        batch_list = []
+
+        try:
+            with open('10reviews.csv', 'r') as file:
+                csvReader = csv.reader(file)
+                next(csvReader) #saltamos primera linea de headers
+                for row in csvReader:
+                    game_review = Review(
+                        row[0].strip(),  # AppID
+                        row[1].strip(),  # Name
+                        row[2].strip(),  # Review
+                        row[3].strip(),  # score
+                        ""              # Genre
+                    )
+
+                    messageRI = MessageReviewInfo(game_review)
+                    batch_list.append(messageRI)
+
+                    if len(batch_list) == batch_size:
+                        self.protocol.send_batch(batch_list)
+                        logging.info(f'action: send_reviews| result: success | msg: sent {len(batch_list)} reviews')
+                        batch_list = []
+
+                if len(batch_list) > 0:
+                    self.protocol.send_batch(batch_list)
+                    logging.info(f'action: reviews | result: success | msg: sent {len(batch_list)} reviews')
+                    batch_list = []
+                    self.protocol.send_batch([MessageEndOfDataset("Review")])
+
+        except Exception as e:
+            print("\n\n\n ERROR AL LEER CSV DE REVIEWS\n\n\n")
+            logging.critical(f'action: send_reviews | result: error | msg: {e}')
 
 
     def notify_end_of_data(self):
         logging.info('action: notify_end_of_data | result: start')
-        self.protocol.send_batch([MessageEndOfDataset("OK")])
         logging.info(f'action: notify_end_of_data | result: success')
 
     def ask_for_results(self):
@@ -119,7 +153,7 @@ class Client:
 
         while True:
             result_responser_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            result_responser_sock.connect(("result_responser", int(self.listen_result_query_port)))
+            result_responser_sock.connect((self.result_responser_ip, int(self.listen_result_query_port)))
 
             protocol_result_responser = Protocol(result_responser_sock)
             

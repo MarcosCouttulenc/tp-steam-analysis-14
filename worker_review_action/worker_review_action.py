@@ -1,18 +1,16 @@
 import logging
 logging.basicConfig(level=logging.CRITICAL)
 from middleware.queue import ServiceQueues
-from common.message import MessageGameInfo
+from common.message import MessageReviewInfo
 from common.message import Message
-from common.message import MessageQueryOneUpdate
 
 CHANNEL_NAME =  "rabbitmq"
-MESSAGE_TYPE_QUERY_ONE_UPDATE = "query-one-update"
-PAYLOAD = "mac"
 
-class ACTIONWorker:
+
+class ActionWorker:
     def __init__(self, queue_name_origin, queue_name_destiny):
         self.queue_name_origin = queue_name_origin
-        self.queue_name_destiny = queue_name_destiny
+        self.queues_name_destiny = queue_name_destiny.split(',')
         self.running = True
         self.service_queues = ServiceQueues(CHANNEL_NAME)
 
@@ -23,10 +21,15 @@ class ACTIONWorker:
 
     
     def process_message(self, ch, method, properties, message: Message):
-        msg_game_info = MessageGameInfo.from_message(message)
-        
-        if msg_game_info.game.is_shooter():
-            self.service_queues.push(self.queue_name_destiny, message)
+        if message.is_eof():
+            for queue_name_destiny in self.queues_name_destiny:
+                self.service_queues.push(queue_name_destiny, message)
+        else:
+            msg_review_info = MessageReviewInfo.from_message(message)
+            
+            if msg_review_info.review.is_action():
+                for queue_name_destiny in self.queues_name_destiny:
+                    self.service_queues.push(queue_name_destiny, message)
 
         self.service_queues.ack(ch, method)
 

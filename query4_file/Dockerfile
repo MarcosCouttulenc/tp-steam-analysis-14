@@ -3,5 +3,5 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY common/ ./common
 COPY middleware/ ./middleware
-COPY worker_shooter /
+COPY query4_file /
 ENTRYPOINT ["python", "/main.py"]

@@ -3,18 +3,26 @@ from common.model.review import Review
 
 MESSAGE_TYPE_GAME_DATA = "game"
 MESSAGE_TYPE_REVIEW_DATA = "review"
+MESSAGE_TYPE_QUERY_DATABASE = "query-db"
 MESSAGE_TYPE_END_OF_DATASET = "end-of-dataset"
 MESSAGE_TYPE_QUERY_ONE_UPDATE = "query-one-update"
 MESSAGE_TYPE_QUERY_ONE_FILE_UPDATE = "query-one-file-update"
 MESSAGE_TYPE_QUERY_TWO_FILE_UPDATE = "query-two-file-update"
+MESSAGE_TYPE_QUERY_THREE_FILE_UPDATE = "query-three-file-update"
+MESSAGE_TYPE_QUERY_FOUR_FILE_UPDATE = "query-four-file-update"
+MESSAGE_TYPE_QUERY_FIVE_FILE_UPDATE = "query-five-file-update"
 MESSAGE_QUERY_ONE_RESULT = "query-one-result"
 MESSAGE_QUERY_TWO_RESULT = "query-two-result"
+MESSAGE_QUERY_THREE_RESULT = "query-three-result"
+MESSAGE_QUERY_FOUR_RESULT = "query-four-result"
+MESSAGE_QUERY_FIVE_RESULT = "query-five-result"
 
 MESSAGE_TYPE_SERVER_WELCOME_CLIENT = "server-welcome-client"
 FALSE_STRING = "False"
 TRUE_STRING = "True"
 
 DATA_DELIMITER = "$|"
+FIELD_DELIMITER = '%$'
 
 '''
 Todos los mensajes estan conformados por un tipo y un payload,
@@ -101,7 +109,6 @@ class MessageGameInfo(Message):
         game = Game(data[0], data[1], string_to_boolean(data[2]), string_to_boolean(data[3]), string_to_boolean(data[4]), int(data[5]), int(data[6]), data[7], data[8], int(data[9]), data[10])
         return cls(game)
 
-
 '''
 Mensaje para enviar informacion sobre una review.
 '''
@@ -109,7 +116,7 @@ class MessageReviewInfo(Message):
     def __init__(self, review: Review):
         self.review = review
 
-        message_payload = str(review.game_id) + DATA_DELIMITER + review.review
+        message_payload = str(review.game_id) + DATA_DELIMITER + review.game_name + DATA_DELIMITER + review.review_text + DATA_DELIMITER +  str(review.score) + DATA_DELIMITER + review.game_genre
         super().__init__(MESSAGE_TYPE_REVIEW_DATA, message_payload)
 
     def __str__(self) -> str:
@@ -120,8 +127,8 @@ class MessageReviewInfo(Message):
         if message.message_type != MESSAGE_TYPE_REVIEW_DATA:
             return None
 
-        data = message.message_payload.split(DATA_DELIMITER)
-        review = Review(data[0], data[1])
+        data = message.message_payload.split(DATA_DELIMITER)        
+        review = Review(data[0], data[1], data[2], data[3], data[4])
         return cls(review)
 
 
@@ -151,10 +158,10 @@ class MessageWelcomeClient(Message):
 Mensaje que envia el cliente cuando termina de enviar el dataset
 '''
 class MessageEndOfDataset(Message):
-    def __init__(self, status):
-        self.status = status
+    def __init__(self, type):
+        self.type = type
 
-        message_payload = status
+        message_payload = type
         super().__init__(MESSAGE_TYPE_END_OF_DATASET, message_payload)
 
     def __str__(self) -> str:
@@ -223,8 +230,6 @@ class MessageQueryOneResult(Message):
         data = message.message_payload.split(DATA_DELIMITER)
         return cls(int(data[0]), int(data[1]), int(data[2]))
 
-FIELD_DELIMITER = '%$'
-
 class MessageQueryTwoFileUpdate(Message):
     def __init__(self, top_ten_buffer):
         self.top_ten_buffer = top_ten_buffer
@@ -246,8 +251,8 @@ class MessageQueryTwoFileUpdate(Message):
         data = message.message_payload.split(DATA_DELIMITER)
         top_ten_buffer = []
 
-        print("DATA A AGREGAR AL TOP TEN BUFFER:")
-        print(data)
+        #print("DATA A AGREGAR AL TOP TEN BUFFER:")
+        #print(data)
 
         for game in data:
             game_data = game.split(FIELD_DELIMITER)
@@ -274,20 +279,206 @@ class MessageQueryTwoResult(Message):
     def from_message(cls, message: Message) -> 'MessageQueryTwoResult':
         if message.message_type != MESSAGE_QUERY_TWO_RESULT:
             return None
-
-        # print("ESTOY DENTRO DE FROM_MESSAGE Y LLEGA ESTO: \n\n")
-        # print(message.message_payload)
-        # print("\n\n")
+        
         data = message.message_payload.split(DATA_DELIMITER)
-        # print("DESPUES DEL SPLIT: \n\n")
-        # print(data)
-        # print("\n\n")
+        
         top_ten_buffer = []
         if message.message_payload == "":
-            print("NO HAY NADA\n\n")
+            #print("NO HAY NADA\n\n")
             return cls(top_ten_buffer)
         for game in data:
             game_data = game.split(FIELD_DELIMITER)
             top_ten_buffer.append((game_data[0], int(game_data[1])))
 
         return cls(top_ten_buffer)
+
+
+class MessageQueryThreeResult(Message):
+    def __init__(self, top_five_buffer):
+        self.top_five_buffer = top_five_buffer
+        
+        message_payload = ""
+        for review_data in top_five_buffer:
+            #review_data: (name, cant_reviews)
+            message_payload +=  review_data[0] + FIELD_DELIMITER + str(review_data[1]) + DATA_DELIMITER 
+
+        message_payload = message_payload[:-1*len(DATA_DELIMITER)]
+
+        super().__init__(MESSAGE_TYPE_QUERY_THREE_FILE_UPDATE, message_payload)
+    
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageQueryThreeResult':
+        if message.message_type != MESSAGE_QUERY_THREE_RESULT:
+            return None
+
+        data = message.message_payload.split(DATA_DELIMITER)
+        buffer = []
+
+        if message.message_payload == "":
+            return cls(buffer)
+        
+        for review in data:
+            review_data = review.split(FIELD_DELIMITER)
+            buffer.append((review_data[0], review_data[1]))
+
+        return cls(buffer)
+
+class MessageQueryThreeFileUpdate(Message):
+    def __init__(self, buffer):
+        self.buffer = buffer
+        
+        message_payload = ""
+        for review_data in buffer:
+            #review_data: (name, cant_reviews)
+            message_payload +=  review_data[0] + FIELD_DELIMITER + str(review_data[1]) + DATA_DELIMITER 
+
+        message_payload = message_payload[:-1*len(DATA_DELIMITER)]
+
+        super().__init__(MESSAGE_TYPE_QUERY_THREE_FILE_UPDATE, message_payload)
+    
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageQueryThreeFileUpdate':
+        if message.message_type != MESSAGE_TYPE_QUERY_THREE_FILE_UPDATE:
+            return None
+
+        data = message.message_payload.split(DATA_DELIMITER)
+        buffer = []
+
+        #print("DATA A AGREGAR AL TOP TEN BUFFER:")
+        #print(data)
+
+        for review in data:
+            review_data = review.split(FIELD_DELIMITER)
+            #review_data: (name, cant_reviews)
+            
+            buffer.append((review_data[0], int(review_data[1])))
+
+        return cls(buffer)
+
+class MessageQueryFourFileUpdate(Message):
+    def __init__(self, buffer):
+        self.buffer = buffer
+        
+        message_payload = ""
+        for review_data in buffer:
+            #review_data: (name, cant_reviews)
+            message_payload +=  review_data[0] + FIELD_DELIMITER + str(review_data[1]) + DATA_DELIMITER 
+
+        message_payload = message_payload[:-1*len(DATA_DELIMITER)]
+
+        super().__init__(MESSAGE_TYPE_QUERY_FOUR_FILE_UPDATE, message_payload)
+    
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageQueryFourFileUpdate':
+        if message.message_type != MESSAGE_TYPE_QUERY_FOUR_FILE_UPDATE:
+            return None
+
+        data = message.message_payload.split(DATA_DELIMITER)
+        buffer = []
+
+        for review in data:
+            review_data = review.split(FIELD_DELIMITER)
+            buffer.append((review_data[0], review_data[1]))
+
+        return cls(buffer)
+
+class MessageQueryFourResult(Message):
+    def __init__(self, totals):
+        self.totals = totals
+        
+        message_payload = ""
+        for total in totals:
+            message_payload +=  total[0] + FIELD_DELIMITER + str(total[1]) + DATA_DELIMITER 
+
+        message_payload = message_payload[:-1*len(DATA_DELIMITER)]
+
+        super().__init__(MESSAGE_QUERY_FOUR_RESULT, message_payload)
+    
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageQueryFourResult':
+        if message.message_type != MESSAGE_QUERY_FOUR_RESULT:
+            return None
+
+        data = message.message_payload.split(DATA_DELIMITER)
+        buffer = []
+
+        if message.message_payload == "":
+            return cls(buffer)
+
+        for review in data:
+            review_data = review.split(FIELD_DELIMITER)
+            buffer.append((review_data[0], review_data[1]))
+
+        return cls(buffer)
+
+class MessageQueryFiveFileUpdate(Message):
+    def __init__(self, buffer):
+        self.buffer = buffer
+        
+        message_payload = ""
+        for review_data in buffer:
+            message_payload +=  review_data[0] + FIELD_DELIMITER + str(review_data[1]) + FIELD_DELIMITER + str(review_data[2]) + DATA_DELIMITER
+
+        message_payload = message_payload[:-1*len(DATA_DELIMITER)]
+
+        super().__init__(MESSAGE_TYPE_QUERY_FIVE_FILE_UPDATE, message_payload)
+    
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageQueryFiveFileUpdate':
+        if message.message_type != MESSAGE_TYPE_QUERY_FIVE_FILE_UPDATE:
+            return None
+
+        data = message.message_payload.split(DATA_DELIMITER)
+        buffer = []
+
+        for review in data:
+            review_data = review.split(FIELD_DELIMITER)
+            buffer.append((review_data[0], review_data[1], review_data[2]))
+
+        return cls(buffer)
+
+
+class MessageQueryFiveResult(Message):
+    def __init__(self, totals):
+        self.totals = totals
+        
+        message_payload = ""
+        for total in totals:
+            message_payload +=  total + DATA_DELIMITER 
+
+        message_payload = message_payload[:-1*len(DATA_DELIMITER)]
+
+        super().__init__(MESSAGE_QUERY_FIVE_RESULT, message_payload)
+    
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageQueryFiveResult':
+        if message.message_type != MESSAGE_QUERY_FIVE_RESULT:
+            return None
+
+        data = message.message_payload.split(DATA_DELIMITER)
+        buffer = []
+
+        if message.message_payload == "":
+            return cls(buffer)
+
+        for name in data:
+            buffer.append((name))
+
+        return cls(buffer)
+
+
+class MessageQueryGameDatabase(Message):
+    # Type puede ser game o review
+    def __init__(self, game_id):
+        self.game_id = game_id
+
+        message_payload = str(game_id)
+        super().__init__(MESSAGE_TYPE_QUERY_DATABASE, message_payload)
+    
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageQueryGameDatabase':
+        if message.message_type != MESSAGE_TYPE_QUERY_DATABASE:
+            return None
+
+        data = message.message_payload.split(DATA_DELIMITER)
+        return cls(str(data[0]))

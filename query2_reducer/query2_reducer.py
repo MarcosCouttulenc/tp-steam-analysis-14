@@ -34,9 +34,9 @@ class QueryTwoReducer:
             #logging.critical(msg_game_info.pretty_str())
 
             self.buffer.append((msg_game_info.game.name, msg_game_info.game.playTime))
-            print("\n\n buffer actual\n\n")
-            print(self.buffer)
-            print("\n\n")
+            # print("\n\n buffer actual\n\n")
+            # print(self.buffer)
+            # print("\n\n")
             self.buffer.sort(key=lambda game_data: game_data[1], reverse=True) #game_data: (name, playtime)
 
             #logging.critical("----QUERY 2 HASTA AHORA----")

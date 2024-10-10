@@ -7,6 +7,10 @@ import socket
 
 from common.message import MessageQueryOneResult
 from common.message import MessageQueryTwoResult
+from common.message import MessageQueryThreeResult
+from common.message import MessageQueryFourResult
+from common.message import MessageQueryFiveResult
+from common.protocol import Protocol
 from common.protocol import *
 
 CHUNK_SIZE_FILE_READ = 1024
@@ -91,13 +95,11 @@ class ResultResponser:
         self.protocol = Protocol(client_q2_sock)
 
         msg = self.protocol.receive()
-        
+
         msg_query2_two_result = MessageQueryTwoResult.from_message(msg)
         if msg_query2_two_result == None:
             return
-
-
-
+        
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query2 Resultados:\n")
             file.write(f"----------------------------------------------------------\n")
@@ -106,24 +108,59 @@ class ResultResponser:
             file.write(f"----------------------------------------------------------\n")
 
     def get_query3_results(self):
+        query3_file_connection_data = self.query3_file_ip_port.split(',')
+        client_q3_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_q3_sock.connect((query3_file_connection_data[0], int(query3_file_connection_data[1])))
+        self.protocol = Protocol(client_q3_sock)
+        msg = self.protocol.receive()
+
+        msg_query3_three_result = MessageQueryThreeResult.from_message(msg)
+        if msg_query3_three_result == None:
+            return
+
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query3 Resultados:\n")
             file.write(f"----------------------------------------------------------\n")
-            file.write(f"Por el momento no hay resultados procesados \n")
+            for game_name, total_pos_reviews in msg_query3_three_result.totals:
+                file.write(f"{game_name}: {total_pos_reviews}\n")
             file.write(f"----------------------------------------------------------\n")
 
     def get_query4_results(self):
+        query4_file_connection_data = self.query4_file_ip_port.split(',')
+        client_q4_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_q4_sock.connect((query4_file_connection_data[0], int(query4_file_connection_data[1])))
+        self.protocol = Protocol(client_q4_sock)
+
+        msg = self.protocol.receive()
+
+        msg_query4_four_result = MessageQueryFourResult.from_message(msg)
+        if msg_query4_four_result == None:
+            return
+        
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query4 Resultados:\n")
             file.write(f"----------------------------------------------------------\n")
-            file.write(f"Por el momento no hay resultados procesados \n")
+            for name, _ in msg_query4_four_result.totals:
+                file.write(f"{name}\n")
             file.write(f"----------------------------------------------------------\n")
 
     def get_query5_results(self):
+        query5_file_connection_data = self.query5_file_ip_port.split(',')
+        client_q5_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_q5_sock.connect((query5_file_connection_data[0], int(query5_file_connection_data[1])))
+        self.protocol = Protocol(client_q5_sock)
+
+        msg = self.protocol.receive()
+
+        msg_query5_five_result = MessageQueryFiveResult.from_message(msg)
+        if msg_query5_five_result == None:
+            return
+        
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query5 Resultados:\n")
             file.write(f"----------------------------------------------------------\n")
-            file.write(f"Por el momento no hay resultados procesados \n")
+            for name in msg_query5_five_result.totals:
+                file.write(f"{name}\n")
             file.write(f"----------------------------------------------------------\n")
 
     def send_queries_results_in_batch(self, client_sock):
