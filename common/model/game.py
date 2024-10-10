@@ -1,5 +1,6 @@
 ACTION_GENRE = "Action"
 INDIE_GENRE = "Indie"
+INCOMPLETE = ""
 
 class Game:
     def __init__(self, id ,name,windows,mac,linux,positive_reviews,
@@ -15,6 +16,15 @@ class Game:
         self.genre = genre
         self.playTime = playTime
         self.release_date = release_date
+
+    def is_incomplete(self) -> bool:
+        values = [self.id, self.name, self.positive_reviews, self.negative_reviews, self.linux, self.windows, self.mac, self.genre, self.playTime, self.release_date]
+        for value in values:
+            if value == INCOMPLETE:
+                return True
+        return False
+
+
 
     def is_indie(self) -> bool:
         return INDIE_GENRE in self.genre.split(",")

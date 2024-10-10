@@ -2,6 +2,7 @@ import logging
 logging.basicConfig(level=logging.CRITICAL)
 import socket
 import csv
+csv.field_size_limit(100000000)
 import time
 
 from common.message import *

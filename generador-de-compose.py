@@ -1,22 +1,23 @@
 import sys
 
 archivo_salida = "docker-compose-dev.yaml"
-cantidad_windows = 1
-cantidad_linux = 1
-cantidad_mac = 1
-cantidad_juego_indie = 1
-cantidad_decada = 1
-cantidad_review_indie = 1
-cantidad_positiva = 1
-cantidad_action = 1
-cantidad_ingles = 1
+cantidad_windows = 3
+cantidad_linux = 3
+cantidad_mac = 3
+cantidad_juego_indie = 3
+cantidad_decada = 3
+cantidad_review_indie = 3
+cantidad_positiva = 3
+cantidad_action = 3
+cantidad_ingles = 3
 cantidad_reducer_one = 1
-cantidad_reducer_two = 1
-cantidad_reducer_three = 1
-cantidad_reducer_four = 1
-cantidad_reducer_five = 1
-cantidad_game_validator = 1
-cantidad_review_validator = 1
+cantidad_reducer_two = 3
+cantidad_reducer_three = 3
+cantidad_reducer_four = 3
+cantidad_reducer_five = 3
+cantidad_game_validator = 8
+cantidad_review_validator = 8
+
 
 
 def generar_compose():
@@ -335,12 +336,16 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - CANT_WINDOWS={cantidad_windows}\n"
+        texto_a_escribir += f"      - CANT_LINUX={cantidad_linux}\n"
+        texto_a_escribir += f"      - CANT_MAC={cantidad_mac}\n"
+        texto_a_escribir += f"      - CANT_INDIE={cantidad_juego_indie}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
         texto_a_escribir += "      - database\n\n"
 
-    # Generar contenedores para worker_game_validator
+    # Generar contenedores para worker_review_validator
     for i in range(1, cantidad_review_validator + 1):
         texto_a_escribir += f"  worker_review_validator_{i}:\n"
         texto_a_escribir += f"    container_name: worker_review_validator_{i}\n"

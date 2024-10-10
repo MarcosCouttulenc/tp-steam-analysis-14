@@ -62,8 +62,52 @@ services:
     depends_on:
       - rabbitmq
 
+  worker_windows_2:
+    container_name: worker_windows_2
+    image: worker_windows:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_windows_3:
+    container_name: worker_windows_3
+    image: worker_windows:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
   worker_linux_1:
     container_name: worker_linux_1
+    image: worker_linux:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_linux_2:
+    container_name: worker_linux_2
+    image: worker_linux:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_linux_3:
+    container_name: worker_linux_3
     image: worker_linux:latest
     environment:
       - PYTHONUNBUFFERED=1
@@ -84,8 +128,52 @@ services:
     depends_on:
       - rabbitmq
 
+  worker_mac_2:
+    container_name: worker_mac_2
+    image: worker_mac:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_mac_3:
+    container_name: worker_mac_3
+    image: worker_mac:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
   worker_indie_1:
     container_name: worker_indie_1
+    image: worker_indie:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_indie_2:
+    container_name: worker_indie_2
+    image: worker_indie:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_indie_3:
+    container_name: worker_indie_3
     image: worker_indie:latest
     environment:
       - PYTHONUNBUFFERED=1
@@ -106,8 +194,52 @@ services:
     depends_on:
       - rabbitmq
 
+  worker_2010_2:
+    container_name: worker_2010_2
+    image: worker_2010:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_2010_3:
+    container_name: worker_2010_3
+    image: worker_2010:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
   worker_review_indie_1:
     container_name: worker_review_indie_1
+    image: worker_review_indie:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_review_indie_2:
+    container_name: worker_review_indie_2
+    image: worker_review_indie:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_review_indie_3:
+    container_name: worker_review_indie_3
     image: worker_review_indie:latest
     environment:
       - PYTHONUNBUFFERED=1
@@ -128,6 +260,28 @@ services:
     depends_on:
       - rabbitmq
 
+  worker_review_positive_2:
+    container_name: worker_review_positive_2
+    image: worker_review_positive:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_review_positive_3:
+    container_name: worker_review_positive_3
+    image: worker_review_positive:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
   worker_review_action_1:
     container_name: worker_review_action_1
     image: worker_review_action:latest
@@ -139,8 +293,52 @@ services:
     depends_on:
       - rabbitmq
 
+  worker_review_action_2:
+    container_name: worker_review_action_2
+    image: worker_review_action:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_review_action_3:
+    container_name: worker_review_action_3
+    image: worker_review_action:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
   worker_review_english_1:
     container_name: worker_review_english_1
+    image: worker_review_english:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_review_english_2:
+    container_name: worker_review_english_2
+    image: worker_review_english:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  worker_review_english_3:
+    container_name: worker_review_english_3
     image: worker_review_english:latest
     environment:
       - PYTHONUNBUFFERED=1
@@ -172,8 +370,52 @@ services:
     depends_on:
       - rabbitmq
 
+  query2_reducer_2:
+    container_name: query2_reducer_2
+    image: query2_reducer:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  query2_reducer_3:
+    container_name: query2_reducer_3
+    image: query2_reducer:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
   query3_reducer_1:
     container_name: query3_reducer_1
+    image: query3_reducer:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  query3_reducer_2:
+    container_name: query3_reducer_2
+    image: query3_reducer:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  query3_reducer_3:
+    container_name: query3_reducer_3
     image: query3_reducer:latest
     environment:
       - PYTHONUNBUFFERED=1
@@ -194,8 +436,52 @@ services:
     depends_on:
       - rabbitmq
 
+  query4_reducer_2:
+    container_name: query4_reducer_2
+    image: query4_reducer:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  query4_reducer_3:
+    container_name: query4_reducer_3
+    image: query4_reducer:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
   query5_reducer_1:
     container_name: query5_reducer_1
+    image: query5_reducer:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  query5_reducer_2:
+    container_name: query5_reducer_2
+    image: query5_reducer:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+
+  query5_reducer_3:
+    container_name: query5_reducer_3
     image: query5_reducer:latest
     environment:
       - PYTHONUNBUFFERED=1
@@ -277,6 +563,107 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - CANT_WINDOWS=3
+      - CANT_LINUX=3
+      - CANT_MAC=3
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_2:
+    container_name: worker_game_validator_2
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_WINDOWS=3
+      - CANT_LINUX=3
+      - CANT_MAC=3
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_3:
+    container_name: worker_game_validator_3
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_WINDOWS=3
+      - CANT_LINUX=3
+      - CANT_MAC=3
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_4:
+    container_name: worker_game_validator_4
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_WINDOWS=3
+      - CANT_LINUX=3
+      - CANT_MAC=3
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_5:
+    container_name: worker_game_validator_5
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_WINDOWS=3
+      - CANT_LINUX=3
+      - CANT_MAC=3
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_6:
+    container_name: worker_game_validator_6
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_WINDOWS=3
+      - CANT_LINUX=3
+      - CANT_MAC=3
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_7:
+    container_name: worker_game_validator_7
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_WINDOWS=3
+      - CANT_LINUX=3
+      - CANT_MAC=3
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_8:
+    container_name: worker_game_validator_8
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_WINDOWS=3
+      - CANT_LINUX=3
+      - CANT_MAC=3
     networks:
       - testing_net
     depends_on:
@@ -284,6 +671,83 @@ services:
 
   worker_review_validator_1:
     container_name: worker_review_validator_1
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator_2:
+    container_name: worker_review_validator_2
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator_3:
+    container_name: worker_review_validator_3
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator_4:
+    container_name: worker_review_validator_4
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator_5:
+    container_name: worker_review_validator_5
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator_6:
+    container_name: worker_review_validator_6
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator_7:
+    container_name: worker_review_validator_7
+    image: worker_review_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_review_validator_8:
+    container_name: worker_review_validator_8
     image: worker_review_validator:latest
     environment:
       - PYTHONUNBUFFERED=1
