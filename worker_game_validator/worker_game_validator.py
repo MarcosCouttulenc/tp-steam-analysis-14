@@ -59,12 +59,12 @@ class WorkerGameValidator:
     
     def send_eofs_to_queue(self, queue_name, queue_cant, msg_eof):
         msg_eof.set_not_last_eof()
-        
+
         for _ in range(queue_cant-1):
             self.service_queues.push(queue_name, msg_eof)
             
         msg_eof.set_last_eof()
-        print("MENSAJE LAST ENVIANDO:")
+        #print("MENSAJE LAST ENVIANDO:")
         print(msg_eof.message_payload)
         self.service_queues.push(queue_name, msg_eof)
     

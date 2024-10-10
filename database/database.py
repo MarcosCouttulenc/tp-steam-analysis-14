@@ -45,6 +45,8 @@ class DataBase:
                 if id == str(game_id):
                     return int(position)
         
+        return None
+    
     def store_game(self, game : Game):
         file_name,index_name = getFileName(game.id),getIndexName(game.id)
 
@@ -71,6 +73,9 @@ class DataBase:
         file_name, index_name = getFileName(game_id), getIndexName(game_id)
 
         position = self.get_index(index_name,game_id)
+
+        if (position == None):
+            return Game(-1, "", "False", "False", "False", 0, 0, "", "", 0, "")
         #position = self.get_index(index_name,game.id, self.hash_function(game.id))
 
         with open(file_name, 'r') as file:

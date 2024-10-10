@@ -25,7 +25,6 @@ class QueryTwoReducer:
     def process_message(self, ch, method, properties, message: Message):
         if message.is_eof():
             msg_eof = MessageEndOfDataset.from_message(message)
-            print(f"ME LLEGO EOF")
             if  msg_eof.is_last_eof():
                 print("push eof")
             

@@ -27,10 +27,10 @@ class LinuxWorker:
             msg_eof = MessageEndOfDataset.from_message(message)
             
             if msg_eof.is_last_eof():
-                print("RECIBI LAST EOF")
+                #print("RECIBI LAST EOF")
                 self.service_queues.push(self.queue_name_destiny, message)
             
-            print("RECIBI EOF PERO NO LAST")
+            #print("RECIBI EOF PERO NO LAST")
             self.service_queues.ack(ch, method)
             self.service_queues.close_connection()
             self.running = False

@@ -32,11 +32,9 @@ class DecadeWorker:
     
     def process_message(self, ch, method, properties, message: Message):
         if message.is_eof():
-            print("ME LLEGO EOF")
             msg_eof = MessageEndOfDataset.from_message(message)
             
             if msg_eof.is_last_eof():
-                print("EL MIO ES EL LAST")
                 self.send_eofs_to_queue(self.queue_name_destiny, self.cant_query2_reducer, msg_eof)
                 
             self.service_queues.ack(ch, method)
@@ -58,8 +56,6 @@ class DecadeWorker:
             self.service_queues.push(queue_name, msg_eof)
             
         msg_eof.set_last_eof()
-        print("MENSAJE LAST ENVIANDO:")
-        print(msg_eof.message_payload)
         self.service_queues.push(queue_name, msg_eof)
 
 

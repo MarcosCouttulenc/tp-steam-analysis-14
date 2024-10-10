@@ -53,8 +53,6 @@ class WorkerIndie:
             self.service_queues.push(queue_name, msg_eof)
             
         msg_eof.set_last_eof()
-        print("MENSAJE LAST ENVIANDO:")
-        print(msg_eof.message_payload)
         self.service_queues.push(queue_name, msg_eof)
         
         
