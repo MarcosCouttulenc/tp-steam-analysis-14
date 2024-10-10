@@ -27,6 +27,7 @@ def initialize_config():
         config_params["listen_result_query_port"] = int(os.getenv('LISTEN_RESULT_QUERY_PORT', config["DEFAULT"]["LISTEN_RESULT_QUERY_PORT"]))
         config_params["logging_level"] = os.getenv('LOGGING_LEVEL', config["DEFAULT"]["LOGGING_LEVEL"])
         config_params["listen_backlog"] = int(os.getenv('SERVER_LISTEN_BACKLOG', config["DEFAULT"]["SERVER_LISTEN_BACKLOG"]))
+        config_params["cant_game_validators"] = int(os.getenv('CANT_GAME_VALIDATORS'))
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -43,6 +44,7 @@ def main():
     listen_result_query_port = config_params["listen_result_query_port"]
     logging_level = config_params["logging_level"]
     listen_backlog = config_params["listen_backlog"]
+    cant_game_validators = config_params["cant_game_validators"]
     
     initialize_log(logging_level)
 
@@ -53,7 +55,7 @@ def main():
 
     # Initialize server and start server loop
 
-    server = Server(listen_new_connection_port, listen_result_query_port, listen_backlog)
+    server = Server(listen_new_connection_port, listen_result_query_port, listen_backlog, cant_game_validators)
     server.start()
 
 def initialize_log(logging_level):

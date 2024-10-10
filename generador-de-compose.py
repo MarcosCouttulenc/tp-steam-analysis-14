@@ -32,6 +32,7 @@ def generar_compose():
     texto_a_escribir += "    environment:\n"
     texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+    texto_a_escribir += f"      - CANT_GAME_VALIDATORS={cantidad_game_validator}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"

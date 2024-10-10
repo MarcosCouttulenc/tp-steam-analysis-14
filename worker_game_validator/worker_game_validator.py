@@ -1,7 +1,6 @@
 import logging
 logging.basicConfig(level=logging.CRITICAL)
 from middleware.queue import ServiceQueues
-from common.message_serializer import MessageSerializer
 from common.message import MessageGameInfo
 from common.message import MessageEndOfDataset
 
@@ -30,35 +29,33 @@ class WorkerGameValidator:
             self.service_queues.pop(self.queue_name_origin, self.on_pop_message)
 
     def on_pop_message(self, ch, method, properties, message):
-        #logging.critical(f'action: on_pop_message | result: start | body: {message}')
-
-        #if not message.is_eof():
-        #    logging.critical(f"GAME VALIDATOR: JUEGO {MessageGameInfo.from_message(message).game.name}")
-
         if message.is_eof():
-            self.send_eofs(message)
-            self.running = False
+            msg_eof = MessageEndOfDataset.from_message(message)
+            
+            if msg_eof.is_last_eof():
+                self.send_eofs(message)
+            
             self.service_queues.ack(ch, method)
             self.service_queues.close_connection()
+            self.running = False
+            return
         
-        else:
+        msg_game_info = MessageGameInfo.from_message(message)
+        if not msg_game_info.game.is_incomplete():
+            for queue_name_destiny in self.queues_name_destiny:
+                self.service_queues.push(queue_name_destiny, message)
+                #logging.critical(f'action: on_pop_message | result: push | queue: {queue_name_destiny}  | body: {message}')
 
-            msg_game_info = MessageGameInfo.from_message(message)
-            if not msg_game_info.game.is_incomplete():
+        #logging.critical(f'action: on_pop_message | result: ack')
+        self.service_queues.ack(ch, method)
 
-
-                for queue_name_destiny in self.queues_name_destiny:
-                    self.service_queues.push(queue_name_destiny, message)
-                    #logging.critical(f'action: on_pop_message | result: push | queue: {queue_name_destiny}  | body: {message}')
-
-            #logging.critical(f'action: on_pop_message | result: ack')
-            self.service_queues.ack(ch, method)
-
-        
-
-         
-
-        #logging.critical(f'action: on_pop_message | result: success')
+    def send_eofs(self, message):
+        self.send_eofs_to_queue(self.queue_windows, self.cant_windows, message)
+        self.send_eofs_to_queue(self.queue_linux, self.cant_linux, message)
+        self.send_eofs_to_queue(self.queue_mac, self.cant_mac, message)
+        self.send_eofs_to_queue(self.queue_indie, self.cant_indie, message)
+        # La cantidad de workers de bdd es siempre 1
+        self.send_eofs_to_queue(self.queue_bdd, 1, message)
     
     def send_eofs_to_queue(self, queue_name, queue_cant, message):
         for _ in range(queue_cant-1):
@@ -71,11 +68,4 @@ class WorkerGameValidator:
     
 
 
-    def send_eofs(self, message):
-
-        self.send_eofs_to_queue(self.queue_windows, self.cant_windows, message)
-        self.send_eofs_to_queue(self.queue_linux, self.cant_linux, message)
-        self.send_eofs_to_queue(self.queue_mac, self.cant_mac, message)
-        self.send_eofs_to_queue(self.queue_indie, self.cant_indie, message)
-        # La cantidad de workers de bdd es siempre 1
-        self.send_eofs_to_queue(self.queue_bdd, 1, message)
+    

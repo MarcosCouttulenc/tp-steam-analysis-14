@@ -6,6 +6,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - CANT_GAME_VALIDATORS=8
     networks:
       - testing_net
     depends_on:
