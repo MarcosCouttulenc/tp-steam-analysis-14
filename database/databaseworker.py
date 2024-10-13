@@ -37,6 +37,12 @@ class DataBaseWorker():
             client_sock = self.__accept_new_connection()
             protocol = Protocol(client_sock)
             msg = protocol.receive()
+
+            if msg.is_eof():
+                self.running_socket = False
+                client_sock.close()
+                return
+
             msg_query = MessageQueryGameDatabase.from_message(msg)
             game = self.data_base.get_game(msg_query.game_id)
             #logging.critical(f"Voy a responser game info de id: {msg_query.game_id}")
@@ -58,10 +64,11 @@ class DataBaseWorker():
     def process_message(self, ch, method, properties, message: Message):
         if message.is_eof():
             self.running_queue = False
+            self.service_queues.ack(ch, method)
             self.service_queues.close_connection()
             return
 
         msg_game_info = MessageGameInfo.from_message(message)
+        #logging.critical(f"Voy a gurdar game info de id: {msg_game_info.game.id}")
         self.data_base.store_game(msg_game_info.game)
         self.service_queues.ack(ch, method)
-        #self.data_base.get_game(msg_game_info.game.id)

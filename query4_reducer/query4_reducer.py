@@ -4,6 +4,7 @@ from middleware.queue import ServiceQueues
 from common.message import Message
 from common.message import MessageReviewInfo
 from common.message import MessageQueryFourFileUpdate
+from common.message import MessageEndOfDataset
 
 CHANNEL_NAME =  "rabbitmq"
 BUFFER_MAX_SIZE = 50
@@ -26,22 +27,29 @@ class QueryFourReducer:
     def process_message(self, ch, method, properties, message: Message):
 
         if message.is_eof():
+            msg_eof = MessageEndOfDataset.from_message(message)
+            if  msg_eof.is_last_eof():
+                print("push eof")
+            
             if len(self.buffer) > 0:
                 self.save_buffer_in_file_and_clean_it()
-        else:
-            msg_review_info = MessageReviewInfo.from_message(message)
+
+            self.running = False
+            self.service_queues.ack(ch, method)
+            self.service_queues.close_connection()
+            return
+            
+        msg_review_info = MessageReviewInfo.from_message(message)
 
 
-            self.curr_cant += 1            
-            #guardo en el buffer dict o actualizo si ya estaba la clave: (name, cant_reseñas_positivas)
-            if not msg_review_info.review.game_name in self.buffer:
-                self.buffer[msg_review_info.review.game_name] = 0
-            self.buffer[msg_review_info.review.game_name] += 1
+        self.curr_cant += 1            
+        #guardo en el buffer dict o actualizo si ya estaba la clave: (name, cant_reseñas_positivas)
+        if not msg_review_info.review.game_name in self.buffer:
+            self.buffer[msg_review_info.review.game_name] = 0
+        self.buffer[msg_review_info.review.game_name] += 1
 
-
-
-            if self.curr_cant >= BUFFER_MAX_SIZE:
-                self.save_buffer_in_file_and_clean_it()
+        if self.curr_cant >= BUFFER_MAX_SIZE:
+            self.save_buffer_in_file_and_clean_it()
 
         self.service_queues.ack(ch, method)
     

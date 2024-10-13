@@ -27,10 +27,8 @@ class LinuxWorker:
             msg_eof = MessageEndOfDataset.from_message(message)
             
             if msg_eof.is_last_eof():
-                #print("RECIBI LAST EOF")
                 self.service_queues.push(self.queue_name_destiny, message)
-            
-            #print("RECIBI EOF PERO NO LAST")
+                
             self.service_queues.ack(ch, method)
             self.service_queues.close_connection()
             self.running = False
@@ -38,19 +36,10 @@ class LinuxWorker:
 
 
         mes = MessageGameInfo.from_message(message)
-
-        #logging.critical(f"LINUX: JUEGO {mes.game.name}")
-
-        #logging.critical(f"Processing message: {mes.pretty_str()}")
-        #logging.critical(f"\nVALOR BOOLEANO DE MAC: {mes.game.mac}\n")
+        
         if mes.game.linux:
-            #logging.critical(f"JUEGO Linux FILTRADO: {mes.game.name}")
             update_message = Message(MESSAGE_TYPE_QUERY_ONE_UPDATE, PAYLOAD)
-
-            #logging.info(f"Juego: {mes.game.name} | Pusheando a {self.queue_name_destiny} | Msg: {update_message.message_payload}")
-
             self.service_queues.push(self.queue_name_destiny, update_message)
-            #logging.info(f"JUEGO MAC FILTRADO: {message.game.name}")
 
         self.service_queues.ack(ch, method)
 

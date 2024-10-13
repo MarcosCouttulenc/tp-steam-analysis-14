@@ -33,7 +33,6 @@ class QueryOneReducer:
     def process_message(self, ch, method, properties, message: Message):
         if message.is_eof():
             self.total_eofs += 1
-            #print(f"ME LLEGO EOF numero: {self.total_eofs}")
             if  self.total_eofs >= CANT_EOFS_TIL_CLOSE:
                 self.save_buffer_in_file_and_clean_it()
                 #push eof to query1_file

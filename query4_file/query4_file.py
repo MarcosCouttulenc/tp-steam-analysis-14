@@ -61,7 +61,6 @@ class QueryFourFile:
                 raise
             
     def get_file_snapshot(self):
-        print(self.totals)
         games_with_more_5000_positive_reviews = []
 
         for name, cant_reviews in self.totals.items():

@@ -35,14 +35,9 @@ class WINDOWSWorker:
             return
 
         mes = MessageGameInfo.from_message(message)
-        #logging.critical(f"Processing message: {mes.pretty_str()}")
-        #logging.critical(f"\nVALOR BOOLEANO DE MAC: {mes.game.mac}\n")
         
         if mes.game.windows:
-            #logging.critical(f"JUEGO WINDOWS FILTRADO: {mes.game.name}")
             update_message = Message(MESSAGE_TYPE_QUERY_ONE_UPDATE, PAYLOAD)
-
-            #logging.info(f"Juego: {mes.game.name} | Pusheando a {self.queue_name_destiny} | Msg: {update_message.message_payload}")
 
             self.service_queues.push(self.queue_name_destiny, update_message)
             

@@ -13,6 +13,16 @@ import errno
 
 CHANNEL_NAME = "rabbitmq"
 
+class QueryFiveInfo:
+    def __init__(self, id, name, cant_neg):
+        self.id = id
+        self.name = name
+        self.cant_neg = cant_neg
+    
+    def sum_cant_neg(self, new_cant_neg):
+        self.cant_neg += new_cant_neg
+    
+    
 class QueryFiveFile:
     def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog):
         self.queue_name_origin = queue_name_origin
@@ -68,24 +78,19 @@ class QueryFiveFile:
         if percentil_90 == None:
             return file_snapshot
 
-        for name, cant_reviews in self.totals.items():
+        for name, cant_reviews in sorted(self.totals.items(), key=lambda x: x[1][1], reverse=True):
             if cant_reviews[1] > percentil_90:
                 file_snapshot.append(name)
         
-        
-        
-        return file_snapshot
+        return file_snapshot[:10]
 
     def get_percentil_90(self):
-
         if len(self.totals) == 0:
             return None
 
         neg_reviews = [neg for pos, neg in self.totals.values()]
         neg_reviews_sorted = sorted(neg_reviews)
         percentil_90_pos = int(0.90 * (len(neg_reviews_sorted) - 1))
-
-        #logging.critical(f"neg_len:{len(neg_reviews_sorted)} | percentil_pos: {percentil_90_pos}")
 
         percentil_90 = neg_reviews_sorted[percentil_90_pos]
         return percentil_90
@@ -105,11 +110,13 @@ class QueryFiveFile:
 
     def update_totals(self, msg_query_five_file_update):
         for (name, cant_pos, cant_neg) in msg_query_five_file_update.buffer:
-            if not name in self.totals:
+            if name not in self.totals:
                 self.totals[name] = [0, 0]
-
-            self.totals[name][0] += int(cant_pos)
-            self.totals[name][1] += int(cant_neg)
+                
+            temp = self.totals[name]
+            temp[0] += int(cant_pos)
+            temp[1] += int(cant_neg)
+            self.totals[name] = temp
 
 
         

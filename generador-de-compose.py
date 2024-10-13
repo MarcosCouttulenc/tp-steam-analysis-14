@@ -1,22 +1,22 @@
 import sys
 
 archivo_salida = "docker-compose-dev.yaml"
-cantidad_windows = 3
-cantidad_linux = 3
-cantidad_mac = 3
+cantidad_windows = 5
+cantidad_linux = 5
+cantidad_mac = 5
 cantidad_juego_indie = 3
 cantidad_decada = 3
-cantidad_review_indie = 3
-cantidad_positiva = 3
-cantidad_action = 3
-cantidad_ingles = 3
+cantidad_review_indie = 5
+cantidad_positiva = 8
+cantidad_action = 5
+cantidad_ingles = 15
 cantidad_reducer_one = 1
-cantidad_reducer_two = 3
-cantidad_reducer_three = 3
-cantidad_reducer_four = 3
-cantidad_reducer_five = 3
+cantidad_reducer_two = 5
+cantidad_reducer_three = 6
+cantidad_reducer_four = 1
+cantidad_reducer_five = 1
 cantidad_game_validator = 8
-cantidad_review_validator = 8
+cantidad_review_validator = 9
 
 
 
@@ -33,6 +33,7 @@ def generar_compose():
     texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
     texto_a_escribir += f"      - CANT_GAME_VALIDATORS={cantidad_game_validator}\n"
+    texto_a_escribir += f"      - CANT_REVIEW_VALIDATORS={cantidad_review_validator}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
@@ -156,6 +157,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - CANT_QUERY3_REDUCER={cantidad_reducer_three}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -169,6 +171,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - CANT_REVIEW_ENGLISH={cantidad_ingles}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -182,6 +185,8 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - CANT_REVIEW_POSITIVE={cantidad_positiva}\n"
+        texto_a_escribir += f"      - CANT_QUERY5_REDUCER={cantidad_reducer_five}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -195,6 +200,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - CANT_QUERY4_REDUCER={cantidad_reducer_four}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -356,6 +362,8 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - CANT_REV_INDIE={cantidad_review_indie}\n"
+        texto_a_escribir += f"      - CANT_REV_ACTION={cantidad_action}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"

@@ -24,12 +24,9 @@ class WorkerIndie:
     def process_message(self, ch, method, properties, message: Message):
 
         if message.is_eof():
-            #print("ME LLEGO EOF")
             msg_eof = MessageEndOfDataset.from_message(message)
             
             if msg_eof.is_last_eof():
-                #print("EL MIO ES EL LAST")
-                #self.service_queues.push(self.queue_name_destiny, message)
                 self.send_eofs_to_queue(self.queue_name_destiny, self.cant_2010, msg_eof)
                 
             self.service_queues.ack(ch, method)
@@ -40,8 +37,6 @@ class WorkerIndie:
         msg_game_info = MessageGameInfo.from_message(message)
         
         if msg_game_info.game.is_indie():
-            #logging.critical(f"JUEGO Indie FILTRADO: {msg_game_info.game.name}\n")
-            #logging.critical(f"Juego: {msg_game_info.game.name} | Pusheando a {self.queue_name_destiny} | Msg: {message.message_payload}")
             self.service_queues.push(self.queue_name_destiny, message)
 
         self.service_queues.ack(ch, method)

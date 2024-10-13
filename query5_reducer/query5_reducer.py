@@ -4,6 +4,7 @@ from middleware.queue import ServiceQueues
 from common.message import Message
 from common.message import MessageReviewInfo
 from common.message import MessageQueryFiveFileUpdate
+from common.message import MessageEndOfDataset
 
 CHANNEL_NAME =  "rabbitmq"
 BUFFER_MAX_SIZE = 50
@@ -26,29 +27,38 @@ class QueryFiveReducer:
     def process_message(self, ch, method, properties, message: Message):
 
         if message.is_eof():
+            msg_eof = MessageEndOfDataset.from_message(message)
+            if  msg_eof.is_last_eof():
+                print("push eof")
+            
             if len(self.buffer) > 0:
                 self.save_buffer_in_file_and_clean_it()
+
+            self.running = False
+            self.service_queues.ack(ch, method)
+            self.service_queues.close_connection()
+            return
+
+        self.current_reduced += 1
+        msg_review_info = MessageReviewInfo.from_message(message)
+
+        #guardo en el buffer dict o actualizo si ya estaba la clave: (name, (cant_reseñas_positivas, cant_reseñas_negativas))
+        if not msg_review_info.review.game_name in self.buffer:
+            self.buffer[msg_review_info.review.game_name] = [0, 0]
+        
+        if msg_review_info.review.is_positive():
+            self.buffer[msg_review_info.review.game_name][0] += 1
         else:
-            self.current_reduced += 1
-            msg_review_info = MessageReviewInfo.from_message(message)
+            self.buffer[msg_review_info.review.game_name][1] += 1
 
-
-            #guardo en el buffer dict o actualizo si ya estaba la clave: (name, (cant_reseñas_positivas, cant_reseñas_negativas))
-            if not msg_review_info.review.game_name in self.buffer:
-                self.buffer[msg_review_info.review.game_name] = [0, 0]
-            
-            if msg_review_info.review.is_positive():
-                self.buffer[msg_review_info.review.game_name][0] += 1
-            else:
-                self.buffer[msg_review_info.review.game_name][1] += 1
-
-            if self.current_reduced >= BUFFER_MAX_SIZE:
-                self.current_reduced = 0
-                self.save_buffer_in_file_and_clean_it()
+        if self.current_reduced >= BUFFER_MAX_SIZE:
+            self.current_reduced = 0
+            self.save_buffer_in_file_and_clean_it()
 
         self.service_queues.ack(ch, method)
     
     def buffer_to_list_of_tuples(self):
+
         rta = []
         for name, cant_reviews in self.buffer.items():
             rta.append((name, cant_reviews[0], cant_reviews[1]))
@@ -59,6 +69,9 @@ class QueryFiveReducer:
         # tiempo de juego.
         for queue_name in self.queues_name_destiny:
             list_of_tuples = self.buffer_to_list_of_tuples()
+
+            print(list_of_tuples)
+            
             msg = MessageQueryFiveFileUpdate(list_of_tuples)
             self.service_queues.push(queue_name, msg)
         

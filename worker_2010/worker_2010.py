@@ -28,8 +28,6 @@ class DecadeWorker:
             return True
         return False
 
-
-    
     def process_message(self, ch, method, properties, message: Message):
         if message.is_eof():
             msg_eof = MessageEndOfDataset.from_message(message)

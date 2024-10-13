@@ -14,6 +14,7 @@ def initialize_config():
         config_params["queue_name_origin"] = os.getenv('QUEUE_NAME_ORIGIN', config["DEFAULT"]["QUEUE_NAME_ORIGIN"])
         config_params["queues_name_destiny"] = os.getenv('QUEUES_NAME_DESTINY', config["DEFAULT"]["QUEUES_NAME_DESTINY"])
         config_params["logging_level"] = os.getenv('LOGGING_LEVEL', config["DEFAULT"]["LOGGING_LEVEL"])
+        config_params["cant_reviews_english"] = int(os.getenv('CANT_REVIEW_ENGLISH'))
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -26,6 +27,7 @@ def main():
     queue_name_origin = config_params["queue_name_origin"]
     queues_name_destiny = config_params["queues_name_destiny"]
     logging_level = config_params["logging_level"]
+    cant_reviews_english = config_params["cant_reviews_english"]
     
     initialize_log(logging_level)
     
@@ -33,7 +35,7 @@ def main():
                   f"| logging_level: {logging_level}")
 
     print("action: PositiveWorker - start")
-    positive_worker = PositiveWorker(queue_name_origin, queues_name_destiny)
+    positive_worker = PositiveWorker(queue_name_origin, queues_name_destiny, cant_reviews_english)
     positive_worker.start()
 
 

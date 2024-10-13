@@ -24,7 +24,6 @@ class WorkerGameValidator:
 
 
     def start(self):
-        #logging.critical(f'action: start | result: success')
         while self.running:
             self.service_queues.pop(self.queue_name_origin, self.on_pop_message)
 
@@ -44,9 +43,7 @@ class WorkerGameValidator:
         if not msg_game_info.game.is_incomplete():
             for queue_name_destiny in self.queues_name_destiny:
                 self.service_queues.push(queue_name_destiny, message)
-                #logging.critical(f'action: on_pop_message | result: push | queue: {queue_name_destiny}  | body: {message}')
-
-        #logging.critical(f'action: on_pop_message | result: ack')
+                
         self.service_queues.ack(ch, method)
 
     def send_eofs(self, msg_eof):
@@ -64,7 +61,6 @@ class WorkerGameValidator:
             self.service_queues.push(queue_name, msg_eof)
             
         msg_eof.set_last_eof()
-        #print("MENSAJE LAST ENVIANDO:")
         print(msg_eof.message_payload)
         self.service_queues.push(queue_name, msg_eof)
     

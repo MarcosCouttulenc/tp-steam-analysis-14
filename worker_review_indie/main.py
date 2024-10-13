@@ -14,6 +14,7 @@ def initialize_config():
         config_params["queue_name_origin"] = os.getenv('QUEUE_NAME_ORIGIN', config["DEFAULT"]["QUEUE_NAME_ORIGIN"])
         config_params["queues_name_destiny"] = os.getenv('QUEUES_NAME_DESTINY', config["DEFAULT"]["QUEUES_NAME_DESTINY"])
         config_params["logging_level"] = os.getenv('LOGGING_LEVEL', config["DEFAULT"]["LOGGING_LEVEL"])
+        config_params["cant_query3_reducer"] = os.getenv('CANT_QUERY3_REDUCER')
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -26,6 +27,7 @@ def main():
     queue_name_origin = config_params["queue_name_origin"]
     queues_name_destiny = config_params["queues_name_destiny"]
     logging_level = config_params["logging_level"]
+    cant_query3_reducer = config_params["cant_query3_reducer"]
     
     initialize_log(logging_level)
     
@@ -33,7 +35,7 @@ def main():
                   f"| logging_level: {logging_level}")
 
     print("action: IndieReviewWorker - start")
-    indie_worker = IndieReviewWorker(queue_name_origin, queues_name_destiny)
+    indie_worker = IndieReviewWorker(queue_name_origin, queues_name_destiny, int(cant_query3_reducer))
     indie_worker.start()
 
 

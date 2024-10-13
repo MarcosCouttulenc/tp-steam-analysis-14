@@ -6,16 +6,16 @@ import errno
 from common.message import *
 from common.protocol import Protocol
 from common.protocol import *
-from common.message_serializer import MessageSerializer
 from middleware.queue import ServiceQueues
 
 CHANNEL_NAME =  "rabbitmq"
 
 class Server:
-    def __init__(self, listen_new_connection_port, listen_result_query_port, listen_backlog, cant_game_validators):
+    def __init__(self, listen_new_connection_port, listen_result_query_port, listen_backlog, cant_game_validators, cant_review_validators):
         self.listen_new_connection_port = listen_new_connection_port
         self.listen_result_query_port = listen_result_query_port
         self.cant_game_validators = cant_game_validators
+        self.cant_review_validators = cant_review_validators
 
         self.new_connection_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.new_connection_socket.bind(('', listen_new_connection_port))
@@ -69,22 +69,17 @@ class Server:
                 elif message.is_review():
                     self.service_queues.push("queue-reviews", message)
                 elif message.is_eof():
-                    print("\n\nME LLEGO UN END OF DATA\n\n")
-                    print(message)
                     msg_end_of_dataset = MessageEndOfDataset.from_message(message)
 
                     if msg_end_of_dataset.type == "Game":
-                       # self.service_queues.push("queue-games", message)
-                        self.send_eofs_to_games(msg_end_of_dataset)
+                        self.send_eofs_to_queue(msg_end_of_dataset, "queue-games", self.cant_game_validators)
                     else:
-                        self.service_queues.push("queue-reviews", message)
+                        self.send_eofs_to_queue(msg_end_of_dataset, "queue-reviews", self.cant_review_validators)
                         end_of_data = True
-                else:
-                    logging.critical(f'action: server_msg_received | result: unexpected_msg | msg: {message}')
-                    return
     
-    def send_eofs_to_games(self, msg_end_of_dataset):
-        for _ in range(self.cant_game_validators-1):
-            self.service_queues.push("queue-games", msg_end_of_dataset)
+    def send_eofs_to_queue(self, msg_end_of_dataset, destiny_queue, cant_workers):
+        for _ in range(cant_workers - 1):
+            self.service_queues.push(destiny_queue, msg_end_of_dataset)
+            
         msg_end_of_dataset.set_last_eof()
-        self.service_queues.push("queue-games", msg_end_of_dataset)
+        self.service_queues.push(destiny_queue, msg_end_of_dataset)
