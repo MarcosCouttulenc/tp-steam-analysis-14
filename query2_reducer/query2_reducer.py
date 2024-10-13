@@ -37,22 +37,8 @@ class QueryTwoReducer:
             return
     
         msg_game_info = MessageGameInfo.from_message(message)
-
-        #print(f"LLEGO AL REDUCER EL JUEGO:\n{msg_game_info.game.name}")
-        
-        #logging.critical(msg_game_info.pretty_str())
-
         self.buffer.append((msg_game_info.game.name, msg_game_info.game.playTime))
-        # print("\n\n buffer actual\n\n")
-        # print(self.buffer)
-        # print("\n\n")
-        self.buffer.sort(key=lambda game_data: game_data[1], reverse=True) #game_data: (name, playtime)
-
-        #logging.critical("----QUERY 2 HASTA AHORA----")
-        #for game_in_buffer in self.buffer:
-        #    logging.critical(game_in_buffer.pretty_str())
-
-        
+        self.buffer.sort(key=lambda game_data: game_data[1], reverse=True)
 
         if len(self.buffer) >= BUFFER_MAX_SIZE:
             self.save_buffer_in_file_and_clean_it()
@@ -65,7 +51,7 @@ class QueryTwoReducer:
         for queue_name in self.queues_name_destiny:
             msg = MessageQueryTwoFileUpdate(self.buffer)
 
-            #print(f"VOY A ENVIAR EL MSG:\n{msg.message_payload}")
+            print(f"Save buffer Q2 - {msg}")
 
             self.service_queues.push(queue_name, msg)
         

@@ -54,10 +54,14 @@ class QueryOneReducer:
         self.service_queues.ack(ch, method)
 
     def save_buffer_in_file_and_clean_it(self):
+        
         for queue_name in self.queues_name_destiny:
             msg = MessageQueryOneFileUpdate(
                 self.totals["linux"], self.totals["mac"], self.totals["windows"]
             )
+            
+            print(f"Save buffer Q1 - {msg}")
+
             self.service_queues.push(queue_name, msg)
         #guardar en archivo.
         self.init_buffer()

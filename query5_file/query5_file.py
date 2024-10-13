@@ -53,6 +53,8 @@ class QueryFiveFile:
             with self.file_lock:
                 file_snapshot = self.get_file_snapshot()
 
+            print("SNAPSHOT")
+            print(file_snapshot)
             message_result = MessageQueryFiveResult(file_snapshot)
             protocol = Protocol(client_sock)
             protocol.send(message_result)
@@ -78,9 +80,9 @@ class QueryFiveFile:
         if percentil_90 == None:
             return file_snapshot
 
-        for name, cant_reviews in sorted(self.totals.items(), key=lambda x: x[1][1], reverse=True):
+        for name, cant_reviews in sorted(self.totals.items(), key=lambda x: x[1][2], reverse=False):
             if cant_reviews[1] > percentil_90:
-                file_snapshot.append(name)
+                file_snapshot.append((cant_reviews[2], name))
         
         return file_snapshot[:10]
 
@@ -88,7 +90,7 @@ class QueryFiveFile:
         if len(self.totals) == 0:
             return None
 
-        neg_reviews = [neg for pos, neg in self.totals.values()]
+        neg_reviews = [neg for pos, neg, id in self.totals.values()]
         neg_reviews_sorted = sorted(neg_reviews)
         percentil_90_pos = int(0.90 * (len(neg_reviews_sorted) - 1))
 
@@ -109,9 +111,9 @@ class QueryFiveFile:
 
 
     def update_totals(self, msg_query_five_file_update):
-        for (name, cant_pos, cant_neg) in msg_query_five_file_update.buffer:
+        for (name, cant_pos, cant_neg,game_id) in msg_query_five_file_update.buffer:
             if name not in self.totals:
-                self.totals[name] = [0, 0]
+                self.totals[name] = [0, 0, int(game_id)]
                 
             temp = self.totals[name]
             temp[0] += int(cant_pos)

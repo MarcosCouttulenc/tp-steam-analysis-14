@@ -44,7 +44,7 @@ class QueryFiveReducer:
 
         #guardo en el buffer dict o actualizo si ya estaba la clave: (name, (cant_reseñas_positivas, cant_reseñas_negativas))
         if not msg_review_info.review.game_name in self.buffer:
-            self.buffer[msg_review_info.review.game_name] = [0, 0]
+            self.buffer[msg_review_info.review.game_name] = [0, 0,msg_review_info.review.game_id]
         
         if msg_review_info.review.is_positive():
             self.buffer[msg_review_info.review.game_name][0] += 1
@@ -61,7 +61,7 @@ class QueryFiveReducer:
 
         rta = []
         for name, cant_reviews in self.buffer.items():
-            rta.append((name, cant_reviews[0], cant_reviews[1]))
+            rta.append((name, cant_reviews[0], cant_reviews[1], cant_reviews[2]))
         return rta
 
     def save_buffer_in_file_and_clean_it(self):
@@ -69,10 +69,13 @@ class QueryFiveReducer:
         # tiempo de juego.
         for queue_name in self.queues_name_destiny:
             list_of_tuples = self.buffer_to_list_of_tuples()
-
-            print(list_of_tuples)
-            
             msg = MessageQueryFiveFileUpdate(list_of_tuples)
+
+            print(f"Save buffer Q5 - {msg}")
+
             self.service_queues.push(queue_name, msg)
         
         self.buffer = {}
+
+
+        

@@ -159,8 +159,8 @@ class ResultResponser:
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query5 Resultados:\n")
             file.write(f"----------------------------------------------------------\n")
-            for name in msg_query5_five_result.totals:
-                file.write(f"{name}\n")
+            for id, name in msg_query5_five_result.totals:
+                file.write(f"{id},{name}\n")
             file.write(f"----------------------------------------------------------\n")
 
     def send_queries_results_in_batch(self, client_sock):

@@ -429,7 +429,7 @@ class MessageQueryFiveFileUpdate(Message):
         
         message_payload = ""
         for review_data in buffer:
-            message_payload +=  review_data[0] + FIELD_DELIMITER + str(review_data[1]) + FIELD_DELIMITER + str(review_data[2]) + DATA_DELIMITER
+            message_payload +=  str(review_data[0]) + FIELD_DELIMITER + str(review_data[1]) + FIELD_DELIMITER + str(review_data[2]) + FIELD_DELIMITER + str(review_data[3]) + DATA_DELIMITER
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
@@ -445,7 +445,7 @@ class MessageQueryFiveFileUpdate(Message):
 
         for review in data:
             review_data = review.split(FIELD_DELIMITER)
-            buffer.append((review_data[0], review_data[1], review_data[2]))
+            buffer.append((review_data[0], review_data[1], review_data[2], review_data[3]))
 
         return cls(buffer)
 
@@ -455,8 +455,8 @@ class MessageQueryFiveResult(Message):
         self.totals = totals
         
         message_payload = ""
-        for total in totals:
-            message_payload +=  total + DATA_DELIMITER 
+        for id, name in totals:
+            message_payload +=  str(id) + FIELD_DELIMITER + name + DATA_DELIMITER 
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
@@ -472,9 +472,10 @@ class MessageQueryFiveResult(Message):
 
         if message.message_payload == "":
             return cls(buffer)
-
-        for name in data:
-            buffer.append((name))
+        
+        for elem in data:
+            id, name = elem.split(FIELD_DELIMITER)
+            buffer.append((id, name))
 
         return cls(buffer)
 

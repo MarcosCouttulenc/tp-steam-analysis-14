@@ -27,7 +27,6 @@ class QueryThreeReducer:
 
         if message.is_eof():
             msg_eof = MessageEndOfDataset.from_message(message)
-            print("ME LLEGO LAST EOF")
             if  msg_eof.is_last_eof():
                 print("push eof")
             
@@ -67,6 +66,9 @@ class QueryThreeReducer:
         for queue_name in self.queues_name_destiny:
             list_of_tuples = self.buffer_to_list_of_tuples()
             msg = MessageQueryThreeFileUpdate(list_of_tuples)
+
+            print(f"Save buffer Q3 - {msg}")
+
             self.service_queues.push(queue_name, msg)
         
         self.buffer = {}
