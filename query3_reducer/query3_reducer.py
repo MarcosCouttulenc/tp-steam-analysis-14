@@ -67,7 +67,7 @@ class QueryThreeReducer:
             list_of_tuples = self.buffer_to_list_of_tuples()
             msg = MessageQueryThreeFileUpdate(list_of_tuples)
 
-            print(f"Save buffer Q3 - {msg}")
+            #print(f"Save buffer Q3 - {msg}")
 
             self.service_queues.push(queue_name, msg)
         

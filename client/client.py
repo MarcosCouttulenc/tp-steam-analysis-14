@@ -58,12 +58,14 @@ class Client:
         batch_size = 50
         batch_list = []
         numero_mensaje_enivado = 0
+        total_sent_games = 0
 
         try: 
             with open(FILE_NAME_GAMES, 'r') as file:
                 csvReader = csv.reader(file)
                 next(csvReader) #saltamos primera linea de headers
                 for row in csvReader:
+                    total_sent_games+=1
                     game_data = Game(
                         row[0].strip(),  # AppID
                         row[1].strip(),  # Name
@@ -79,6 +81,7 @@ class Client:
                     )
 
 
+
                     #logging.critical(f"SIGO ENVIANDO, JUEGO: {game_data.name}")
 
                     messageGI = MessageGameInfo(game_data)
@@ -87,6 +90,7 @@ class Client:
                     if len(batch_list) == batch_size:
                         self.protocol.send_batch(batch_list)
                         logging.info(f'action: send_games | result: success | msg: sent {len(batch_list)} games')
+                        logging.critical(f"Games sent: {total_sent_games}")
                         batch_list = []
                     
                     numero_mensaje_enivado += 1
@@ -94,9 +98,11 @@ class Client:
                 if len(batch_list) > 0:
                     self.protocol.send_batch(batch_list)
                     logging.info(f'action: send_games | result: success | msg: sent {len(batch_list)} games')
+                    logging.critical(f"Games sent: {total_sent_games}")
                     batch_list = []
                 
                 self.protocol.send_batch([MessageEndOfDataset("Game")])
+                logging.critical(" All Games sent")
 
         except Exception as e:
             print("\n\n\n ERROR AL LEER CSV DE JUEGOS\n\n\n")
@@ -136,7 +142,7 @@ class Client:
                 if len(batch_list) > 0:
                     self.protocol.send_batch(batch_list)
                     cant_sent += len(batch_list)
-                    logging.info(f'action: reviews | result: success | msg: sent {cant_sent} reviews')
+                    logging.critical(f'action: reviews | result: success | msg: sent {cant_sent} reviews')
                     batch_list = []
                 
                 self.protocol.send_batch([MessageEndOfDataset("Review")])

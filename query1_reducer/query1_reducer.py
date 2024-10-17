@@ -60,7 +60,7 @@ class QueryOneReducer:
                 self.totals["linux"], self.totals["mac"], self.totals["windows"]
             )
             
-            print(f"Save buffer Q1 - {msg}")
+            #print(f"Save buffer Q1 - {msg}")
 
             self.service_queues.push(queue_name, msg)
         #guardar en archivo.

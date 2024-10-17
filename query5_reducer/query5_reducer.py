@@ -71,7 +71,7 @@ class QueryFiveReducer:
             list_of_tuples = self.buffer_to_list_of_tuples()
             msg = MessageQueryFiveFileUpdate(list_of_tuples)
 
-            print(f"Save buffer Q5 - {msg}")
+            #print(f"Save buffer Q5 - {msg}")
 
             self.service_queues.push(queue_name, msg)
         

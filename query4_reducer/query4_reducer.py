@@ -66,7 +66,7 @@ class QueryFourReducer:
             list_of_tuples = self.buffer_to_list_of_tuples()
             msg = MessageQueryFourFileUpdate(list_of_tuples)
 
-            print(f"Save buffer Q4 - {msg}")
+            #print(f"Save buffer Q4 - {msg}")
 
             self.service_queues.push(queue_name, msg)
         

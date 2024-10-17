@@ -51,7 +51,7 @@ class QueryTwoReducer:
         for queue_name in self.queues_name_destiny:
             msg = MessageQueryTwoFileUpdate(self.buffer)
 
-            print(f"Save buffer Q2 - {msg}")
+            #print(f"Save buffer Q2 - {msg}")
 
             self.service_queues.push(queue_name, msg)
         
