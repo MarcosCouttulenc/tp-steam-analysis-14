@@ -37,7 +37,7 @@ class ReviewWorker:
         
         msg_review_info = MessageReviewInfo.from_message(message)
 
-        logging.critical(f"me llego msj: {message.message_payload}")
+        #logging.critical(f"me llego msj: {message.message_payload}")
         
         if self.validate_review(msg_review_info.review):
             self.forward_message(message)
