@@ -356,7 +356,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REVIEW_ENGLISH=15
+      - CANT_NEXT=15
     networks:
       - testing_net
     depends_on:
@@ -368,7 +368,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REVIEW_ENGLISH=15
+      - CANT_NEXT=15
     networks:
       - testing_net
     depends_on:
@@ -380,7 +380,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REVIEW_ENGLISH=15
+      - CANT_NEXT=15
     networks:
       - testing_net
     depends_on:
@@ -392,7 +392,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REVIEW_ENGLISH=15
+      - CANT_NEXT=15
     networks:
       - testing_net
     depends_on:
@@ -404,7 +404,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REVIEW_ENGLISH=15
+      - CANT_NEXT=15
     networks:
       - testing_net
     depends_on:
@@ -416,7 +416,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REVIEW_ENGLISH=15
+      - CANT_NEXT=15
     networks:
       - testing_net
     depends_on:
@@ -428,7 +428,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REVIEW_ENGLISH=15
+      - CANT_NEXT=15
     networks:
       - testing_net
     depends_on:
@@ -440,7 +440,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REVIEW_ENGLISH=15
+      - CANT_NEXT=15
     networks:
       - testing_net
     depends_on:
