@@ -296,7 +296,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_QUERY3_REDUCER=6
+      - CANT_NEXT=6
     networks:
       - testing_net
     depends_on:
@@ -308,7 +308,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_QUERY3_REDUCER=6
+      - CANT_NEXT=6
     networks:
       - testing_net
     depends_on:
@@ -320,7 +320,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_QUERY3_REDUCER=6
+      - CANT_NEXT=6
     networks:
       - testing_net
     depends_on:
@@ -332,7 +332,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_QUERY3_REDUCER=6
+      - CANT_NEXT=6
     networks:
       - testing_net
     depends_on:
@@ -344,7 +344,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_QUERY3_REDUCER=6
+      - CANT_NEXT=6
     networks:
       - testing_net
     depends_on:
