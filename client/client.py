@@ -80,10 +80,6 @@ class Client:
                         row[2].strip()   # Release date
                     )
 
-
-
-                    #logging.critical(f"SIGO ENVIANDO, JUEGO: {game_data.name}")
-
                     messageGI = MessageGameInfo(game_data)
                     batch_list.append(messageGI)
 
@@ -105,7 +101,7 @@ class Client:
                 logging.critical(" All Games sent")
 
         except Exception as e:
-            print("\n\n\n ERROR AL LEER CSV DE JUEGOS\n\n\n")
+            print("\n\n\n ERROR AL LEER CSV DE JUEGOS \n\n\n")
             logging.critical(f'action: send_games | result: error | msg: {e}')
 
    

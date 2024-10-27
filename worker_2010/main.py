@@ -14,7 +14,8 @@ def initialize_config():
         config_params["queue_name_origin"] = os.getenv('QUEUE_NAME_ORIGIN', config["DEFAULT"]["QUEUE_NAME_ORIGIN"])
         config_params["queues_name_destiny"] = os.getenv('QUEUES_NAME_DESTINY', config["DEFAULT"]["QUEUES_NAME_DESTINY"])
         config_params["logging_level"] = os.getenv('LOGGING_LEVEL', config["DEFAULT"]["LOGGING_LEVEL"])
-        config_params["cant_query2_reducer"] = int(os.getenv('CANT_QUERY2_REDUCER'))
+        config_params["cant_next"] = os.getenv('CANT_NEXT')
+        
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -27,7 +28,7 @@ def main():
     queue_name_origin = config_params["queue_name_origin"]
     queues_name_destiny = config_params["queues_name_destiny"]
     logging_level = config_params["logging_level"]
-    cant_query2_reducer = config_params["cant_query2_reducer"]
+    cant_next = config_params["cant_next"]
     
     initialize_log(logging_level)
     
@@ -35,7 +36,7 @@ def main():
                   f"| logging_level: {logging_level}")
 
     print("action: DecadeWorker - start")
-    macos_worker = DecadeWorker(queue_name_origin, queues_name_destiny, cant_query2_reducer)
+    macos_worker = DecadeWorker(queue_name_origin, queues_name_destiny, cant_next)
     macos_worker.start()
 
 
