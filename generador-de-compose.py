@@ -17,6 +17,7 @@ cantidad_reducer_four = 1
 cantidad_reducer_five = 1
 cantidad_game_validator = 8
 cantidad_review_validator = 9
+cantidad_clientes = 1
 
 
 
@@ -51,19 +52,20 @@ def generar_compose():
     texto_a_escribir += "      - server\n\n"
 
     # Agregar la configuración del cliente
-    texto_a_escribir += "  client:\n"
-    texto_a_escribir += "    container_name: client\n"
-    texto_a_escribir += "    image: client:latest\n"
-    texto_a_escribir += "    environment:\n"
-    texto_a_escribir += "      - CLI_ID=1\n"
-    texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
-    texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-    texto_a_escribir += "    volumes:\n"
-    texto_a_escribir += "      - ./client/config.ini:/client/config.ini\n"
-    texto_a_escribir += "    networks:\n"
-    texto_a_escribir += "      - testing_net\n"
-    texto_a_escribir += "    depends_on:\n"
-    texto_a_escribir += "      - result_responser\n\n"
+    for i in range(1, cantidad_clientes + 1):
+        texto_a_escribir += "  client:\n"
+        texto_a_escribir += "    container_name: client\n"
+        texto_a_escribir += "    image: client:latest\n"
+        texto_a_escribir += "    environment:\n"
+        texto_a_escribir += "      - CLI_ID={i}\n"
+        texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
+        texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += "    volumes:\n"
+        texto_a_escribir += "      - ./client/config.ini:/client/config.ini\n"
+        texto_a_escribir += "    networks:\n"
+        texto_a_escribir += "      - testing_net\n"
+        texto_a_escribir += "    depends_on:\n"
+        texto_a_escribir += "      - result_responser\n\n"
 
     # Agregar la configuración de RabbitMQ
     texto_a_escribir += "  rabbitmq:\n"
