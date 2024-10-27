@@ -109,8 +109,6 @@ class QueryFiveReducer(ReducerWorker):
         else:
             self.buffer[msg_review_info.review.game_name][1] += 1
 
-        if self.curr_cant >= BUFFER_MAX_SIZE:
-            self.send_buffer_to_file()
 
 
     def send_buffer_to_file(self):

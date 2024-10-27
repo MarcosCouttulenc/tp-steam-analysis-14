@@ -13,7 +13,7 @@ from common.model.game import Game
 from common.model.review import Review
 
 FILE_NAME_GAMES = 'fullgames.csv'
-FILE_NAME_REVIEWS = '10reviews.csv'
+FILE_NAME_REVIEWS = 'data1porcent.csv'
 
 class Client:
     def __init__(self, server_ip, server_port, result_responser_ip):
