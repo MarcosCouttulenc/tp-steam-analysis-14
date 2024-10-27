@@ -1,48 +1,17 @@
 import logging
 logging.basicConfig(level=logging.CRITICAL)
-from middleware.queue import ServiceQueues
-from common.message import MessageGameInfo
-from common.message import MessageEndOfDataset
+from common.game_worker import GameWorker
+from common.model.game import Game
 from common.message import Message
 
 CHANNEL_NAME =  "rabbitmq"
 MESSAGE_TYPE_QUERY_ONE_UPDATE = "query-one-update"
 PAYLOAD = "windows"
 
-class WINDOWSWorker:
-    def __init__(self, queue_name_origin, queue_name_destiny):
-        self.queue_name_origin = queue_name_origin
-        self.queue_name_destiny = queue_name_destiny
-        self.running = True
-        self.service_queues = ServiceQueues(CHANNEL_NAME)
+class WINDOWSWorker(GameWorker):
+    def validate_game(self, game: Game):
+        return game.windows
 
-    
-    def start(self):
-        while self.running:
-            self.service_queues.pop(self.queue_name_origin, self.process_message)
-
-    
-    def process_message(self, ch, method, properties, message: Message):
-        if message.is_eof():
-            msg_eof = MessageEndOfDataset.from_message(message)
-            
-            if msg_eof.is_last_eof():
-                self.service_queues.push(self.queue_name_destiny, message)
-            
-            self.service_queues.ack(ch, method)
-            self.service_queues.close_connection()
-            self.running = False
-            return
-
-        mes = MessageGameInfo.from_message(message)
-        
-        if mes.game.windows:
-            update_message = Message(MESSAGE_TYPE_QUERY_ONE_UPDATE, PAYLOAD)
-
-            self.service_queues.push(self.queue_name_destiny, update_message)
-            
-        self.service_queues.ack(ch, method)
-
-
-
-
+    def get_message_to_send(self, message):
+        update_message = Message(MESSAGE_TYPE_QUERY_ONE_UPDATE, PAYLOAD)
+        return update_message

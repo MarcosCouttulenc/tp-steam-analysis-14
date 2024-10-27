@@ -13,7 +13,7 @@ from common.model.game import Game
 from common.model.review import Review
 
 FILE_NAME_GAMES = 'fullgames.csv'
-FILE_NAME_REVIEWS = 'data1porcent.csv'
+FILE_NAME_REVIEWS = '10reviews.csv'
 
 class Client:
     def __init__(self, server_ip, server_port, result_responser_ip):
@@ -90,7 +90,7 @@ class Client:
                     if len(batch_list) == batch_size:
                         self.protocol.send_batch(batch_list)
                         logging.info(f'action: send_games | result: success | msg: sent {len(batch_list)} games')
-                        logging.critical(f"Games sent: {total_sent_games}")
+                        #logging.critical(f"Games sent: {total_sent_games}")
                         batch_list = []
                     
                     numero_mensaje_enivado += 1
@@ -98,7 +98,7 @@ class Client:
                 if len(batch_list) > 0:
                     self.protocol.send_batch(batch_list)
                     logging.info(f'action: send_games | result: success | msg: sent {len(batch_list)} games')
-                    logging.critical(f"Games sent: {total_sent_games}")
+                    #logging.critical(f"Games sent: {total_sent_games}")
                     batch_list = []
                 
                 self.protocol.send_batch([MessageEndOfDataset("Game")])

@@ -110,7 +110,7 @@ class QueryOneFile:
         updated_total_mac = current_total_mac + int(msg_query_one_file_update.total_mac)
         updated_total_windows = current_total_windows + int(msg_query_one_file_update.total_windows)
 
-        #logging.critical(f"---NUEVOS VALORES EN FILE---\nLINUX: {updated_total_linux} MAC: {updated_total_mac} WINDOWS: {updated_total_windows}")
+        logging.critical(f"---NUEVOS VALORES EN FILE---\nLINUX: {updated_total_linux} MAC: {updated_total_mac} WINDOWS: {updated_total_windows}")
         
         with open(self.file_path, mode='w', newline='') as file:
             fieldnames = ['total_linux', 'total_mac', 'total_windows']
