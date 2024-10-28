@@ -25,7 +25,8 @@ class QueryFile:
         self.file_lock = multiprocessing.Lock()
         self.running = True
         self.service_queues = ServiceQueues(CHANNEL_NAME)
-        self.totals = {}
+        manager = multiprocessing.Manager()
+        self.totals = manager.dict()
     
     def start(self):
         process_updates = multiprocessing.Process(target=self.process_handle_result_updates, args=())
