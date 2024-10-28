@@ -12,6 +12,9 @@ import errno
 
 CHANNEL_NAME = "rabbitmq"
 
+# File format:
+# <client_id>,<cant_linux>,<cant_mac>,<cant_windows>
+
 class QueryOneFile:
     def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog):
         self.queue_name_origin = queue_name_origin
@@ -40,7 +43,7 @@ class QueryOneFile:
             protocol = Protocol(client_sock)
 
             message = protocol.receive()
-            client_id = message.get_client_id()
+            client_id = int(message.get_client_id())
             
             with self.file_lock:
                 total_linux, total_windows, total_mac = self.get_file_snapshot(client_id)
@@ -69,6 +72,8 @@ class QueryOneFile:
             with open(self.file_path, mode='r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
+                    if int(row['client_id']) != client_id:
+                        continue
                     total_linux += int(row['total_linux'])
                     total_mac += int(row['total_mac'])
                     total_windows += int(row['total_windows'])
@@ -96,11 +101,16 @@ class QueryOneFile:
         current_total_linux = 0
         current_total_mac = 0
         current_total_windows = 0
+
+        client_id = int(msg_query_one_file_update.get_client_id())
         
         try:
             with open(self.file_path, mode='r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
+                    if int(row['client_id']) != client_id:
+                        continue
+        
                     current_total_linux = int(row['total_linux'])
                     current_total_mac = int(row['total_mac'])
                     current_total_windows = int(row['total_windows'])
@@ -112,13 +122,14 @@ class QueryOneFile:
         updated_total_mac = current_total_mac + int(msg_query_one_file_update.total_mac)
         updated_total_windows = current_total_windows + int(msg_query_one_file_update.total_windows)
 
-        logging.critical(f"---NUEVOS VALORES EN FILE---\nLINUX: {updated_total_linux} MAC: {updated_total_mac} WINDOWS: {updated_total_windows}")
+        logging.critical(f"---NUEVOS VALORES EN FILE---\nCLIENT: {client_id} LINUX: {updated_total_linux} MAC: {updated_total_mac} WINDOWS: {updated_total_windows}")
         
         with open(self.file_path, mode='w', newline='') as file:
-            fieldnames = ['total_linux', 'total_mac', 'total_windows']
+            fieldnames = ['client_id', 'total_linux', 'total_mac', 'total_windows']
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerow({
+                'client_id': client_id,
                 'total_linux': updated_total_linux,
                 'total_mac': updated_total_mac,
                 'total_windows': updated_total_windows
