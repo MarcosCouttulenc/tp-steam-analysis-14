@@ -46,7 +46,7 @@ class WorkerReviewValidator:
             return
         
         messageRI = MessageReviewInfo.from_message(message)
-        game = self.get_game_from_db(messageRI.review.game_id)
+        game = self.get_game_from_db(message.get_client_id(), messageRI.review.game_id)
 
         if game.id == "-1":
             self.service_queues.ack(ch, method)
@@ -54,7 +54,7 @@ class WorkerReviewValidator:
 
         messageRI.review.set_genre(game.genre)
 
-        message_to_push = MessageReviewInfo(messageRI.review)
+        message_to_push = MessageReviewInfo(message.get_client_id(), messageRI.review)
 
         for queue_name_destiny in self.queues_name_destiny:
             self.service_queues.push(queue_name_destiny, message_to_push)
@@ -62,12 +62,12 @@ class WorkerReviewValidator:
         self.service_queues.ack(ch, method)
 
 
-    def get_game_from_db(self, game_id) -> Game:
+    def get_game_from_db(self, client_id, game_id) -> Game:
         db_games = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         db_games.connect((self.db_games_ip, self.db_games_port))
 
         protocol_db_games = Protocol(db_games)
-        msg_query_game = MessageQueryGameDatabase(game_id)
+        msg_query_game = MessageQueryGameDatabase(client_id, game_id)
         protocol_db_games.send(msg_query_game)
 
         msg = protocol_db_games.receive()

@@ -25,10 +25,10 @@ class QueryThreeReducer(ReducerWorker):
             self.buffer[msg_review_info.review.game_name] += 1
 
 
-    def send_buffer_to_file(self):
+    def send_buffer_to_file(self, client_id):
         for queue_name in self.queues_name_destiny:
             list_of_tuples = self.buffer_to_list_of_tuples()
-            msg = MessageQueryThreeFileUpdate(list_of_tuples)
+            msg = MessageQueryThreeFileUpdate(client_id, list_of_tuples)
             self.service_queues.push(queue_name, msg)
         
         self.buffer = {}

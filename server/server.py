@@ -2,11 +2,14 @@ import logging
 logging.basicConfig(level=logging.CRITICAL)
 import socket
 import errno
+import signal
+import multiprocessing
 
 from common.message import *
 from common.protocol import Protocol
 from common.protocol import *
 from middleware.queue import ServiceQueues
+
 
 CHANNEL_NAME =  "rabbitmq"
 
@@ -21,16 +24,25 @@ class Server:
         self.new_connection_socket.bind(('', listen_new_connection_port))
         self.new_connection_socket.listen(listen_backlog)
 
+        self._server_is_running = True
+        self._server_connected_clients = []
+
         self.service_queues = ServiceQueues(CHANNEL_NAME)
+
+    def initialize_signals(self):
+        signal.signal(signal.SIGTERM, self.stop)
+
+    def stop(self, signum, frame):
+        logging.info("action: server_stop | result: in_progress")
+        self._server_is_running = False
+
+        for connected_client in self._server_connected_clients:
+            connected_client.join()
+
+        self.new_connection_socket.close()
+        logging.info("action: server_stop | result: success")
     
     def __accept_new_connection(self):
-        """
-        Accept new connections
-
-        Function blocks until a connection to a client is made.
-        Then connection created is printed and returned
-        """
-
         try:
             c, addr = self.new_connection_socket.accept()
             return c
@@ -41,8 +53,21 @@ class Server:
                 raise
     
     def start(self):
-        client_id = "1"
-        client_sock = self.__accept_new_connection()
+        client_id = 0
+        while self._server_is_running:
+            client_sock = self.__accept_new_connection()
+
+            if client_sock:
+                client_process = multiprocessing.Process(
+                    target = self.handle_client, 
+                    args = (client_sock, client_id)
+                ) 
+                client_process.start()
+                self._server_connected_clients.append(client_process)
+
+            client_id += 1
+
+    def handle_client(self, client_sock, client_id):
 
         protocol = Protocol(client_sock)
 

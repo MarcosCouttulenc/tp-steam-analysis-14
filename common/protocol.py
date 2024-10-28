@@ -25,9 +25,6 @@ class Protocol:
         if END_OF_BATCH_BYTES in buffer:
             data_batch = buffer[:buffer.index(END_OF_BATCH_BYTES)]
             self.previous_batch = buffer[buffer.index(END_OF_BATCH_BYTES) + LEN_END_OF_BATCH:]
-
-            #print(f"DATA BATCH (POR PRIMER IF)\n{data_batch}")
-
             return self.message_serializer.deserialize_batch(data_batch)
         
         while True:
@@ -41,9 +38,6 @@ class Protocol:
             if END_OF_BATCH_BYTES in buffer:
                 data_batch = buffer[:buffer.index(END_OF_BATCH_BYTES)]
                 self.previous_batch = buffer[buffer.index(END_OF_BATCH_BYTES) + LEN_END_OF_BATCH:]
-
-                #print(f"DATA BATCH (POR SEGUNDO IF)\n{data_batch}")
-
                 return self.message_serializer.deserialize_batch(data_batch)
 
     def send_batch(self, messages: list[Message]):

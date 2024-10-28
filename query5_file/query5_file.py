@@ -49,16 +49,16 @@ class QueryFiveFile:
     def process_handle_result_queries(self):
         while self.running:
             client_sock = self.__accept_new_connection()
+            protocol = Protocol(client_sock)
+
+            message = protocol.receive()
+            client_id = message.get_client_id()
             
             with self.file_lock:
-                file_snapshot = self.get_file_snapshot()
-
-            print("SNAPSHOT")
-            print(file_snapshot)
-            message_result = MessageQueryFiveResult(file_snapshot)
-            protocol = Protocol(client_sock)
+                file_snapshot = self.get_file_snapshot(client_id)
+                
+            message_result = MessageQueryFiveResult(client_id, file_snapshot)
             protocol.send(message_result)
-            #client_sock.close()
 
     def __accept_new_connection(self):
         try:
@@ -72,7 +72,7 @@ class QueryFiveFile:
             else:
                 raise
             
-    def get_file_snapshot(self):
+    def get_file_snapshot(self, client_id):
         file_snapshot = []
 
         percentil_90 = self.get_percentil_90()

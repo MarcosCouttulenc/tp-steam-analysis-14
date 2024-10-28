@@ -25,7 +25,7 @@ class ReducerWorker:
     def update_buffer(self, message: Message):
         return 0
 
-    def send_buffer_to_file(self):
+    def send_buffer_to_file(self, client_id):
         return 0
     
     def init_buffer(self):
@@ -45,7 +45,7 @@ class ReducerWorker:
         self.update_buffer(message)
 
         if self.buffer_is_full():
-            self.send_buffer_to_file()
+            self.send_buffer_to_file(message.get_client_id())
 
         self.service_queues.ack(ch, method)
 
@@ -56,7 +56,7 @@ class ReducerWorker:
             print("push eof")
         
         if self.buffer_contains_items():
-            self.send_buffer_to_file()
+            self.send_buffer_to_file(message.get_client_id())
 
         self.running = False
         self.service_queues.ack(ch, method)

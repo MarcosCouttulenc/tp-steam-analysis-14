@@ -37,14 +37,16 @@ class QueryOneFile:
     def process_handle_result_queries(self):
         while self.running:
             client_sock = self.__accept_new_connection()
+            protocol = Protocol(client_sock)
+
+            message = protocol.receive()
+            client_id = message.get_client_id()
             
             with self.file_lock:
-                total_linux, total_windows, total_mac = self.get_file_snapshot()
+                total_linux, total_windows, total_mac = self.get_file_snapshot(client_id)
 
-            message_result = MessageQueryOneResult(total_linux, total_mac, total_windows)
-            protocol = Protocol(client_sock)
+            message_result = MessageQueryOneResult(client_id, total_linux, total_mac, total_windows)
             protocol.send(message_result)
-            #client_sock.close()
 
     def __accept_new_connection(self):
         try:
@@ -58,7 +60,7 @@ class QueryOneFile:
             else:
                 raise
             
-    def get_file_snapshot(self):
+    def get_file_snapshot(self, client_id):
         total_linux = 0
         total_mac = 0
         total_windows = 0

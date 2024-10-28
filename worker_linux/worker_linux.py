@@ -11,6 +11,6 @@ class LinuxWorker(GameWorker):
     def validate_game(self, game: Game):
         return game.linux
 
-    def get_message_to_send(self, message):
-        update_message = Message(MESSAGE_TYPE_QUERY_ONE_UPDATE, PAYLOAD)
+    def get_message_to_send(self, message: Message):
+        update_message = Message(message.get_client_id(), MESSAGE_TYPE_QUERY_ONE_UPDATE, PAYLOAD)
         return update_message

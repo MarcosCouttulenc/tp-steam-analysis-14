@@ -11,7 +11,7 @@ LEN_END_OF_BATCH = len(END_OF_MESSAGE) + len(END_OF_BATCH)
 class MessageSerializer:
     
     def serialize(self, message: Message) -> str:
-        data = message.message_type + DATA_DELIMITER + message.message_payload + END_OF_MESSAGE
+        data = str(message.client_id) + DATA_DELIMITER + message.message_type + DATA_DELIMITER + message.message_payload + END_OF_MESSAGE
         return data.encode("utf-8")
 
     def deserialize(self, message_str: str) -> Message:
@@ -24,7 +24,7 @@ class MessageSerializer:
         #     print("\n\npost DESERIALIZE\n\n")
             
         #A la izquierda esta el tipo, todo lo que esta a la derecha es payload
-        return Message(data[0], DATA_DELIMITER.join(data[1:]))
+        return Message(data[0], data[1], DATA_DELIMITER.join(data[2:]))
 
     def serialize_batch(self, messages: list[Message]) -> str:
         data_batch = [self.serialize(message) for message in messages]

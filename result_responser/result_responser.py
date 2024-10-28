@@ -5,6 +5,7 @@ import errno
 import os
 import socket
 
+from common.message import MessageClientAskResults
 from common.message import MessageQueryOneResult
 from common.message import MessageQueryTwoResult
 from common.message import MessageQueryThreeResult
@@ -34,8 +35,11 @@ class ResultResponser:
         logging.critical("result responser corriendo")
         while self.running:
             client_sock = self.__accept_new_connection()
+            protocol = Protocol(client_sock)
+
+            message = protocol.receive()
             
-            self.get_queries_results_and_create_tmp_file()
+            self.get_queries_results_and_create_tmp_file(message.get_client_id())
 
             self.send_queries_results_in_batch(client_sock)
             
@@ -55,21 +59,22 @@ class ResultResponser:
             else:
                 raise
 
-    def get_queries_results_and_create_tmp_file(self):
-        self.get_query1_results()
-        self.get_query2_results()
-        self.get_query3_results()
-        self.get_query4_results()
-        self.get_query5_results()
+    def get_queries_results_and_create_tmp_file(self, client_id):
+        self.get_query1_results(client_id)
+        self.get_query2_results(client_id)
+        self.get_query3_results(client_id)
+        self.get_query4_results(client_id)
+        self.get_query5_results(client_id)
         
 
-    def get_query1_results(self):
+    def get_query1_results(self, client_id: int):
         query1_file_connection_data = self.query1_file_ip_port.split(',')
 
         client_q1_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_q1_sock.connect((query1_file_connection_data[0], int(query1_file_connection_data[1])))
 
         self.protocol = Protocol(client_q1_sock)
+        self.protocol.send(MessageClientAskResults(client_id))
 
         msg = self.protocol.receive()
         msg_query1_one_result = MessageQueryOneResult.from_message(msg)
@@ -86,13 +91,14 @@ class ResultResponser:
 
         client_q1_sock.close()
 
-    def get_query2_results(self):
+    def get_query2_results(self, client_id: int):
         query2_file_connection_data = self.query2_file_ip_port.split(',')
 
         client_q2_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_q2_sock.connect((query2_file_connection_data[0], int(query2_file_connection_data[1])))
 
         self.protocol = Protocol(client_q2_sock)
+        self.protocol.send(MessageClientAskResults(client_id))
 
         msg = self.protocol.receive()
 
@@ -107,11 +113,14 @@ class ResultResponser:
                 file.write(f"{game_name}: {playtime}\n")
             file.write(f"----------------------------------------------------------\n")
 
-    def get_query3_results(self):
+    def get_query3_results(self, client_id: int):
         query3_file_connection_data = self.query3_file_ip_port.split(',')
         client_q3_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_q3_sock.connect((query3_file_connection_data[0], int(query3_file_connection_data[1])))
+        
         self.protocol = Protocol(client_q3_sock)
+        self.protocol.send(MessageClientAskResults(client_id))
+
         msg = self.protocol.receive()
 
         msg_query3_three_result = MessageQueryThreeResult.from_message(msg)
@@ -125,11 +134,13 @@ class ResultResponser:
                 file.write(f"{game_name}: {total_pos_reviews}\n")
             file.write(f"----------------------------------------------------------\n")
 
-    def get_query4_results(self):
+    def get_query4_results(self, client_id: int):
         query4_file_connection_data = self.query4_file_ip_port.split(',')
         client_q4_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_q4_sock.connect((query4_file_connection_data[0], int(query4_file_connection_data[1])))
+        
         self.protocol = Protocol(client_q4_sock)
+        self.protocol.send(MessageClientAskResults(client_id))
 
         msg = self.protocol.receive()
 
@@ -144,11 +155,13 @@ class ResultResponser:
                 file.write(f"{name}\n")
             file.write(f"----------------------------------------------------------\n")
 
-    def get_query5_results(self):
+    def get_query5_results(self, client_id: int):
         query5_file_connection_data = self.query5_file_ip_port.split(',')
         client_q5_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_q5_sock.connect((query5_file_connection_data[0], int(query5_file_connection_data[1])))
+        
         self.protocol = Protocol(client_q5_sock)
+        self.protocol.send(MessageClientAskResults(client_id))
 
         msg = self.protocol.receive()
 

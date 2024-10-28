@@ -14,9 +14,9 @@ class QueryTwoReducer(ReducerWorker):
         self.buffer.append((msg_game_info.game.name, msg_game_info.game.playTime))
         self.buffer.sort(key=lambda game_data: game_data[1], reverse=True)
 
-    def send_buffer_to_file(self):
+    def send_buffer_to_file(self,client_id):
         for queue_name in self.queues_name_destiny:
-            msg = MessageQueryTwoFileUpdate(self.buffer)
+            msg = MessageQueryTwoFileUpdate(client_id,self.buffer)
             self.service_queues.push(queue_name, msg)
         
         self.buffer = []

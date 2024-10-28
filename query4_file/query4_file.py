@@ -39,14 +39,16 @@ class QueryFourFile:
     def process_handle_result_queries(self):
         while self.running:
             client_sock = self.__accept_new_connection()
+            protocol = Protocol(client_sock)
+
+            message = protocol.receive()
+            client_id = message.get_client_id()
             
             with self.file_lock:
-                games_with_more_5000_positive_reviews = self.get_file_snapshot()
+                games_with_more_5000_positive_reviews = self.get_file_snapshot(client_id)
 
-            message_result = MessageQueryFourResult(games_with_more_5000_positive_reviews)
-            protocol = Protocol(client_sock)
+            message_result = MessageQueryFourResult(client_id, games_with_more_5000_positive_reviews)
             protocol.send(message_result)
-            #client_sock.close()
 
     def __accept_new_connection(self):
         try:
@@ -60,7 +62,7 @@ class QueryFourFile:
             else:
                 raise
             
-    def get_file_snapshot(self):
+    def get_file_snapshot(self, client_id):
         games_with_more_5000_positive_reviews = []
 
         for name, cant_reviews in self.totals.items():
@@ -76,8 +78,6 @@ class QueryFourFile:
 
     def handle_new_update(self, ch, method, properties, message: Message):
         msg_query_four_file_update = MessageQueryFourFileUpdate.from_message(message)
-
-        #print(f"VOY A ACTUALIZAR:\n{message.message_payload}")
 
         with self.file_lock:
             self.update_totals(msg_query_four_file_update)

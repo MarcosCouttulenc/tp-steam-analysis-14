@@ -40,17 +40,16 @@ class QueryThreeFile:
     def process_handle_result_queries(self):
         while self.running:
             client_sock = self.__accept_new_connection()
+            protocol = Protocol(client_sock)
+
+            message = protocol.receive()
+            client_id = message.get_client_id()
             
             with self.file_lock:
-                top_five = self.get_file_snapshot()
+                top_five = self.get_file_snapshot(client_id)
 
-
-            message_result = MessageQueryThreeResult(top_five)
-
-
-            protocol = Protocol(client_sock)
+            message_result = MessageQueryThreeResult(client_id, top_five)
             protocol.send(message_result)
-            #client_sock.close()
 
     def __accept_new_connection(self):
         try:
@@ -64,7 +63,7 @@ class QueryThreeFile:
             else:
                 raise
             
-    def get_file_snapshot(self):
+    def get_file_snapshot(self, client_id):
         
         total_list = []
         for name, cant_reviews in self.totals.items():
@@ -73,8 +72,6 @@ class QueryThreeFile:
         
         total_list_sorted = sorted(total_list, key=lambda item: item[1], reverse=True)
 
-
-        
         top_five = total_list_sorted[:5]
 
 

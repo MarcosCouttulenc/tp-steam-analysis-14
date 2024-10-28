@@ -37,12 +37,15 @@ class QueryTwoFile:
     def process_handle_result_queries(self):
         while self.running:
             client_sock = self.__accept_new_connection()
+            protocol = Protocol(client_sock)
+
+            message = protocol.receive()
+            client_id = message.get_client_id()
             
             with self.file_lock:
-                top_ten = self.get_file_snapshot()
+                top_ten = self.get_file_snapshot(client_id)
 
-            message_result = MessageQueryTwoResult(top_ten)
-            protocol = Protocol(client_sock)
+            message_result = MessageQueryTwoResult(client_id, top_ten)
             protocol.send(message_result)
             #client_sock.close()
 
@@ -58,7 +61,7 @@ class QueryTwoFile:
             else:
                 raise
             
-    def get_file_snapshot(self):
+    def get_file_snapshot(self, client_id):
         top_ten = []
         try:
             with open(self.file_path, mode='r') as file:
