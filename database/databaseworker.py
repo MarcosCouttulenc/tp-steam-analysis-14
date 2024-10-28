@@ -44,7 +44,7 @@ class DataBaseWorker():
                 return
 
             msg_query = MessageQueryGameDatabase.from_message(msg)
-            game = self.data_base.get_game(msg_query.game_id)
+            game = self.data_base.get_game(msg_query.get_client_id(), msg_query.game_id)
             msg_game_info = MessageGameInfo(msg_query.get_client_id(), game)
             protocol.send(msg_game_info)
 
@@ -68,6 +68,5 @@ class DataBaseWorker():
             return
 
         msg_game_info = MessageGameInfo.from_message(message)
-        #logging.critical(f"Voy a gurdar game info de id: {msg_game_info.game.id}")
-        self.data_base.store_game(msg_game_info.game)
+        self.data_base.store_game(msg_game_info.get_client_id(),msg_game_info.game)
         self.service_queues.ack(ch, method)
