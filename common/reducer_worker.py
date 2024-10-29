@@ -58,9 +58,9 @@ class ReducerWorker:
         if self.buffer_contains_items():
             self.send_buffer_to_file(message.get_client_id())
 
-        self.running = False
         self.service_queues.ack(ch, method)
-        self.service_queues.close_connection()
+        #self.service_queues.close_connection()
+        #self.running = False
     
     
     

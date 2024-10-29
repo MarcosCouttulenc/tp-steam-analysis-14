@@ -16,23 +16,28 @@ class QueryFiveReducer(ReducerWorker):
     def update_buffer(self, message):
         self.curr_cant += 1
         msg_review_info = MessageReviewInfo.from_message(message)
+        client_id = msg_review_info.get_client_id()
+
+        if client_id not in self.buffer:
+            self.buffer[client_id] = {}
 
         #guardo en el buffer dict o actualizo si ya estaba la clave: (name, (cant_reseñas_positivas, cant_reseñas_negativas))
-        if not msg_review_info.review.game_name in self.buffer:
-            self.buffer[msg_review_info.review.game_name] = [0, 0, msg_review_info.review.game_id]
+        if not msg_review_info.review.game_name in self.buffer[client_id]:
+            self.buffer[client_id][msg_review_info.review.game_name] = [0, 0, msg_review_info.review.game_id]
         
         if msg_review_info.review.is_positive():
-            self.buffer[msg_review_info.review.game_name][0] += 1
+            self.buffer[client_id][msg_review_info.review.game_name][0] += 1
         else:
-            self.buffer[msg_review_info.review.game_name][1] += 1
+            self.buffer[client_id][msg_review_info.review.game_name][1] += 1
 
 
 
     def send_buffer_to_file(self, client_id):
         for queue_name in self.queues_name_destiny:
-            list_of_tuples = self.buffer_to_list_of_tuples()
-            msg = MessageQueryFiveFileUpdate(client_id, list_of_tuples)
-            self.service_queues.push(queue_name, msg)
+            for client_id in self.buffer.keys():
+                list_of_tuples = self.buffer_to_list_of_tuples(client_id)
+                msg = MessageQueryFiveFileUpdate(client_id, list_of_tuples)
+                self.service_queues.push(queue_name, msg)
         
         self.buffer = {}
         self.curr_cant = 0
@@ -46,8 +51,8 @@ class QueryFiveReducer(ReducerWorker):
     def buffer_is_full(self):
         return self.curr_cant >= BUFFER_MAX_SIZE
     
-    def buffer_to_list_of_tuples(self):
+    def buffer_to_list_of_tuples(self, client_id):
         rta = []
-        for name, cant_reviews in self.buffer.items():
+        for name, cant_reviews in self.buffer[client_id].items():
             rta.append((name, cant_reviews[0], cant_reviews[1], cant_reviews[2]))
         return rta

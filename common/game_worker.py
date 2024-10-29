@@ -51,8 +51,8 @@ class GameWorker:
             self.send_eofs(msg_eof)
         
         self.service_queues.ack(ch, method)
-        self.service_queues.close_connection()
-        self.running = False
+        #self.service_queues.close_connection()
+        #self.running = False
 
     def send_eofs(self, msg_eof):
         for queue_name, cant_next in self.queues_destiny.items():

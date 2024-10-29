@@ -16,25 +16,44 @@ class QueryThreeFile(QueryFile):
         return message_result
 
     def get_file_snapshot(self, client_id):
+        client_id = str(client_id)
+        if client_id not in self.totals:
+            print("NO HAY NADA")
+            return []
+
         total_list = []
-        for name, cant_reviews in self.totals.items():
+        for name, cant_reviews in self.totals[client_id].items():
             total_list.append((name, cant_reviews))
 
-        
         total_list_sorted = sorted(total_list, key=lambda item: item[1], reverse=True)
 
         top_five = total_list_sorted[:5]
-        #logging.critical(f"TOP FIVE TO SEND:")
         print(top_five)
+
         return top_five
 
     def update_results(self, message):
-        #print(f"TO  UPDATE: {message.message_payload}")
         msg_query_three_file_update = MessageQueryThreeFileUpdate.from_message(message)
+        client_id = str(msg_query_three_file_update.get_client_id())
+
+        if not client_id in self.totals:
+            self.totals[client_id] = {}
+        
+        #print("A ACTUALIZAR:")
+        #print(msg_query_three_file_update.buffer)
+
+        #print("ANTES DE ACTUALIZAR:")
+        #print(self.totals)
+
+        dict = self.totals[client_id]
+
         for name, cant_reviews in msg_query_three_file_update.buffer:
-            if not name in self.totals:
-                self.totals[name] = 0
-            self.totals[name] += int(cant_reviews)
-        #print("AFTER UPDATE:")
+            if not name in dict:
+                dict[name] = 0
+            dict[name] += int(cant_reviews)
+        
+        self.totals[client_id] = dict
+
+        #print("DESPUES DE ACTUALIZAR:")
         #print(self.totals)
 

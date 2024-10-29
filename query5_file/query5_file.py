@@ -18,14 +18,20 @@ class QueryFiveFile(QueryFile):
         return message_result
 
     def get_file_snapshot(self, client_id):
+        client_id = str(client_id)
+        
+        print("GET SNAPSHOT")
         file_snapshot = []
 
-        percentil_90 = self.get_percentil_90()
+        percentil_90 = self.get_percentil_90(client_id)
+
+        print("PERCENTIL 90")
+        print(percentil_90)
 
         if percentil_90 == None:
             return file_snapshot
 
-        for name, cant_reviews in sorted(self.totals.items(), key=lambda x: x[1][2], reverse=False):
+        for name, cant_reviews in sorted(self.totals[client_id].items(), key=lambda x: x[1][2], reverse=False):
             if cant_reviews[1] > percentil_90:
                 file_snapshot.append((cant_reviews[2], name))
         
@@ -33,25 +39,45 @@ class QueryFiveFile(QueryFile):
 
     def update_results(self, message):
         msg_query_five_file_update = MessageQueryFiveFileUpdate.from_message(message)
+
+        client_id = str(msg_query_five_file_update.get_client_id())
+
+        if not client_id in self.totals:
+            self.totals[client_id] = {}
+
+        print("ANTES DE ACTUALIAZR:")
+        print(self.totals)
+
+        print("A ACTUALIAZR:")
+        print(msg_query_five_file_update.buffer)
+
+        dict = self.totals[client_id]
+
         for (name, cant_pos, cant_neg,game_id) in msg_query_five_file_update.buffer:
-            if name not in self.totals:
-                self.totals[name] = [0, 0, int(game_id)]
+            if name not in dict:
+                dict[name] = [0, 0, int(game_id)]
                 
-            temp = self.totals[name]
+            temp = dict[name]
             temp[0] += int(cant_pos)
             temp[1] += int(cant_neg)
-            self.totals[name] = temp
+            dict[name] = temp
+
+        self.totals[client_id] = dict
+        
+        print("DESPUES DE ACTUALIAZR:")
+        print(self.totals)
     
 
-    def get_percentil_90(self):
-        if len(self.totals) == 0:
+    def get_percentil_90(self, client_id):
+        if client_id not in self.totals:
+            return None
+        
+        if len(self.totals[client_id]) == 0:
             return None
 
-        neg_reviews = [neg for pos, neg, id in self.totals.values()]
+        neg_reviews = [neg for pos, neg, id in self.totals[client_id].values()]
         neg_reviews_sorted = sorted(neg_reviews)
         percentil_90_pos = int(0.90 * (len(neg_reviews_sorted) - 1))
 
         percentil_90 = neg_reviews_sorted[percentil_90_pos]
         return percentil_90
-
-
