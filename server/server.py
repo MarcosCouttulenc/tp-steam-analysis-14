@@ -27,7 +27,7 @@ class Server:
         self._server_is_running = True
         self._server_connected_clients = []
 
-        self.service_queues = ServiceQueues(CHANNEL_NAME)
+        #self.service_queues = ServiceQueues(CHANNEL_NAME)
 
     def initialize_signals(self):
         signal.signal(signal.SIGTERM, self.stop)
@@ -58,25 +58,26 @@ class Server:
             client_sock = self.__accept_new_connection()
 
             if client_sock:
+                new_service_queue = ServiceQueues(CHANNEL_NAME)
                 client_process = multiprocessing.Process(
                     target = self.handle_client, 
-                    args = (client_sock, client_id)
+                    args = (client_sock, client_id, new_service_queue)
                 ) 
                 client_process.start()
                 self._server_connected_clients.append(client_process)
 
             client_id += 1
 
-    def handle_client(self, client_sock, client_id):
+    def handle_client(self, client_sock, client_id, service_queue):
 
         protocol = Protocol(client_sock)
 
         msg_welcome_client = MessageWelcomeClient(client_id, self.listen_result_query_port)
         protocol.send(msg_welcome_client)
 
-        self.process_client_messages(protocol)
+        self.process_client_messages(protocol, service_queue)
 
-    def process_client_messages(self, protocol):
+    def process_client_messages(self, protocol, service_queue):
         end_of_data = False
         numero_menasje_recibido = 0
 
@@ -90,21 +91,21 @@ class Server:
 
             for message in receive_batch:
                 if message.is_game():
-                    self.service_queues.push("queue-games", message)
+                    service_queue.push("queue-games", message)
                 elif message.is_review():
-                    self.service_queues.push("queue-reviews", message)
+                    service_queue.push("queue-reviews", message)
                 elif message.is_eof():
                     msg_end_of_dataset = MessageEndOfDataset.from_message(message)
 
                     if msg_end_of_dataset.type == "Game":
-                        self.send_eofs_to_queue(msg_end_of_dataset, "queue-games", self.cant_game_validators)
+                        self.send_eofs_to_queue(msg_end_of_dataset, "queue-games", self.cant_game_validators, service_queue)
                     else:
-                        self.send_eofs_to_queue(msg_end_of_dataset, "queue-reviews", self.cant_review_validators)
+                        self.send_eofs_to_queue(msg_end_of_dataset, "queue-reviews", self.cant_review_validators, service_queue)
                         end_of_data = True
     
-    def send_eofs_to_queue(self, msg_end_of_dataset, destiny_queue, cant_workers):
+    def send_eofs_to_queue(self, msg_end_of_dataset, destiny_queue, cant_workers, service_queue):
         for _ in range(cant_workers - 1):
-            self.service_queues.push(destiny_queue, msg_end_of_dataset)
+            service_queue.push(destiny_queue, msg_end_of_dataset)
             
         msg_end_of_dataset.set_last_eof()
-        self.service_queues.push(destiny_queue, msg_end_of_dataset)
+        service_queue.push(destiny_queue, msg_end_of_dataset)

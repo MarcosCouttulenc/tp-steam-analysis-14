@@ -27,6 +27,8 @@ def initialize_config():
         config_params["server_ip"] = os.getenv('SERVER_IP', config["DEFAULT"]["SERVER_IP"])
         config_params["logging_level"] = os.getenv('LOGGING_LEVEL', config["DEFAULT"]["LOGGING_LEVEL"])
         config_params["result_responser_ip"] = os.getenv('RESULT_RESPONSER_IP', config["DEFAULT"]["RESULT_RESPONSER_IP"])
+        config_params["games_file_path"] = os.getenv('GAMES_FILE_PATH')
+        config_params["reviews_file_path"] = os.getenv('REVIEWS_FILE_PATH')
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -42,6 +44,8 @@ def main():
     server_port = config_params["server_port"]
     server_ip = config_params["server_ip"]
     result_responser_ip = config_params["result_responser_ip"]
+    games_file_path = config_params["games_file_path"]
+    reviews_file_path = config_params["reviews_file_path"]
 
     initialize_log(logging_level)
 
@@ -52,7 +56,7 @@ def main():
 
     # Initialize server and start server loop
 
-    client = Client(server_ip, server_port, result_responser_ip)
+    client = Client(server_ip, server_port, result_responser_ip, games_file_path, reviews_file_path)
     client.start()
 
 def initialize_log(logging_level):

@@ -23,6 +23,7 @@ class QueryOneFile(QueryFile):
         total_mac = 0
         total_windows = 0
 
+
         try:
             with open(self.file_path, mode='r') as file:
                 reader = csv.DictReader(file)
@@ -36,13 +37,15 @@ class QueryOneFile(QueryFile):
             # Si el archivo no existe, los totales permanecen en 0
             pass
         
-        return (total_linux, total_windows, total_mac)
+        return (total_linux, total_mac, total_windows)
 
     def update_results(self, message):
         msg_query_one_file_update = MessageQueryOneFileUpdate.from_message(message)
         current_total_linux = 0
         current_total_mac = 0
         current_total_windows = 0
+
+        aux = {}
 
         client_id = int(msg_query_one_file_update.get_client_id())
         
@@ -51,6 +54,7 @@ class QueryOneFile(QueryFile):
                 reader = csv.DictReader(file)
                 for row in reader:
                     if int(row['client_id']) != client_id:
+                        aux[row['client_id']] = (row['total_linux'], row['total_mac'], row['total_windows'])
                         continue
         
                     current_total_linux = int(row['total_linux'])
@@ -64,15 +68,19 @@ class QueryOneFile(QueryFile):
         updated_total_mac = current_total_mac + int(msg_query_one_file_update.total_mac)
         updated_total_windows = current_total_windows + int(msg_query_one_file_update.total_windows)
 
+        aux[str(client_id)] = (str(updated_total_linux), str(updated_total_mac), str(updated_total_windows))
+
         logging.critical(f"---NUEVOS VALORES EN FILE---\nCLIENT: {client_id} LINUX: {updated_total_linux} MAC: {updated_total_mac} WINDOWS: {updated_total_windows}")
         
         with open(self.file_path, mode='w', newline='') as file:
             fieldnames = ['client_id', 'total_linux', 'total_mac', 'total_windows']
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerow({
-                'client_id': client_id,
-                'total_linux': updated_total_linux,
-                'total_mac': updated_total_mac,
-                'total_windows': updated_total_windows
-            })
+
+            for client_id in aux.keys():
+                writer.writerow({
+                    'client_id': client_id,
+                    'total_linux': aux[client_id][0],
+                    'total_mac': aux[client_id][1],
+                    'total_windows': aux[client_id][2]
+                })

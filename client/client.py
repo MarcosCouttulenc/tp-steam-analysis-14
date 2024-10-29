@@ -4,7 +4,6 @@ import socket
 import csv
 csv.field_size_limit(100000000)
 import time
-import multiprocessing
 
 from common.message import *
 from common.protocol import Protocol
@@ -12,11 +11,8 @@ from common.protocol import *
 from common.model.game import Game
 from common.model.review import Review
 
-FILE_NAME_GAMES = 'fullgames.csv'
-FILE_NAME_REVIEWS = 'data0.1porcent.csv'
-
 class Client:
-    def __init__(self, server_ip, server_port, result_responser_ip):
+    def __init__(self, server_ip, server_port, result_responser_ip, games_file_path, reviews_file_path):
         self.server_ip = server_ip
         self.server_port = server_port
         self.client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -27,6 +23,8 @@ class Client:
         self.listen_result_query_port = 0
 
         self.protocol = Protocol(self.client_sock)
+        self.games_file_path = games_file_path 
+        self.reviews_file_path = reviews_file_path 
 
     def start(self):
         logging.info('action: client_start | result: success')
@@ -62,7 +60,7 @@ class Client:
         total_sent_games = 0
 
         try: 
-            with open(FILE_NAME_GAMES, 'r') as file:
+            with open(self.games_file_path, 'r') as file:
                 csvReader = csv.reader(file)
                 next(csvReader) #saltamos primera linea de headers
                 for row in csvReader:
@@ -114,7 +112,7 @@ class Client:
         cant_sent = 0
 
         try:
-            with open(FILE_NAME_REVIEWS, 'r') as file:
+            with open(self.reviews_file_path, 'r') as file:
                 csvReader = csv.reader(file)
                 next(csvReader) #saltamos primera linea de headers
                 for row in csvReader:
