@@ -97,11 +97,11 @@ class Server:
                 elif message.is_eof():
                     msg_end_of_dataset = MessageEndOfDataset.from_message(message)
 
-                    if msg_end_of_dataset.type == "Game":
-                        self.send_eofs_to_queue(msg_end_of_dataset, "queue-games", self.cant_game_validators, service_queue)
-                    else:
-                        self.send_eofs_to_queue(msg_end_of_dataset, "queue-reviews", self.cant_review_validators, service_queue)
-                        end_of_data = True
+                    #if msg_end_of_dataset.type == "Game":
+                        #self.send_eofs_to_queue(msg_end_of_dataset, "queue-games", self.cant_game_validators, service_queue)
+                    #else:
+                        #self.send_eofs_to_queue(msg_end_of_dataset, "queue-reviews", self.cant_review_validators, service_queue)
+                    #    end_of_data = True
     
     def send_eofs_to_queue(self, msg_end_of_dataset, destiny_queue, cant_workers, service_queue):
         for _ in range(cant_workers - 1):
