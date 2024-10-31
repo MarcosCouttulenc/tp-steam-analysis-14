@@ -90,6 +90,9 @@ class Server:
                 return
 
             for message in receive_batch:
+                if message == None:
+                    print("MENSAJE NONE")
+                    continue
                 if message.is_game():
                     service_queue.push("queue-games", message)
                 elif message.is_review():

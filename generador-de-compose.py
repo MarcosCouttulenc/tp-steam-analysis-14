@@ -36,11 +36,11 @@ cantidad_reducer_three = 6
 cantidad_reducer_four = 1
 cantidad_reducer_five = 1
 cantidad_review_validator = 9
-cantidad_clientes = 1
+cantidad_clientes = 2
 cantidad_game_validator = 8 * cantidad_clientes
 
-game_files = {"1": "fullgames.csv", "2": "fullgames2.csv"}
-review_files = {"1": "data0.1porcent.csv", "2": "data0.1porcent2.csv"}
+game_files = {"1": "fullgames.csv", "2": "fullgames.csv"}
+review_files = {"1": "data0.1porcent.csv", "2": "data0.1porcent.csv"}
 
 #Los puertos de los lideres arrancan en 9000
 #port_master = 9000

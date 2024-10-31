@@ -100,12 +100,12 @@ class GameWorker:
     ## Proceso master eof handler
     ## --------------------------------------------------------------------------------      
     def process_control_master_eof_handler(self, socket_master_slave, socket_master_slave_addr, barrier):
-        print("Nuevo slave conectado en :", socket_master_slave_addr)
+        #print("Nuevo slave conectado en :", socket_master_slave_addr)
         protocol = Protocol(socket_master_slave)
         
         try:
             while self.running:
-                print(f"Esperando un EOF desde {socket_master_slave_addr}")
+                #print(f"Esperando un EOF desde {socket_master_slave_addr}")
                 msg = protocol.receive()
 
                 if (msg == None):
@@ -114,7 +114,7 @@ class GameWorker:
                 print(f"Recibe un EOF desde {socket_master_slave_addr}")
                 barrier.wait()
 
-                print(f"Se notifica a {socket_master_slave_addr} que ya llegaron todos los EOFs")
+                #print(f"Se notifica a {socket_master_slave_addr} que ya llegaron todos los EOFs")
                 protocol.send(msg)
         except OSError as e:
             if e.errno == errno.EBADF:  # Bad file descriptor, server socket closed

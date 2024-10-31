@@ -42,7 +42,8 @@ class ReducerWorker:
             self.handle_eof(ch, method, properties, message)
             
             return
-    
+
+        #print("Llego msj con data")
         self.update_buffer(message)
 
         if self.buffer_is_full():
@@ -51,12 +52,14 @@ class ReducerWorker:
         self.service_queues.ack(ch, method)
 
     def handle_eof(self, ch, method, properties, message: Message):
+        print("Llego EOF")
         msg_eof = MessageEndOfDataset.from_message(message)
         
         if  msg_eof.is_last_eof():
-            print("push eof")
+            print("push last eof")
         
         if self.buffer_contains_items():
+            print("Envio los ultimos datos")
             self.send_buffer_to_file(message.get_client_id())
 
         self.service_queues.ack(ch, method)

@@ -47,7 +47,7 @@ services:
       - CLI_ID={i}
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - GAMES_FILE_PATH=fullgames2.csv
+      - GAMES_FILE_PATH=fullgames.csv
       - REVIEWS_FILE_PATH=data0.1porcent.csv
     volumes:
       - ./client/config.ini:/client/config.ini
@@ -78,7 +78,10 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=True
+      - IS_MASTER=True
+      - PORT_MASTER=9001
+      - IP_MASTER=worker_windows_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
@@ -91,11 +94,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9001
+      - IP_MASTER=worker_windows_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_windows_1
 
   worker_windows_3:
     container_name: worker_windows_3
@@ -104,11 +110,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9001
+      - IP_MASTER=worker_windows_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_windows_1
 
   worker_windows_4:
     container_name: worker_windows_4
@@ -117,11 +126,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9001
+      - IP_MASTER=worker_windows_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_windows_1
 
   worker_windows_5:
     container_name: worker_windows_5
@@ -130,11 +142,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9001
+      - IP_MASTER=worker_windows_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_windows_1
 
   worker_linux_1:
     container_name: worker_linux_1
@@ -143,7 +158,10 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=True
+      - IS_MASTER=True
+      - PORT_MASTER=9002
+      - IP_MASTER=worker_linux_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
@@ -156,11 +174,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9002
+      - IP_MASTER=worker_linux_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_linux_1
 
   worker_linux_3:
     container_name: worker_linux_3
@@ -169,11 +190,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9002
+      - IP_MASTER=worker_linux_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_linux_1
 
   worker_linux_4:
     container_name: worker_linux_4
@@ -182,11 +206,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9002
+      - IP_MASTER=worker_linux_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_linux_1
 
   worker_linux_5:
     container_name: worker_linux_5
@@ -195,11 +222,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9002
+      - IP_MASTER=worker_linux_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_linux_1
 
   worker_mac_1:
     container_name: worker_mac_1
@@ -208,7 +238,10 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=True
+      - IS_MASTER=True
+      - PORT_MASTER=9003
+      - IP_MASTER=worker_mac_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
@@ -221,11 +254,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9003
+      - IP_MASTER=worker_mac_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_mac_1
 
   worker_mac_3:
     container_name: worker_mac_3
@@ -234,11 +270,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9003
+      - IP_MASTER=worker_mac_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_mac_1
 
   worker_mac_4:
     container_name: worker_mac_4
@@ -247,11 +286,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9003
+      - IP_MASTER=worker_mac_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_mac_1
 
   worker_mac_5:
     container_name: worker_mac_5
@@ -260,11 +302,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9003
+      - IP_MASTER=worker_mac_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_mac_1
 
   worker_indie_1:
     container_name: worker_indie_1
@@ -273,7 +318,10 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=3
-      - LIDER=True
+      - IS_MASTER=True
+      - PORT_MASTER=9004
+      - IP_MASTER=worker_indie_1
+      - CANT_SLAVES=3
     networks:
       - testing_net
     depends_on:
@@ -286,11 +334,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=3
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9004
+      - IP_MASTER=worker_indie_1
+      - CANT_SLAVES=3
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_indie_1
 
   worker_indie_3:
     container_name: worker_indie_3
@@ -299,11 +350,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=3
-      - LIDER=False
+      - IS_MASTER=False
+      - PORT_MASTER=9004
+      - IP_MASTER=worker_indie_1
+      - CANT_SLAVES=3
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_indie_1
 
   worker_2010_1:
     container_name: worker_2010_1
@@ -312,6 +366,10 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5
+      - IS_MASTER=True
+      - PORT_MASTER=9005
+      - IP_MASTER=worker_2010_1
+      - CANT_SLAVES=3
     networks:
       - testing_net
     depends_on:
@@ -324,10 +382,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5
+      - IS_MASTER=False
+      - PORT_MASTER=9005
+      - IP_MASTER=worker_2010_1
+      - CANT_SLAVES=3
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_2010_1
 
   worker_2010_3:
     container_name: worker_2010_3
@@ -336,10 +398,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5
+      - IS_MASTER=False
+      - PORT_MASTER=9005
+      - IP_MASTER=worker_2010_1
+      - CANT_SLAVES=3
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_2010_1
 
   worker_review_indie_1:
     container_name: worker_review_indie_1
@@ -348,6 +414,10 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=6
+      - IS_MASTER=True
+      - PORT_MASTER=9006
+      - IP_MASTER=worker_review_indie_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
@@ -360,10 +430,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=6
+      - IS_MASTER=False
+      - PORT_MASTER=9006
+      - IP_MASTER=worker_review_indie_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_indie_1
 
   worker_review_indie_3:
     container_name: worker_review_indie_3
@@ -372,10 +446,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=6
+      - IS_MASTER=False
+      - PORT_MASTER=9006
+      - IP_MASTER=worker_review_indie_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_indie_1
 
   worker_review_indie_4:
     container_name: worker_review_indie_4
@@ -384,10 +462,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=6
+      - IS_MASTER=False
+      - PORT_MASTER=9006
+      - IP_MASTER=worker_review_indie_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_indie_1
 
   worker_review_indie_5:
     container_name: worker_review_indie_5
@@ -396,10 +478,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=6
+      - IS_MASTER=False
+      - PORT_MASTER=9006
+      - IP_MASTER=worker_review_indie_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_indie_1
 
   worker_review_positive_1:
     container_name: worker_review_positive_1
@@ -408,6 +494,10 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=15
+      - IS_MASTER=True
+      - PORT_MASTER=9007
+      - IP_MASTER=worker_review_positive_1
+      - CANT_SLAVES=8
     networks:
       - testing_net
     depends_on:
@@ -420,10 +510,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=15
+      - IS_MASTER=False
+      - PORT_MASTER=9007
+      - IP_MASTER=worker_review_positive_1
+      - CANT_SLAVES=8
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_positive_1
 
   worker_review_positive_3:
     container_name: worker_review_positive_3
@@ -432,10 +526,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=15
+      - IS_MASTER=False
+      - PORT_MASTER=9007
+      - IP_MASTER=worker_review_positive_1
+      - CANT_SLAVES=8
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_positive_1
 
   worker_review_positive_4:
     container_name: worker_review_positive_4
@@ -444,10 +542,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=15
+      - IS_MASTER=False
+      - PORT_MASTER=9007
+      - IP_MASTER=worker_review_positive_1
+      - CANT_SLAVES=8
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_positive_1
 
   worker_review_positive_5:
     container_name: worker_review_positive_5
@@ -456,10 +558,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=15
+      - IS_MASTER=False
+      - PORT_MASTER=9007
+      - IP_MASTER=worker_review_positive_1
+      - CANT_SLAVES=8
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_positive_1
 
   worker_review_positive_6:
     container_name: worker_review_positive_6
@@ -468,10 +574,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=15
+      - IS_MASTER=False
+      - PORT_MASTER=9007
+      - IP_MASTER=worker_review_positive_1
+      - CANT_SLAVES=8
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_positive_1
 
   worker_review_positive_7:
     container_name: worker_review_positive_7
@@ -480,10 +590,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=15
+      - IS_MASTER=False
+      - PORT_MASTER=9007
+      - IP_MASTER=worker_review_positive_1
+      - CANT_SLAVES=8
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_positive_1
 
   worker_review_positive_8:
     container_name: worker_review_positive_8
@@ -492,10 +606,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=15
+      - IS_MASTER=False
+      - PORT_MASTER=9007
+      - IP_MASTER=worker_review_positive_1
+      - CANT_SLAVES=8
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_positive_1
 
   worker_review_action_1:
     container_name: worker_review_action_1
@@ -504,6 +622,10 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=8,1
+      - IS_MASTER=True
+      - PORT_MASTER=9008
+      - IP_MASTER=worker_review_action_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
@@ -516,10 +638,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=8,1
+      - IS_MASTER=False
+      - PORT_MASTER=9008
+      - IP_MASTER=worker_review_action_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_action_1
 
   worker_review_action_3:
     container_name: worker_review_action_3
@@ -528,10 +654,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=8,1
+      - IS_MASTER=False
+      - PORT_MASTER=9008
+      - IP_MASTER=worker_review_action_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_action_1
 
   worker_review_action_4:
     container_name: worker_review_action_4
@@ -540,10 +670,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=8,1
+      - IS_MASTER=False
+      - PORT_MASTER=9008
+      - IP_MASTER=worker_review_action_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_action_1
 
   worker_review_action_5:
     container_name: worker_review_action_5
@@ -552,10 +686,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=8,1
+      - IS_MASTER=False
+      - PORT_MASTER=9008
+      - IP_MASTER=worker_review_action_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_action_1
 
   worker_review_english_1:
     container_name: worker_review_english_1
@@ -564,6 +702,10 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=True
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
@@ -576,10 +718,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   worker_review_english_3:
     container_name: worker_review_english_3
@@ -588,10 +734,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   worker_review_english_4:
     container_name: worker_review_english_4
@@ -600,10 +750,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   worker_review_english_5:
     container_name: worker_review_english_5
@@ -612,10 +766,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   worker_review_english_6:
     container_name: worker_review_english_6
@@ -624,10 +782,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   worker_review_english_7:
     container_name: worker_review_english_7
@@ -636,10 +798,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   worker_review_english_8:
     container_name: worker_review_english_8
@@ -648,10 +814,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   worker_review_english_9:
     container_name: worker_review_english_9
@@ -660,10 +830,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   worker_review_english_10:
     container_name: worker_review_english_10
@@ -672,10 +846,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   worker_review_english_11:
     container_name: worker_review_english_11
@@ -684,10 +862,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   worker_review_english_12:
     container_name: worker_review_english_12
@@ -696,10 +878,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   worker_review_english_13:
     container_name: worker_review_english_13
@@ -708,10 +894,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   worker_review_english_14:
     container_name: worker_review_english_14
@@ -720,10 +910,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   worker_review_english_15:
     container_name: worker_review_english_15
@@ -732,10 +926,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - IS_MASTER=False
+      - PORT_MASTER=9009
+      - IP_MASTER=worker_review_english_1
+      - CANT_SLAVES=15
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_1
 
   query1_reducer_1:
     container_name: query1_reducer_1
@@ -743,6 +941,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=True
+      - PORT_MASTER=9010
+      - IP_MASTER=query1_reducer_1
+      - CANT_SLAVES=1
     networks:
       - testing_net
     depends_on:
@@ -754,6 +956,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=True
+      - PORT_MASTER=9011
+      - IP_MASTER=query2_reducer_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
@@ -765,10 +971,14 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=False
+      - PORT_MASTER=9011
+      - IP_MASTER=query2_reducer_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - query2_reducer_1
 
   query2_reducer_3:
     container_name: query2_reducer_3
@@ -776,10 +986,14 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=False
+      - PORT_MASTER=9011
+      - IP_MASTER=query2_reducer_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - query2_reducer_1
 
   query2_reducer_4:
     container_name: query2_reducer_4
@@ -787,10 +1001,14 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=False
+      - PORT_MASTER=9011
+      - IP_MASTER=query2_reducer_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - query2_reducer_1
 
   query2_reducer_5:
     container_name: query2_reducer_5
@@ -798,10 +1016,14 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=False
+      - PORT_MASTER=9011
+      - IP_MASTER=query2_reducer_1
+      - CANT_SLAVES=5
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - query2_reducer_1
 
   query3_reducer_1:
     container_name: query3_reducer_1
@@ -809,6 +1031,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=True
+      - PORT_MASTER=9012
+      - IP_MASTER=query3_reducer_1
+      - CANT_SLAVES=6
     networks:
       - testing_net
     depends_on:
@@ -820,10 +1046,14 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=False
+      - PORT_MASTER=9012
+      - IP_MASTER=query3_reducer_1
+      - CANT_SLAVES=6
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - query3_reducer_1
 
   query3_reducer_3:
     container_name: query3_reducer_3
@@ -831,10 +1061,14 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=False
+      - PORT_MASTER=9012
+      - IP_MASTER=query3_reducer_1
+      - CANT_SLAVES=6
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - query3_reducer_1
 
   query3_reducer_4:
     container_name: query3_reducer_4
@@ -842,10 +1076,14 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=False
+      - PORT_MASTER=9012
+      - IP_MASTER=query3_reducer_1
+      - CANT_SLAVES=6
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - query3_reducer_1
 
   query3_reducer_5:
     container_name: query3_reducer_5
@@ -853,10 +1091,14 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=False
+      - PORT_MASTER=9012
+      - IP_MASTER=query3_reducer_1
+      - CANT_SLAVES=6
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - query3_reducer_1
 
   query3_reducer_6:
     container_name: query3_reducer_6
@@ -864,10 +1106,14 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=False
+      - PORT_MASTER=9012
+      - IP_MASTER=query3_reducer_1
+      - CANT_SLAVES=6
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - query3_reducer_1
 
   query4_reducer_1:
     container_name: query4_reducer_1
@@ -875,6 +1121,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=True
+      - PORT_MASTER=9013
+      - IP_MASTER=query4_reducer_1
+      - CANT_SLAVES=1
     networks:
       - testing_net
     depends_on:
@@ -886,6 +1136,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IS_MASTER=True
+      - PORT_MASTER=9014
+      - IP_MASTER=query5_reducer_1
+      - CANT_SLAVES=1
     networks:
       - testing_net
     depends_on:
@@ -964,6 +1218,10 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=True
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
@@ -976,10 +1234,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_3:
     container_name: worker_game_validator_3
@@ -988,10 +1250,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_4:
     container_name: worker_game_validator_4
@@ -1000,10 +1266,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_5:
     container_name: worker_game_validator_5
@@ -1012,10 +1282,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_6:
     container_name: worker_game_validator_6
@@ -1024,10 +1298,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_7:
     container_name: worker_game_validator_7
@@ -1036,10 +1314,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_8:
     container_name: worker_game_validator_8
@@ -1048,10 +1330,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_9:
     container_name: worker_game_validator_9
@@ -1060,10 +1346,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_10:
     container_name: worker_game_validator_10
@@ -1072,10 +1362,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_11:
     container_name: worker_game_validator_11
@@ -1084,10 +1378,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_12:
     container_name: worker_game_validator_12
@@ -1096,10 +1394,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_13:
     container_name: worker_game_validator_13
@@ -1108,10 +1410,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_14:
     container_name: worker_game_validator_14
@@ -1120,10 +1426,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_15:
     container_name: worker_game_validator_15
@@ -1132,10 +1442,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_game_validator_16:
     container_name: worker_game_validator_16
@@ -1144,10 +1458,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5,5,3,1
+      - IS_MASTER=False
+      - PORT_MASTER=9015
+      - IP_MASTER=worker_game_validator_1
+      - CANT_SLAVES=16
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_1
 
   worker_review_validator_1:
     container_name: worker_review_validator_1
@@ -1156,6 +1474,10 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5
+      - IS_MASTER=True
+      - PORT_MASTER=9016
+      - IP_MASTER=worker_review_validator_1
+      - CANT_SLAVES=9
     networks:
       - testing_net
     depends_on:
@@ -1168,10 +1490,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5
+      - IS_MASTER=False
+      - PORT_MASTER=9016
+      - IP_MASTER=worker_review_validator_1
+      - CANT_SLAVES=9
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_review_validator_1
 
   worker_review_validator_3:
     container_name: worker_review_validator_3
@@ -1180,10 +1506,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5
+      - IS_MASTER=False
+      - PORT_MASTER=9016
+      - IP_MASTER=worker_review_validator_1
+      - CANT_SLAVES=9
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_review_validator_1
 
   worker_review_validator_4:
     container_name: worker_review_validator_4
@@ -1192,10 +1522,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5
+      - IS_MASTER=False
+      - PORT_MASTER=9016
+      - IP_MASTER=worker_review_validator_1
+      - CANT_SLAVES=9
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_review_validator_1
 
   worker_review_validator_5:
     container_name: worker_review_validator_5
@@ -1204,10 +1538,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5
+      - IS_MASTER=False
+      - PORT_MASTER=9016
+      - IP_MASTER=worker_review_validator_1
+      - CANT_SLAVES=9
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_review_validator_1
 
   worker_review_validator_6:
     container_name: worker_review_validator_6
@@ -1216,10 +1554,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5
+      - IS_MASTER=False
+      - PORT_MASTER=9016
+      - IP_MASTER=worker_review_validator_1
+      - CANT_SLAVES=9
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_review_validator_1
 
   worker_review_validator_7:
     container_name: worker_review_validator_7
@@ -1228,10 +1570,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5
+      - IS_MASTER=False
+      - PORT_MASTER=9016
+      - IP_MASTER=worker_review_validator_1
+      - CANT_SLAVES=9
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_review_validator_1
 
   worker_review_validator_8:
     container_name: worker_review_validator_8
@@ -1240,10 +1586,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5
+      - IS_MASTER=False
+      - PORT_MASTER=9016
+      - IP_MASTER=worker_review_validator_1
+      - CANT_SLAVES=9
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_review_validator_1
 
   worker_review_validator_9:
     container_name: worker_review_validator_9
@@ -1252,10 +1602,14 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=5,5
+      - IS_MASTER=False
+      - PORT_MASTER=9016
+      - IP_MASTER=worker_review_validator_1
+      - CANT_SLAVES=9
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_review_validator_1
 
 networks:
   testing_net:

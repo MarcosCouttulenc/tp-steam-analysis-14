@@ -21,7 +21,9 @@ class QueryThreeReducer(ReducerWorker):
         msg_review_info = MessageReviewInfo.from_message(message)
         
          #guardo en el buffer dict o actualizo si ya estaba la clave: (name, cant_reseñas_positivas)
+        print("llego reseña")
         if msg_review_info.review.is_positive():
+            print("era positiva")
             self.curr_cant += 1
             client_id = str(msg_review_info.get_client_id())
             
