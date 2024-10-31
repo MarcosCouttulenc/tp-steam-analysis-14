@@ -1,5 +1,6 @@
 import logging
 logging.basicConfig(level=logging.CRITICAL)
+import multiprocessing
 
 from common.message import MessageReviewInfo
 from common.message import MessageQueryFourFileUpdate
@@ -8,8 +9,8 @@ from common.reducer_worker import ReducerWorker
 BUFFER_MAX_SIZE = 50
 
 class QueryFourReducer(ReducerWorker):
-    def __init__(self, queue_name_origin, queues_name_destiny_str):
-        super().__init__(queue_name_origin, queues_name_destiny_str)
+    def __init__(self, queue_name_origin_eof, queue_name_origin,queues_name_destiny, cant_slaves, is_master, ip_master, port_master):
+        super().__init__(queue_name_origin_eof, queue_name_origin,queues_name_destiny, cant_slaves, is_master, ip_master, port_master)
         self.curr_cant = 0
 
     def update_buffer(self, message):
@@ -22,10 +23,14 @@ class QueryFourReducer(ReducerWorker):
         if client_id not in self.buffer:
             self.buffer[client_id] = {}
 
-        if not msg_review_info.review.game_name in self.buffer[client_id]:
-            self.buffer[client_id][msg_review_info.review.game_name] = 0
+        tmp = self.buffer[client_id]
 
-        self.buffer[client_id][msg_review_info.review.game_name] += 1
+        if not msg_review_info.review.game_name in tmp:
+            tmp[msg_review_info.review.game_name] = 0
+
+        tmp[msg_review_info.review.game_name] += 1
+
+        self.buffer[client_id] = tmp
 
 
     def send_buffer_to_file(self, client_id):
@@ -35,11 +40,12 @@ class QueryFourReducer(ReducerWorker):
                 msg = MessageQueryFourFileUpdate(client_id,list_of_tuples)
                 self.service_queues.push(queue_name, msg)
         
-        self.buffer = {}
+        self.buffer = self.init_buffer()
         self.curr_cant = 0
 
     def init_buffer(self):
-        return {}
+        manager = multiprocessing.Manager()
+        return manager.dict()
     
     def buffer_contains_items(self):
         return len(self.buffer) > 0

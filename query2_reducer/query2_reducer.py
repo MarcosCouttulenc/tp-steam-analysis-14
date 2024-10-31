@@ -1,5 +1,6 @@
 import logging
 logging.basicConfig(level=logging.CRITICAL)
+import multiprocessing
 
 from common.message import MessageGameInfo
 from common.message import MessageQueryTwoFileUpdate
@@ -18,9 +19,13 @@ class QueryTwoReducer(ReducerWorker):
         
         if client_id not in self.buffer:
             self.buffer[client_id] = []
+
+        tmp = self.buffer[client_id]
         
-        self.buffer[client_id].append((msg_game_info.game.name, msg_game_info.game.playTime))
-        self.buffer[client_id].sort(key=lambda game_data: game_data[1], reverse=True)
+        tmp.append((msg_game_info.game.name, msg_game_info.game.playTime))
+        tmp.sort(key=lambda game_data: game_data[1], reverse=True)
+
+        self.buffer[client_id] = tmp
 
     def send_buffer_to_file(self, _client_id):
         for queue_name in self.queues_name_destiny:
@@ -29,10 +34,11 @@ class QueryTwoReducer(ReducerWorker):
                 msg = MessageQueryTwoFileUpdate(client_id,self.buffer[client_id])
                 self.service_queues.push(queue_name, msg)
         
-        self.buffer = {}
+        self.buffer = self.init_buffer()
     
     def init_buffer(self):
-        return {}
+        manager = multiprocessing.Manager()
+        return manager.dict()
     
     def buffer_contains_items(self):
         return len(self.buffer) > 0

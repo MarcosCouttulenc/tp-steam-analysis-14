@@ -14,6 +14,11 @@ def initialize_config():
         config_params["queue_name_origin"] = os.getenv('QUEUE_NAME_ORIGIN', config["DEFAULT"]["QUEUE_NAME_ORIGIN"])
         config_params["queues_name_destiny"] = os.getenv('QUEUE_NAME_DESTINY', config["DEFAULT"]["QUEUE_NAME_DESTINY"])
         config_params["logging_level"] = os.getenv('LOGGING_LEVEL', config["DEFAULT"]["LOGGING_LEVEL"])
+        config_params["is_master"] = os.getenv('IS_MASTER')
+        config_params["port_master"] = os.getenv('PORT_MASTER')
+        config_params["ip_master"] = os.getenv('IP_MASTER')
+        config_params["queue_name_origin_eof"] = os.getenv('QUEUE_NAME_ORIGIN_EOF', config["DEFAULT"]["QUEUE_NAME_ORIGIN_EOF"])
+        config_params["cant_slaves"] = os.getenv('CANT_SLAVES')
 
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
@@ -27,13 +32,18 @@ def main():
     queue_name_origin = config_params["queue_name_origin"]
     queues_name_destiny = config_params["queues_name_destiny"]
     logging_level = config_params["logging_level"]
+    is_master = config_params["is_master"]
+    port_master = config_params["port_master"]
+    ip_master = config_params["ip_master"]
+    queue_name_origin_eof = config_params["queue_name_origin_eof"]
+    cant_slaves = config_params["cant_slaves"]
     
     
     initialize_log(logging_level)
     
     logging.debug(f"action: config | result: success | queue_name_origin: {queue_name_origin} | logging_level: {logging_level}")
 
-    query_three_reducer_worker = QueryThreeReducer(queue_name_origin,queues_name_destiny)
+    query_three_reducer_worker = QueryThreeReducer(queue_name_origin_eof, queue_name_origin,queues_name_destiny, cant_slaves, is_master, ip_master, port_master)
     query_three_reducer_worker.start()
 
 

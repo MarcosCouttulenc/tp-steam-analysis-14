@@ -45,11 +45,11 @@ class QueryFiveFile(QueryFile):
         if not client_id in self.totals:
             self.totals[client_id] = {}
 
-        print("ANTES DE ACTUALIAZR:")
-        print(self.totals)
+        #print("ANTES DE ACTUALIAZR:")
+        #print(self.totals)
 
-        print("A ACTUALIAZR:")
-        print(msg_query_five_file_update.buffer)
+        #print("A ACTUALIAZR:")
+        #print(msg_query_five_file_update.buffer)
 
         dict = self.totals[client_id]
 
@@ -64,8 +64,8 @@ class QueryFiveFile(QueryFile):
 
         self.totals[client_id] = dict
         
-        print("DESPUES DE ACTUALIAZR:")
-        print(self.totals)
+        #print("DESPUES DE ACTUALIAZR:")
+        #print(self.totals)
     
 
     def get_percentil_90(self, client_id):
