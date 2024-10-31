@@ -35,7 +35,7 @@ cantidad_reducer_two = 5
 cantidad_reducer_three = 6
 cantidad_reducer_four = 1
 cantidad_reducer_five = 1
-cantidad_review_validator = 9
+cantidad_review_validator = 3
 cantidad_clientes = 2
 cantidad_game_validator = 3
 

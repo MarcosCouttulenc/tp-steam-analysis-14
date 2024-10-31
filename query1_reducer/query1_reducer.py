@@ -6,24 +6,57 @@ from common.message import Message
 from common.message import MessageQueryOneUpdate
 from common.message import MessageQueryOneFileUpdate
 from common.reducer_worker import ReducerWorker
+from middleware.queue import ServiceQueues
 
 BUFFER_MAX_SIZE = 50
 CANT_EOFS_TIL_CLOSE = 3
+CHANNEL_NAME =  "rabbitmq"
 
 #buffer:
 # {"client_id": {"windows": int, "linux": int, "mac": int}}
 
 class QueryOneReducer():
     def __init__(self, queue_name_origin, queues_name_destiny_str):
-        super().__init__(queue_name_origin, queues_name_destiny_str)
+        self.queue_name_origin = queue_name_origin
+        self.queues_name_destiny = queues_name_destiny_str.split(",")
+        self.running = True
+        self.service_queues = ServiceQueues(CHANNEL_NAME)
+        
+        self.buffer = self.init_buffer()
+
+        #super().__init__(queue_name_origin, queues_name_destiny_str)
         self.curr_cant = 0
-        self.total_eofs = 0
+        #self.total_eofs = 0
+        self.total_eofs = {}
+    
+    def start(self):
+        while self.running:
+            self.service_queues.pop(self.queue_name_origin, self.process_message)
+    
+    def process_message(self, ch, method, properties, message: Message):
+        if message.is_eof():
+            self.handle_eof(ch, method, properties, message)
+            
+            return
+
+        #print("Llego msj con data")
+        self.update_buffer(message)
+
+        if self.buffer_is_full():
+            self.send_buffer_to_file(message.get_client_id())
+
+        self.service_queues.ack(ch, method)
 
     def handle_eof(self, ch, method, properties, message: Message):
-        self.total_eofs += 1
+        #self.total_eofs += 1
+        client_id = str(message.get_client_id())
+        if not client_id in self.total_eofs.keys():
+            self.total_eofs[client_id] = 0
+        self.total_eofs[client_id] += 1
         
-        if self.total_eofs >= CANT_EOFS_TIL_CLOSE:
-            self.total_eofs = 0
+        #if self.total_eofs >= CANT_EOFS_TIL_CLOSE:
+        if self.total_eofs[client_id] >= CANT_EOFS_TIL_CLOSE:
+            #self.total_eofs = 0
             self.send_buffer_to_file(message.client_id)
             #push eof to query1_file
             #self.running = False

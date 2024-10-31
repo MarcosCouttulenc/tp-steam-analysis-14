@@ -166,7 +166,6 @@ class GameWorker:
             print(f"[SLAVE] Envio un EOF final al proximo paso para el clienteId: {message.get_client_id()}")
             self.send_eofs(msg_eof)
 
-            
         time.sleep(4)
         
         
