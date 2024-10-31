@@ -4,12 +4,13 @@ logging.basicConfig(level=logging.CRITICAL)
 from common.message import MessageReviewInfo
 from common.message import MessageQueryFiveFileUpdate
 from common.reducer_worker import ReducerWorker
+import multiprocessing
 
 BUFFER_MAX_SIZE = 50
 
 class QueryFiveReducer(ReducerWorker):
-    def __init__(self, queue_name_origin, queues_name_destiny_str):
-        super().__init__(queue_name_origin, queues_name_destiny_str)
+    def __init__(self,queue_name_origin_eof, queue_name_origin, queues_name_destiny_str, cant_slaves, is_master, ip_master, port_master):
+        super().__init__(queue_name_origin_eof, queue_name_origin, queues_name_destiny_str, cant_slaves, is_master, ip_master, port_master)
         self.curr_cant = 0
         
 
@@ -21,14 +22,18 @@ class QueryFiveReducer(ReducerWorker):
         if client_id not in self.buffer:
             self.buffer[client_id] = {}
 
+        tmp = self.buffer[client_id]
+        
         #guardo en el buffer dict o actualizo si ya estaba la clave: (name, (cant_reseñas_positivas, cant_reseñas_negativas))
-        if not msg_review_info.review.game_name in self.buffer[client_id]:
-            self.buffer[client_id][msg_review_info.review.game_name] = [0, 0, msg_review_info.review.game_id]
+        if not msg_review_info.review.game_name in tmp:
+            tmp[msg_review_info.review.game_name] = [0, 0, msg_review_info.review.game_id]
         
         if msg_review_info.review.is_positive():
-            self.buffer[client_id][msg_review_info.review.game_name][0] += 1
+            tmp[msg_review_info.review.game_name][0] += 1
         else:
-            self.buffer[client_id][msg_review_info.review.game_name][1] += 1
+            tmp[msg_review_info.review.game_name][1] += 1
+
+        self.buffer[client_id] = tmp
 
 
 
@@ -39,11 +44,12 @@ class QueryFiveReducer(ReducerWorker):
                 msg = MessageQueryFiveFileUpdate(client_id, list_of_tuples)
                 self.service_queues.push(queue_name, msg)
         
-        self.buffer = {}
+        self.buffer = self.init_buffer()
         self.curr_cant = 0
 
     def init_buffer(self):
-        return {}
+        manager = multiprocessing.Manager()
+        return manager.dict()
     
     def buffer_contains_items(self):
         return len(self.buffer) > 0
