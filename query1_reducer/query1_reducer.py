@@ -13,7 +13,7 @@ CANT_EOFS_TIL_CLOSE = 3
 #buffer:
 # {"client_id": {"windows": int, "linux": int, "mac": int}}
 
-class QueryOneReducer(ReducerWorker):
+class QueryOneReducer():
     def __init__(self, queue_name_origin, queues_name_destiny_str):
         super().__init__(queue_name_origin, queues_name_destiny_str)
         self.curr_cant = 0
@@ -23,11 +23,12 @@ class QueryOneReducer(ReducerWorker):
         self.total_eofs += 1
         
         if self.total_eofs >= CANT_EOFS_TIL_CLOSE:
+            self.total_eofs = 0
             self.send_buffer_to_file(message.client_id)
             #push eof to query1_file
-            self.running = False
+            #self.running = False
             self.service_queues.ack(ch, method)
-            self.service_queues.close_connection()
+            #self.service_queues.close_connection()
             return
         
         self.service_queues.ack(ch, method)

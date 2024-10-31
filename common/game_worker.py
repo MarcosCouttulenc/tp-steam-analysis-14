@@ -33,7 +33,7 @@ class GameWorker:
         self.running = True
         self.cant_slaves = int(cant_slaves)-1
         self.service_queues_filter = ServiceQueues(CHANNEL_NAME)
-        #self.service_queues_eof = ServiceQueues(CHANNEL_NAME)
+        self.service_queues_eof = ServiceQueues(CHANNEL_NAME)
         self.queues_destiny = self.init_queues_destiny(queues_name_destiny, cant_next)
         self.queue_name_origin_eof = queue_name_origin_eof
         self.queue_name_origin = queue_name_origin
@@ -105,19 +105,21 @@ class GameWorker:
         
         try:
             while self.running:
-                #print(f"Esperando un EOF desde {socket_master_slave_addr}")
+                print(f"[MASTER] Esperando un EOF desde {socket_master_slave_addr}")
                 msg = protocol.receive()
 
                 if (msg == None):
+                    print(f"[MASTER] Recibe un None desde {socket_master_slave_addr}")
                     break
 
-                print(f"Recibe un EOF desde {socket_master_slave_addr}")
+                print(f"[MASTER] Recibe un EOF desde {socket_master_slave_addr} idCliente: {msg}")
                 barrier.wait()
 
-                #print(f"Se notifica a {socket_master_slave_addr} que ya llegaron todos los EOFs")
+                print(f"[MASTER] Se notifica a {socket_master_slave_addr} que ya llegaron todos los EOFs")
                 protocol.send(msg)
         except OSError as e:
             if e.errno == errno.EBADF:  # Bad file descriptor, server socket closed
+                print(f"[MASTER] SOCKET CERRADO - ACCEPT_NEW_CONNECTIONS")
                 logging.critical('SOCKET CERRADO - ACCEPT_NEW_CONNECTIONS')
                 return None
             else:
@@ -128,7 +130,7 @@ class GameWorker:
     ## Proceso slave eof handler
     ## --------------------------------------------------------------------------------
     def process_control_slave_eof_handler(self):
-        self.service_queues_eof = ServiceQueues(CHANNEL_NAME)
+        #self.service_queues_eof = ServiceQueues(CHANNEL_NAME)
         print(f"[SLAVE] Por conectarme a {str(self.ip_master)}:{str(self.port_master)}")
         
         time.sleep(10)
@@ -139,13 +141,18 @@ class GameWorker:
             self.service_queues_eof.pop_non_blocking(self.queue_name_origin_eof, self.process_message_slave_eof)
 
     def process_message_slave_eof(self, ch, method, properties, message: Message):
-        print("ME LLEGO EOF DE LA QUEUE DE EOFS")
+        print(f"[SLAVE] EMPIEZO CICLO DE EOFS DE CLIENTE, ME LLEGO EOF DE LA QUEUE DE EOFS de cliente: {message.get_client_id()}")
 
+        if message == None:
+            return
+        
         #Le notificamos al master el eof
         protocol = Protocol(self.socket_slave)
         
-        print(f"Envio un EOF al master del clienteId: {message.get_client_id()}")
-        protocol.send(message)
+        print(f"[SLAVE] Envio un EOF al master del clienteId: {message.get_client_id()}, msj: {message.message_payload}")
+        bytes_sent = protocol.send(message)
+        
+        print(f"[SLAVE] Enviado un EOF al master del clienteId: {message.get_client_id()}; cant de bytes enviados: {bytes_sent}")
 
         self.service_queues_eof.ack(ch, method)
 
@@ -156,8 +163,13 @@ class GameWorker:
         msg_eof = MessageEndOfDataset.from_message(message)
         
         if (msg_eof.is_last_eof()):
-            print(f"Envio un EOF final al proximo paso para el clienteId: {message.get_client_id()}")
+            print(f"[SLAVE] Envio un EOF final al proximo paso para el clienteId: {message.get_client_id()}")
             self.send_eofs(msg_eof)
+
+            
+        time.sleep(4)
+        
+        
 
     def send_eofs(self, msg_eof):
         for queue_name, cant_next in self.queues_destiny.items():
@@ -192,7 +204,7 @@ class GameWorker:
         self.service_queues_filter.ack(ch, method)
     
     def handle_eof(self, message, ch, method):
-        print("me llego EOF DE LA QUEUED DE DATA, lo pusheo a la queue de EOFS")
+        print("[FILTER] me llego EOF DE LA QUEUED DE DATA, lo pusheo a la queue de EOFS")
         self.service_queues_filter.push(self.queue_name_origin_eof, message)
         self.service_queues_filter.ack(ch, method)
 

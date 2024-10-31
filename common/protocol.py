@@ -1,6 +1,6 @@
 
 from common.message import Message
-from common.message_serializer import MessageSerializer, END_OF_BATCH_BYTES, END_OF_MESSAGE_BYTES, LEN_END_OF_BATCH
+from common.message_serializer import MessageSerializer, END_OF_BATCH_BYTES, END_OF_MESSAGE_BYTES, LEN_END_OF_BATCH, LEN_END_OF_MESSAGE
 
 BUFFER_RECEIVE_SIZE_BYTES = 1024*1
 BUFFER_RECEIVE_BATCH_SIZE_BYTES = BUFFER_RECEIVE_SIZE_BYTES * 2
@@ -64,10 +64,16 @@ class Protocol:
 
         buffer = b""
         buffer += self.previous_message
-        self.previous_message = ""
+        self.previous_message = b""
+
+        
+        #print("\n\n Previous: \n")
+        #print(self.previous_message)
+        #print("\n")
 
         if END_OF_MESSAGE_BYTES in buffer:
-            data_message = buffer[:buffer.index(END_OF_MESSAGE_BYTES)].strip()
+            data_message = buffer[:buffer.index(END_OF_MESSAGE_BYTES)]
+            self.previous_message = buffer[buffer.index(END_OF_MESSAGE_BYTES) + LEN_END_OF_MESSAGE:]
             return self.message_serializer.deserialize(data_message)
 
         while True:
@@ -80,8 +86,16 @@ class Protocol:
 
             #Si hay un END_OF_MESSAGE_BYTES en el buffer entonces cortamos el buffer ahi.
             if END_OF_MESSAGE_BYTES in buffer:
-                data_message = buffer[:buffer.index(END_OF_MESSAGE_BYTES)].strip()
-                self.previous_message = buffer[buffer.index(END_OF_MESSAGE_BYTES):]
+                data_message = buffer[:buffer.index(END_OF_MESSAGE_BYTES)]
+                self.previous_message = buffer[buffer.index(END_OF_MESSAGE_BYTES) + LEN_END_OF_MESSAGE:]
+
+                #print("\n Buffer en el while: \n")
+                #print(buffer)
+                #print("\n Data message en el while: \n")
+                #print(data_message)
+                #print("\n Previous message en el while: \n")
+                #print(self.previous_message)
+
                 return self.message_serializer.deserialize(data_message)
 
     def send(self, message: Message):
@@ -99,6 +113,7 @@ class Protocol:
             if (n == 0):
                 return None
             sent_bytes += n
+        return sent_bytes
 
 
     def send_stream(self, stream_message: str):

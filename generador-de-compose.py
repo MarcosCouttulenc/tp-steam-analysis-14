@@ -37,10 +37,10 @@ cantidad_reducer_four = 1
 cantidad_reducer_five = 1
 cantidad_review_validator = 9
 cantidad_clientes = 2
-cantidad_game_validator = 8 * cantidad_clientes
+cantidad_game_validator = 3
 
-game_files = {"1": "fullgames.csv", "2": "fullgames.csv"}
-review_files = {"1": "data0.1porcent.csv", "2": "data0.1porcent.csv"}
+game_files = {"1": "100games.csv", "2": "100games.csv"}
+review_files = {"1": "10reviews.csv", "2": "10reviews.csv"}
 
 #Los puertos de los lideres arrancan en 9000
 #port_master = 9000
@@ -107,6 +107,7 @@ def generar_compose():
     texto_a_escribir += "      - RABBITMQ_DEFAULT_USER=admin\n"
     texto_a_escribir += "      - RABBITMQ_DEFAULT_PASS=admin\n"
     texto_a_escribir += "      - RABBITMQ_LOG_LEVEL=warning\n"
+    texto_a_escribir += "      - RABBITMQ_HEARTBEAT=120\n"
     texto_a_escribir += "    volumes:\n"
     texto_a_escribir += "      - ./middleware/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf\n\n"
 

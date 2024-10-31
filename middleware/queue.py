@@ -14,6 +14,7 @@ class ServiceQueues:
                     host=connection_name,
                     port=5672,
                     credentials=credentials,
+                    heartbeat=120 
                 ))
                 self.channel = self.connection.channel()
                 break  # Si la conexión es exitosa, salir del bucle

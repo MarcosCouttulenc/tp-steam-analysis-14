@@ -6,6 +6,7 @@ END_OF_MESSAGE_BYTES = b"\n"
 END_OF_BATCH = "\n\n"
 END_OF_BATCH_BYTES = b"\n\n"
 DATA_DELIMITER_BYTES = b"$|"
+LEN_END_OF_MESSAGE = len(END_OF_MESSAGE)
 LEN_END_OF_BATCH = len(END_OF_MESSAGE) + len(END_OF_BATCH)
 
 class MessageSerializer:
@@ -24,9 +25,11 @@ class MessageSerializer:
         #     print("\n\npost DESERIALIZE\n\n")
 
         if data == '':
+            print(f"Data es vacio por lo tanto devolvemos None {message_str}")
             return None
         
         if data[0] == '':
+            print(f"Data es un array vacio por lo tanto devolvemos None {message_str}")
             return None
             
         #A la izquierda esta el tipo, todo lo que esta a la derecha es payload

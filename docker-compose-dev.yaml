@@ -6,7 +6,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_GAME_VALIDATORS=16
+      - CANT_GAME_VALIDATORS=3
       - CANT_REVIEW_VALIDATORS=9
     networks:
       - testing_net
@@ -31,8 +31,8 @@ services:
       - CLI_ID={i}
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - GAMES_FILE_PATH=fullgames.csv
-      - REVIEWS_FILE_PATH=data0.1porcent.csv
+      - GAMES_FILE_PATH=100games.csv
+      - REVIEWS_FILE_PATH=10reviews.csv
     volumes:
       - ./client/config.ini:/client/config.ini
     networks:
@@ -47,8 +47,8 @@ services:
       - CLI_ID={i}
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - GAMES_FILE_PATH=fullgames.csv
-      - REVIEWS_FILE_PATH=data0.1porcent.csv
+      - GAMES_FILE_PATH=100games.csv
+      - REVIEWS_FILE_PATH=10reviews.csv
     volumes:
       - ./client/config.ini:/client/config.ini
     networks:
@@ -68,6 +68,7 @@ services:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin
       - RABBITMQ_LOG_LEVEL=warning
+      - RABBITMQ_HEARTBEAT=120
     volumes:
       - ./middleware/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
 
@@ -1221,7 +1222,7 @@ services:
       - IS_MASTER=True
       - PORT_MASTER=9015
       - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
+      - CANT_SLAVES=3
     networks:
       - testing_net
     depends_on:
@@ -1237,7 +1238,7 @@ services:
       - IS_MASTER=False
       - PORT_MASTER=9015
       - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
+      - CANT_SLAVES=3
     networks:
       - testing_net
     depends_on:
@@ -1253,215 +1254,7 @@ services:
       - IS_MASTER=False
       - PORT_MASTER=9015
       - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-
-  worker_game_validator_4:
-    container_name: worker_game_validator_4
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-
-  worker_game_validator_5:
-    container_name: worker_game_validator_5
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-
-  worker_game_validator_6:
-    container_name: worker_game_validator_6
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-
-  worker_game_validator_7:
-    container_name: worker_game_validator_7
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-
-  worker_game_validator_8:
-    container_name: worker_game_validator_8
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-
-  worker_game_validator_9:
-    container_name: worker_game_validator_9
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-
-  worker_game_validator_10:
-    container_name: worker_game_validator_10
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-
-  worker_game_validator_11:
-    container_name: worker_game_validator_11
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-
-  worker_game_validator_12:
-    container_name: worker_game_validator_12
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-
-  worker_game_validator_13:
-    container_name: worker_game_validator_13
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-
-  worker_game_validator_14:
-    container_name: worker_game_validator_14
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-
-  worker_game_validator_15:
-    container_name: worker_game_validator_15
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-
-  worker_game_validator_16:
-    container_name: worker_game_validator_16
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=16
+      - CANT_SLAVES=3
     networks:
       - testing_net
     depends_on:
