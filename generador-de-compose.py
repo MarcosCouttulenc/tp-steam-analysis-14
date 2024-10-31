@@ -1,6 +1,7 @@
 import sys
 
 archivo_salida = "docker-compose-dev.yaml"
+
 cantidad_windows = 5
 cantidad_linux = 5
 cantidad_mac = 5
@@ -15,10 +16,12 @@ cantidad_reducer_two = 5
 cantidad_reducer_three = 6
 cantidad_reducer_four = 1
 cantidad_reducer_five = 1
-cantidad_game_validator = 8
 cantidad_review_validator = 9
-cantidad_clientes = 1
+cantidad_clientes = 2
+cantidad_game_validator = 8 * cantidad_clientes
 
+game_files = {"1": "fullgames.csv", "2": "fullgames2.csv"}
+review_files = {"1": "data0.1porcent.csv", "2": "data0.1porcent.csv"}
 
 
 def generar_compose():
@@ -53,13 +56,15 @@ def generar_compose():
 
     # Agregar la configuración del cliente
     for i in range(1, cantidad_clientes + 1):
-        texto_a_escribir += "  client:\n"
-        texto_a_escribir += "    container_name: client\n"
+        texto_a_escribir += f"  client_{i}:\n"
+        texto_a_escribir += f"    container_name: client_{i}\n"
         texto_a_escribir += "    image: client:latest\n"
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - CLI_ID={i}\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - GAMES_FILE_PATH={game_files[str(i)]}\n"
+        texto_a_escribir += f"      - REVIEWS_FILE_PATH={review_files[str(i)]}\n"
         texto_a_escribir += "    volumes:\n"
         texto_a_escribir += "      - ./client/config.ini:/client/config.ini\n"
         texto_a_escribir += "    networks:\n"
@@ -92,6 +97,10 @@ def generar_compose():
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_reducer_one}\n"
+        if (i == 1):
+            texto_a_escribir += f"      - LIDER={True}\n"
+        else:
+            texto_a_escribir += f"      - LIDER={False}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -106,6 +115,10 @@ def generar_compose():
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_reducer_one}\n"
+        if (i == 1):
+            texto_a_escribir += f"      - LIDER={True}\n"
+        else:
+            texto_a_escribir += f"      - LIDER={False}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -121,6 +134,10 @@ def generar_compose():
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_reducer_one}\n"
+        if (i == 1):
+            texto_a_escribir += f"      - LIDER={True}\n"
+        else:
+            texto_a_escribir += f"      - LIDER={False}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -135,6 +152,10 @@ def generar_compose():
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_decada}\n"
+        if (i == 1):
+            texto_a_escribir += f"      - LIDER={True}\n"
+        else:
+            texto_a_escribir += f"      - LIDER={False}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -348,16 +369,18 @@ def generar_compose():
 
     # Generar contenedores para worker_game_validator
     for i in range(1, cantidad_game_validator + 1):
+
         texto_a_escribir += f"  worker_game_validator_{i}:\n"
         texto_a_escribir += f"    container_name: worker_game_validator_{i}\n"
         texto_a_escribir += "    image: worker_game_validator:latest\n"
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        texto_a_escribir += f"      - CANT_WINDOWS={cantidad_windows}\n"
-        texto_a_escribir += f"      - CANT_LINUX={cantidad_linux}\n"
-        texto_a_escribir += f"      - CANT_MAC={cantidad_mac}\n"
-        texto_a_escribir += f"      - CANT_INDIE={cantidad_juego_indie}\n"
+        #texto_a_escribir += f"      - CANT_WINDOWS={cantidad_windows}\n"
+        #texto_a_escribir += f"      - CANT_LINUX={cantidad_linux}\n"
+        #texto_a_escribir += f"      - CANT_MAC={cantidad_mac}\n"
+        #texto_a_escribir += f"      - CANT_INDIE={cantidad_juego_indie}\n"
+        texto_a_escribir += f"      - CANT_NEXT={cantidad_mac},{cantidad_windows},{cantidad_linux},{cantidad_juego_indie},1\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -371,8 +394,9 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        texto_a_escribir += f"      - CANT_REV_INDIE={cantidad_review_indie}\n"
-        texto_a_escribir += f"      - CANT_REV_ACTION={cantidad_action}\n"
+        texto_a_escribir += f"      - CANT_NEXT={cantidad_review_indie},{cantidad_action}\n"
+        #texto_a_escribir += f"      - CANT_REV_INDIE={cantidad_review_indie}\n"
+        #texto_a_escribir += f"      - CANT_REV_ACTION={cantidad_action}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"

@@ -1,9 +1,14 @@
 import logging
 logging.basicConfig(level=logging.CRITICAL)
-from middleware.queue import ServiceQueues
-from common.message import MessageGameInfo
-from common.message import MessageEndOfDataset
 
+from common.game_worker import GameWorker
+from common.model.game import Game
+# from middleware.queue import ServiceQueues
+# from common.message import MessageGameInfo
+# from common.message import MessageEndOfDataset
+
+
+'''
 CHANNEL_NAME =  "rabbitmq"
 
 class WorkerGameValidator:
@@ -63,7 +68,9 @@ class WorkerGameValidator:
         msg_eof.set_last_eof()
         print(msg_eof.message_payload)
         self.service_queues.push(queue_name, msg_eof)
-    
 
+'''  
 
-    
+class WorkerGameValidator(GameWorker):
+    def validate_game(self, game: Game):
+        return not game.is_incomplete()

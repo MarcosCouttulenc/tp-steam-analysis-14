@@ -6,7 +6,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_GAME_VALIDATORS=8
+      - CANT_GAME_VALIDATORS=16
       - CANT_REVIEW_VALIDATORS=9
     networks:
       - testing_net
@@ -24,13 +24,31 @@ services:
     depends_on:
       - server
 
-  client:
-    container_name: client
+  client_1:
+    container_name: client_1
     image: client:latest
     environment:
       - CLI_ID={i}
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - GAMES_FILE_PATH=fullgames.csv
+      - REVIEWS_FILE_PATH=data0.1porcent.csv
+    volumes:
+      - ./client/config.ini:/client/config.ini
+    networks:
+      - testing_net
+    depends_on:
+      - result_responser
+
+  client_2:
+    container_name: client_2
+    image: client:latest
+    environment:
+      - CLI_ID={i}
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - GAMES_FILE_PATH=fullgames2.csv
+      - REVIEWS_FILE_PATH=data0.1porcent.csv
     volumes:
       - ./client/config.ini:/client/config.ini
     networks:
@@ -60,6 +78,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=True
     networks:
       - testing_net
     depends_on:
@@ -72,6 +91,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -84,6 +104,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -96,6 +117,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -108,6 +130,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -120,6 +143,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=True
     networks:
       - testing_net
     depends_on:
@@ -132,6 +156,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -144,6 +169,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -156,6 +182,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -168,6 +195,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -180,6 +208,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=True
     networks:
       - testing_net
     depends_on:
@@ -192,6 +221,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -204,6 +234,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -216,6 +247,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -228,6 +260,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -240,6 +273,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=3
+      - LIDER=True
     networks:
       - testing_net
     depends_on:
@@ -252,6 +286,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=3
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -264,6 +299,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=3
+      - LIDER=False
     networks:
       - testing_net
     depends_on:
@@ -927,10 +963,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_WINDOWS=5
-      - CANT_LINUX=5
-      - CANT_MAC=5
-      - CANT_INDIE=3
+      - CANT_NEXT=5,5,5,3,1
     networks:
       - testing_net
     depends_on:
@@ -942,10 +975,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_WINDOWS=5
-      - CANT_LINUX=5
-      - CANT_MAC=5
-      - CANT_INDIE=3
+      - CANT_NEXT=5,5,5,3,1
     networks:
       - testing_net
     depends_on:
@@ -957,10 +987,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_WINDOWS=5
-      - CANT_LINUX=5
-      - CANT_MAC=5
-      - CANT_INDIE=3
+      - CANT_NEXT=5,5,5,3,1
     networks:
       - testing_net
     depends_on:
@@ -972,10 +999,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_WINDOWS=5
-      - CANT_LINUX=5
-      - CANT_MAC=5
-      - CANT_INDIE=3
+      - CANT_NEXT=5,5,5,3,1
     networks:
       - testing_net
     depends_on:
@@ -987,10 +1011,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_WINDOWS=5
-      - CANT_LINUX=5
-      - CANT_MAC=5
-      - CANT_INDIE=3
+      - CANT_NEXT=5,5,5,3,1
     networks:
       - testing_net
     depends_on:
@@ -1002,10 +1023,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_WINDOWS=5
-      - CANT_LINUX=5
-      - CANT_MAC=5
-      - CANT_INDIE=3
+      - CANT_NEXT=5,5,5,3,1
     networks:
       - testing_net
     depends_on:
@@ -1017,10 +1035,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_WINDOWS=5
-      - CANT_LINUX=5
-      - CANT_MAC=5
-      - CANT_INDIE=3
+      - CANT_NEXT=5,5,5,3,1
     networks:
       - testing_net
     depends_on:
@@ -1032,10 +1047,103 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_WINDOWS=5
-      - CANT_LINUX=5
-      - CANT_MAC=5
-      - CANT_INDIE=3
+      - CANT_NEXT=5,5,5,3,1
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_9:
+    container_name: worker_game_validator_9
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=5,5,5,3,1
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_10:
+    container_name: worker_game_validator_10
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=5,5,5,3,1
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_11:
+    container_name: worker_game_validator_11
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=5,5,5,3,1
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_12:
+    container_name: worker_game_validator_12
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=5,5,5,3,1
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_13:
+    container_name: worker_game_validator_13
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=5,5,5,3,1
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_14:
+    container_name: worker_game_validator_14
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=5,5,5,3,1
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_15:
+    container_name: worker_game_validator_15
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=5,5,5,3,1
+    networks:
+      - testing_net
+    depends_on:
+      - database
+
+  worker_game_validator_16:
+    container_name: worker_game_validator_16
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=5,5,5,3,1
     networks:
       - testing_net
     depends_on:
@@ -1047,8 +1155,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REV_INDIE=5
-      - CANT_REV_ACTION=5
+      - CANT_NEXT=5,5
     networks:
       - testing_net
     depends_on:
@@ -1060,8 +1167,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REV_INDIE=5
-      - CANT_REV_ACTION=5
+      - CANT_NEXT=5,5
     networks:
       - testing_net
     depends_on:
@@ -1073,8 +1179,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REV_INDIE=5
-      - CANT_REV_ACTION=5
+      - CANT_NEXT=5,5
     networks:
       - testing_net
     depends_on:
@@ -1086,8 +1191,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REV_INDIE=5
-      - CANT_REV_ACTION=5
+      - CANT_NEXT=5,5
     networks:
       - testing_net
     depends_on:
@@ -1099,8 +1203,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REV_INDIE=5
-      - CANT_REV_ACTION=5
+      - CANT_NEXT=5,5
     networks:
       - testing_net
     depends_on:
@@ -1112,8 +1215,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REV_INDIE=5
-      - CANT_REV_ACTION=5
+      - CANT_NEXT=5,5
     networks:
       - testing_net
     depends_on:
@@ -1125,8 +1227,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REV_INDIE=5
-      - CANT_REV_ACTION=5
+      - CANT_NEXT=5,5
     networks:
       - testing_net
     depends_on:
@@ -1138,8 +1239,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REV_INDIE=5
-      - CANT_REV_ACTION=5
+      - CANT_NEXT=5,5
     networks:
       - testing_net
     depends_on:
@@ -1151,8 +1251,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_REV_INDIE=5
-      - CANT_REV_ACTION=5
+      - CANT_NEXT=5,5
     networks:
       - testing_net
     depends_on:

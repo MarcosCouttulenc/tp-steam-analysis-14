@@ -73,8 +73,12 @@ class ReviewWorker:
         return False
 
     def forward_message(self, message):
+        message_to_send = self.get_message_to_send(message)
         for queue_name_destiny in self.queues_destiny.keys():
-            self.service_queues.push(queue_name_destiny, message)
+            self.service_queues.push(queue_name_destiny, message_to_send)
+
+    def get_message_to_send(self, message):
+        return message
 
 
     
