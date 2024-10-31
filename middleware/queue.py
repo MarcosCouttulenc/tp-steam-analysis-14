@@ -47,6 +47,21 @@ class ServiceQueues:
 
         self.channel.start_consuming()
 
+    def pop_non_blocking(self, queue_name: str, callback):
+        message_serializer = MessageSerializer()
+        self.channel.queue_declare(queue=queue_name, durable=True)
+
+        while True:
+            method_frame, properties, body = self.channel.basic_get(queue=queue_name, auto_ack=False)
+            
+            if method_frame:
+                # Si hay un mensaje, procesarlo
+                message = message_serializer.deserialize(body.strip())
+                callback(self.channel, method_frame, properties, message)
+            else:
+                # Si no hay mensajes, esperar un momento
+                time.sleep(1)
+
     def ack(self, ch, method):
         ch.basic_ack(delivery_tag = method.delivery_tag)
 

@@ -20,15 +20,17 @@ class QueryOneReducer(ReducerWorker):
         self.total_eofs = 0
 
     def handle_eof(self, ch, method, properties, message: Message):
-        if message.is_eof():
-            self.total_eofs += 1
-            if  self.total_eofs >= CANT_EOFS_TIL_CLOSE:
-                self.send_buffer_to_file(message.client_id)
-                #push eof to query1_file
-                self.running = False
-                self.service_queues.ack(ch, method)
-                self.service_queues.close_connection()
-                return
+        self.total_eofs += 1
+        
+        if self.total_eofs >= CANT_EOFS_TIL_CLOSE:
+            self.send_buffer_to_file(message.client_id)
+            #push eof to query1_file
+            self.running = False
+            self.service_queues.ack(ch, method)
+            self.service_queues.close_connection()
+            return
+        
+        self.service_queues.ack(ch, method)
 
     def update_buffer(self, message: Message):
         self.curr_cant += 1

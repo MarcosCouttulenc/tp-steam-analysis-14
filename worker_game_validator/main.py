@@ -20,6 +20,11 @@ def initialize_config():
         #config_params["cant_linux"] = os.getenv('CANT_LINUX')
         #config_params["cant_mac"] = os.getenv('CANT_MAC')
         #config_params["cant_indie"] = os.getenv('CANT_INDIE')
+        config_params["is_master"] = os.getenv('IS_MASTER')
+        config_params["port_master"] = os.getenv('PORT_MASTER')
+        config_params["ip_master"] = os.getenv('IP_MASTER')
+        config_params["queue_name_origin_eof"] = os.getenv('QUEUE_NAME_ORIGIN_EOF', config["DEFAULT"]["QUEUE_NAME_ORIGIN_EOF"])
+        config_params["cant_slaves"] = os.getenv('CANT_SLAVES')
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -38,13 +43,18 @@ def main():
     #cant_linux = config_params["cant_linux"]
     #cant_mac = config_params["cant_mac"]
     #cant_indie = config_params["cant_indie"]
+    is_master = config_params["is_master"]
+    port_master = config_params["port_master"]
+    ip_master = config_params["ip_master"]
+    queue_name_origin_eof = config_params["queue_name_origin_eof"]
+    cant_slaves = config_params["cant_slaves"]
     
     initialize_log(logging_level)
     
     logging.debug(f"action: config | result: success | queue_name_origin: {queue_name_origin} | queues_name_destiny: {queues_name_destiny}" 
                   f"| logging_level: {logging_level}")
 
-    worker_game_validator = WorkerGameValidator(queue_name_origin, queues_name_destiny, cant_next)
+    worker_game_validator = WorkerGameValidator(queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, port_master)
     #worker_game_validator = WorkerGameValidator(queue_name_origin, queues_name_destiny, cant_windows, cant_linux, cant_mac, cant_indie)
     worker_game_validator.start()
 

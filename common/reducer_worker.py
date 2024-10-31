@@ -40,6 +40,7 @@ class ReducerWorker:
     def process_message(self, ch, method, properties, message: Message):
         if message.is_eof():
             self.handle_eof(ch, method, properties, message)
+            
             return
     
         self.update_buffer(message)
