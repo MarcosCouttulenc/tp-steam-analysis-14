@@ -1,7 +1,26 @@
 import sys
 
 archivo_salida = "docker-compose-dev.yaml"
+'''
+cantidad_windows = 3
+cantidad_linux = 3
+cantidad_mac = 3
+cantidad_juego_indie = 3
+cantidad_decada = 3
+cantidad_review_indie = 3
+cantidad_positiva = 3
+cantidad_action = 3
+cantidad_ingles = 3
+cantidad_reducer_one = 1
+cantidad_reducer_two = 3
+cantidad_reducer_three = 3
+cantidad_reducer_four = 1
+cantidad_reducer_five = 1
+cantidad_review_validator = 3
+cantidad_clientes = 1
+cantidad_game_validator = 3 * cantidad_clientes
 
+'''
 cantidad_windows = 5
 cantidad_linux = 5
 cantidad_mac = 5
@@ -17,15 +36,18 @@ cantidad_reducer_three = 6
 cantidad_reducer_four = 1
 cantidad_reducer_five = 1
 cantidad_review_validator = 9
-cantidad_clientes = 2
+cantidad_clientes = 1
 cantidad_game_validator = 8 * cantidad_clientes
 
 game_files = {"1": "fullgames.csv", "2": "fullgames2.csv"}
-review_files = {"1": "data0.1porcent.csv", "2": "data0.1porcent.csv"}
+review_files = {"1": "data0.1porcent.csv", "2": "data0.1porcent2.csv"}
+
+#Los puertos de los lideres arrancan en 9000
+#port_master = 9000
 
 
 def generar_compose():
-    
+    port_master = 9000
     texto_a_escribir = "name: tp-steam-analysis\n"
     texto_a_escribir += "services:\n"
 
@@ -89,7 +111,9 @@ def generar_compose():
     texto_a_escribir += "      - ./middleware/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf\n\n"
 
     # Generar contenedores para cada tipo según las cantidades
+    port_master += 1
     for i in range(1, cantidad_windows + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  worker_windows_{i}:\n"
         texto_a_escribir += f"    container_name: worker_windows_{i}\n"
         texto_a_escribir += "    image: worker_windows:latest\n"
@@ -97,17 +121,19 @@ def generar_compose():
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_reducer_one}\n"
-        if (i == 1):
-            texto_a_escribir += f"      - LIDER={True}\n"
-        else:
-            texto_a_escribir += f"      - LIDER={False}\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=worker_windows_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_windows}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_windows_1'}\n\n"
 
     # Agregar contenedores para worker_linux
+    port_master += 1
     for i in range(1, cantidad_linux + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  worker_linux_{i}:\n"
         texto_a_escribir += f"    container_name: worker_linux_{i}\n"
         texto_a_escribir += "    image: worker_linux:latest\n"
@@ -115,18 +141,20 @@ def generar_compose():
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_reducer_one}\n"
-        if (i == 1):
-            texto_a_escribir += f"      - LIDER={True}\n"
-        else:
-            texto_a_escribir += f"      - LIDER={False}\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=worker_linux_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_linux}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_linux_1'}\n\n"
 
     # Continuar con el resto de los tipos de contenedores basados en las variables recibidas...
     # Ejemplo para `worker_mac`
+    port_master += 1
     for i in range(1, cantidad_mac + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  worker_mac_{i}:\n"
         texto_a_escribir += f"    container_name: worker_mac_{i}\n"
         texto_a_escribir += "    image: worker_mac:latest\n"
@@ -134,17 +162,19 @@ def generar_compose():
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_reducer_one}\n"
-        if (i == 1):
-            texto_a_escribir += f"      - LIDER={True}\n"
-        else:
-            texto_a_escribir += f"      - LIDER={False}\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=worker_mac_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_mac}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_mac_1'}\n\n"
     
      # Generar contenedores para worker_indie
+    port_master += 1
     for i in range(1, cantidad_juego_indie + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  worker_indie_{i}:\n"
         texto_a_escribir += f"    container_name: worker_indie_{i}\n"
         texto_a_escribir += "    image: worker_indie:latest\n"
@@ -152,17 +182,19 @@ def generar_compose():
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_decada}\n"
-        if (i == 1):
-            texto_a_escribir += f"      - LIDER={True}\n"
-        else:
-            texto_a_escribir += f"      - LIDER={False}\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=worker_indie_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_juego_indie}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_indie_1'}\n\n"
     
      # Generar contenedores para worker_2010
+    port_master += 1
     for i in range(1, cantidad_decada + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  worker_2010_{i}:\n"
         texto_a_escribir += f"    container_name: worker_2010_{i}\n"
         texto_a_escribir += "    image: worker_2010:latest\n"
@@ -170,132 +202,185 @@ def generar_compose():
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_reducer_two}\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=worker_2010_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_decada}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_2010_1'}\n\n"
     
      # Generar contenedores para worker_review_indie
+    port_master += 1
     for i in range(1, cantidad_review_indie + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  worker_review_indie_{i}:\n"
         texto_a_escribir += f"    container_name: worker_review_indie_{i}\n"
         texto_a_escribir += "    image: worker_review_indie:latest\n"
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        #texto_a_escribir += f"      - CANT_QUERY3_REDUCER={cantidad_reducer_three}\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_reducer_three}\n" 
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=worker_review_indie_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_review_indie}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_review_indie_1'}\n\n"
 
     # Generar contenedores para worker_review_positive
+    port_master += 1
     for i in range(1, cantidad_positiva + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  worker_review_positive_{i}:\n"
         texto_a_escribir += f"    container_name: worker_review_positive_{i}\n"
         texto_a_escribir += "    image: worker_review_positive:latest\n"
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        #texto_a_escribir += f"      - CANT_REVIEW_ENGLISH={cantidad_ingles}\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_ingles}\n"        
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=worker_review_positive_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_positiva}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_review_positive_1'}\n\n"
 
     # Generar contenedores para worker_review_action
+    port_master += 1
     for i in range(1, cantidad_action + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  worker_review_action_{i}:\n"
         texto_a_escribir += f"    container_name: worker_review_action_{i}\n"
         texto_a_escribir += "    image: worker_review_action:latest\n"
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        #texto_a_escribir += f"      - CANT_REVIEW_POSITIVE={cantidad_positiva}\n"
-        #texto_a_escribir += f"      - CANT_QUERY5_REDUCER={cantidad_reducer_five}\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_positiva},{cantidad_reducer_five}\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=worker_review_action_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_action}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_review_action_1'}\n\n"
 
     # Generar contenedores para worker_review_english
+    port_master += 1
     for i in range(1, cantidad_ingles + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  worker_review_english_{i}:\n"
         texto_a_escribir += f"    container_name: worker_review_english_{i}\n"
         texto_a_escribir += "    image: worker_review_english:latest\n"
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        #texto_a_escribir += f"      - CANT_QUERY4_REDUCER={cantidad_reducer_four}\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_reducer_four}\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=worker_review_english_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_ingles}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_review_english_1'}\n\n"
 
     # Generar contenedores para query reducers
+    port_master += 1
     for i in range(1, cantidad_reducer_one + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  query1_reducer_{i}:\n"
         texto_a_escribir += f"    container_name: query1_reducer_{i}\n"
         texto_a_escribir += "    image: query1_reducer:latest\n"
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=query1_reducer_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_reducer_one}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query1_reducer_1'}\n\n"
 
+    port_master += 1
     for i in range(1, cantidad_reducer_two + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  query2_reducer_{i}:\n"
         texto_a_escribir += f"    container_name: query2_reducer_{i}\n"
         texto_a_escribir += "    image: query2_reducer:latest\n"
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=query2_reducer_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_reducer_two}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query2_reducer_1'}\n\n"
 
+    port_master += 1
     for i in range(1, cantidad_reducer_three + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  query3_reducer_{i}:\n"
         texto_a_escribir += f"    container_name: query3_reducer_{i}\n"
         texto_a_escribir += "    image: query3_reducer:latest\n"
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=query3_reducer_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_reducer_three}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query3_reducer_1'}\n\n"
 
+    port_master += 1
     for i in range(1, cantidad_reducer_four + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  query4_reducer_{i}:\n"
         texto_a_escribir += f"    container_name: query4_reducer_{i}\n"
         texto_a_escribir += "    image: query4_reducer:latest\n"
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=query4_reducer_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_reducer_four}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query4_reducer_1'}\n\n"
 
+    port_master += 1
     for i in range(1, cantidad_reducer_five + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  query5_reducer_{i}:\n"
         texto_a_escribir += f"    container_name: query5_reducer_{i}\n"
         texto_a_escribir += "    image: query5_reducer:latest\n"
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=query5_reducer_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_reducer_five}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - rabbitmq\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query5_reducer_1'}\n\n"
     
     # generar contenedores para cada query_file
     texto_a_escribir += "  query1_file:\n"
@@ -367,8 +452,10 @@ def generar_compose():
     texto_a_escribir += "      - rabbitmq\n\n"
 
 
+    port_master += 1
     # Generar contenedores para worker_game_validator
     for i in range(1, cantidad_game_validator + 1):
+        is_master = (i == 1)
 
         texto_a_escribir += f"  worker_game_validator_{i}:\n"
         texto_a_escribir += f"    container_name: worker_game_validator_{i}\n"
@@ -376,18 +463,20 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        #texto_a_escribir += f"      - CANT_WINDOWS={cantidad_windows}\n"
-        #texto_a_escribir += f"      - CANT_LINUX={cantidad_linux}\n"
-        #texto_a_escribir += f"      - CANT_MAC={cantidad_mac}\n"
-        #texto_a_escribir += f"      - CANT_INDIE={cantidad_juego_indie}\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_mac},{cantidad_windows},{cantidad_linux},{cantidad_juego_indie},1\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=worker_game_validator_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_game_validator}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - database\n\n"
+        texto_a_escribir += f"      - {'database' if is_master else 'worker_game_validator_1'}\n\n"
 
     # Generar contenedores para worker_review_validator
+    port_master += 1
     for i in range(1, cantidad_review_validator + 1):
+        is_master = (i == 1)
         texto_a_escribir += f"  worker_review_validator_{i}:\n"
         texto_a_escribir += f"    container_name: worker_review_validator_{i}\n"
         texto_a_escribir += "    image: worker_review_validator:latest\n"
@@ -395,12 +484,14 @@ def generar_compose():
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
         texto_a_escribir += f"      - CANT_NEXT={cantidad_review_indie},{cantidad_action}\n"
-        #texto_a_escribir += f"      - CANT_REV_INDIE={cantidad_review_indie}\n"
-        #texto_a_escribir += f"      - CANT_REV_ACTION={cantidad_action}\n"
+        texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
+        texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
+        texto_a_escribir += f"      - IP_MASTER=worker_review_validator_1\n"
+        texto_a_escribir += f"      - CANT_SLAVES={cantidad_review_validator}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - database\n\n"
+        texto_a_escribir += f"      - {'database' if is_master else 'worker_review_validator_1'}\n\n"
 
     texto_a_escribir += "networks:\n"
     texto_a_escribir += "  testing_net:\n"
