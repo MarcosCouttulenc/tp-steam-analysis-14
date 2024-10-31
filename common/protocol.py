@@ -2,8 +2,8 @@
 from common.message import Message
 from common.message_serializer import MessageSerializer, END_OF_BATCH_BYTES, END_OF_MESSAGE_BYTES, LEN_END_OF_BATCH
 
-BUFFER_RECEIVE_SIZE_BYTES = 1024*5
-BUFFER_RECEIVE_BATCH_SIZE_BYTES = BUFFER_RECEIVE_SIZE_BYTES * 3
+BUFFER_RECEIVE_SIZE_BYTES = 1024*1
+BUFFER_RECEIVE_BATCH_SIZE_BYTES = BUFFER_RECEIVE_SIZE_BYTES * 2
 
 class Protocol:
     def __init__(self, socket):

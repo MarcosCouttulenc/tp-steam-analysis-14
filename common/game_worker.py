@@ -1,6 +1,5 @@
 import logging
 logging.basicConfig(level=logging.CRITICAL)
-import multiprocessing
 import errno
 import socket
 import time
@@ -100,19 +99,30 @@ class GameWorker:
 
     ## Proceso master eof handler
     ## --------------------------------------------------------------------------------      
-
     def process_control_master_eof_handler(self, socket_master_slave, socket_master_slave_addr, barrier):
         print("Nuevo slave conectado en :", socket_master_slave_addr)
         protocol = Protocol(socket_master_slave)
         
-        print(f"Esperando un EOF desde {socket_master_slave_addr}")
-        msg = protocol.receive()
+        try:
+            while self.running:
+                print(f"Esperando un EOF desde {socket_master_slave_addr}")
+                msg = protocol.receive()
 
-        print(f"Recibe un EOF desde {socket_master_slave_addr}")
-        barrier.wait()
+                if (msg == None):
+                    break
 
-        print(f"Se notifica a {socket_master_slave_addr} que ya llegaron todos los EOFs")
-        protocol.send(msg)
+                print(f"Recibe un EOF desde {socket_master_slave_addr}")
+                barrier.wait()
+
+                print(f"Se notifica a {socket_master_slave_addr} que ya llegaron todos los EOFs")
+                protocol.send(msg)
+        except OSError as e:
+            if e.errno == errno.EBADF:  # Bad file descriptor, server socket closed
+                logging.critical('SOCKET CERRADO - ACCEPT_NEW_CONNECTIONS')
+                return None
+            else:
+                raise
+        
 
 
     ## Proceso slave eof handler
@@ -125,7 +135,8 @@ class GameWorker:
         self.socket_slave = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket_slave.connect((self.ip_master, self.port_master))
 
-        self.service_queues_eof.pop_non_blocking(self.queue_name_origin_eof, self.process_message_slave_eof)
+        while self.running:
+            self.service_queues_eof.pop_non_blocking(self.queue_name_origin_eof, self.process_message_slave_eof)
 
     def process_message_slave_eof(self, ch, method, properties, message: Message):
         print("ME LLEGO EOF DE LA QUEUE DE EOFS")
@@ -185,19 +196,6 @@ class GameWorker:
         self.service_queues_filter.push(self.queue_name_origin_eof, message)
         self.service_queues_filter.ack(ch, method)
 
-    '''
-    def handle_eof(self, message, ch, method):
-        msg_eof = MessageEndOfDataset.from_message(message)
-            
-        if msg_eof.is_last_eof():
-            self.send_eofs(msg_eof)
-        
-        self.service_queues.ack(ch, method)
-        #self.service_queues.close_connection()
-        #self.running = False
-    '''
-
-        
     def validate_game(self, game):
         return False
 
@@ -206,7 +204,6 @@ class GameWorker:
         for queue_name_destiny in self.queues_destiny.keys():
             self.service_queues_filter.push(queue_name_destiny, message_to_send)
         
-    
     def get_message_to_send(self, message):
         return message
 

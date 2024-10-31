@@ -18,7 +18,7 @@ class Server:
         self.listen_new_connection_port = listen_new_connection_port
         self.listen_result_query_port = listen_result_query_port
         self.cant_game_validators = cant_game_validators-1
-        self.cant_review_validators = cant_review_validators
+        self.cant_review_validators = cant_review_validators-1
 
         self.new_connection_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.new_connection_socket.bind(('', listen_new_connection_port))

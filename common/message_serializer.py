@@ -22,9 +22,20 @@ class MessageSerializer:
         #     print(message_str)
         #     print(data[1:])
         #     print("\n\npost DESERIALIZE\n\n")
+
+        if data == '':
+            return None
+        
+        if data[0] == '':
+            return None
             
         #A la izquierda esta el tipo, todo lo que esta a la derecha es payload
-        return Message(data[0], data[1], DATA_DELIMITER.join(data[2:]))
+        try:
+            return Message(data[0], data[1], DATA_DELIMITER.join(data[2:]))
+        except:
+            print("Error al deserializar mensaje")
+            print(data)
+            return None
 
     def serialize_batch(self, messages: list[Message]) -> str:
         data_batch = [self.serialize(message) for message in messages]

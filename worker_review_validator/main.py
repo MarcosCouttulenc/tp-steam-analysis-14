@@ -18,8 +18,11 @@ def initialize_config():
         config_params["db_games_ip"] = os.getenv('DB_GAMES_IP', config["DEFAULT"]["DB_GAMES_IP"])
         config_params["db_games_port"] = os.getenv('DB_GAMES_PORT', config["DEFAULT"]["DB_GAMES_PORT"])
         config_params["cant_next"] = os.getenv('CANT_NEXT')
-        #config_params["cant_rev_indie"] = os.getenv('CANT_REV_INDIE')
-        #config_params["cant_rev_action"] = os.getenv('CANT_REV_ACTION')
+        config_params["is_master"] = os.getenv('IS_MASTER')
+        config_params["port_master"] = os.getenv('PORT_MASTER')
+        config_params["ip_master"] = os.getenv('IP_MASTER')
+        config_params["queue_name_origin_eof"] = os.getenv('QUEUE_NAME_ORIGIN_EOF', config["DEFAULT"]["QUEUE_NAME_ORIGIN_EOF"])
+        config_params["cant_slaves"] = os.getenv('CANT_SLAVES')
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -36,16 +39,19 @@ def main():
     db_games_ip = config_params["db_games_ip"]
     db_games_port = config_params["db_games_port"]
     cant_next = config_params["cant_next"]
-    #cant_rev_indie = config_params["cant_rev_indie"]
-    #cant_rev_action = config_params["cant_rev_action"]
+    is_master = config_params["is_master"]
+    port_master = config_params["port_master"]
+    ip_master = config_params["ip_master"]
+    queue_name_origin_eof = config_params["queue_name_origin_eof"]
+    cant_slaves = config_params["cant_slaves"]
 
     initialize_log(logging_level)
     
     logging.debug(f"action: config | result: success | queue_name_origin: {queue_name_origin} | queues_name_destiny: {queues_name_destiny}" 
                   f"| db_games_ip: {db_games_ip} | db_games_port: {db_games_port} | logging_level: {logging_level}")
 
-    worker_review_validator = WorkerReviewValidator(queue_name_origin, queues_name_destiny, cant_next, db_games_ip, int(db_games_port))
-    #worker_review_validator = WorkerReviewValidator(queue_name_origin, queues_name_destiny, db_games_ip, int(db_games_port), int(cant_rev_indie), int(cant_rev_action))
+    worker_review_validator = WorkerReviewValidator(queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
+                                                    port_master, db_games_ip, int(db_games_port))
     worker_review_validator.start()
 
 def initialize_log(logging_level):
