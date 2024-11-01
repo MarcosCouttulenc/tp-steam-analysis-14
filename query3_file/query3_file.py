@@ -18,7 +18,7 @@ class QueryThreeFile(QueryFile):
     def get_file_snapshot(self, client_id):
         client_id = str(client_id)
         if client_id not in self.totals:
-            print("NO HAY NADA")
+            #print("NO HAY NADA")
             return []
 
         total_list = []
@@ -28,7 +28,7 @@ class QueryThreeFile(QueryFile):
         total_list_sorted = sorted(total_list, key=lambda item: item[1], reverse=True)
 
         top_five = total_list_sorted[:5]
-        print(top_five)
+        #print(top_five)
 
         return top_five
 

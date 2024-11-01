@@ -166,7 +166,7 @@ class ReducerWorker:
         
         if self.buffer_contains_items():
            # print("Envio los ultimos datos")
-            self.send_buffer_to_file(msg_eof.get_client_id())
+            self.send_buffer_to_file(msg_eof.get_client_id(), self.service_queues_eof)
 
 
     ## Proceso reducer
@@ -206,7 +206,7 @@ class ReducerWorker:
         #print(self.buffer)
 
         if self.buffer_is_full():
-            self.send_buffer_to_file(message.get_client_id())
+            self.send_buffer_to_file(message.get_client_id(), self.service_queues)
 
         self.service_queues.ack(ch, method)
 

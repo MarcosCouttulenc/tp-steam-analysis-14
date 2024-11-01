@@ -91,7 +91,7 @@ class Server:
 
             for message in receive_batch:
                 if message == None:
-                    print("MENSAJE NONE")
+                    #print("MENSAJE NONE")
                     continue
                 if message.is_game():
                     service_queue.push("queue-games", message)

@@ -20,13 +20,13 @@ class QueryFiveFile(QueryFile):
     def get_file_snapshot(self, client_id):
         client_id = str(client_id)
         
-        print("GET SNAPSHOT")
+        #print("GET SNAPSHOT")
         file_snapshot = []
 
         percentil_90 = self.get_percentil_90(client_id)
 
-        print("PERCENTIL 90")
-        print(percentil_90)
+        #print("PERCENTIL 90")
+        #print(percentil_90)
 
         if percentil_90 == None:
             return file_snapshot

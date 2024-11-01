@@ -27,12 +27,12 @@ class QueryTwoReducer(ReducerWorker):
 
         self.buffer[client_id] = tmp
 
-    def send_buffer_to_file(self, _client_id):
+    def send_buffer_to_file(self, _client_id, service_queues):
         for queue_name in self.queues_name_destiny:
             for client_id in self.buffer.keys():
 
                 msg = MessageQueryTwoFileUpdate(client_id,self.buffer[client_id])
-                self.service_queues.push(queue_name, msg)
+                service_queues.push(queue_name, msg)
         
         self.buffer = self.init_buffer()
     

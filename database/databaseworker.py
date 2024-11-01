@@ -14,12 +14,14 @@ CHANNEL_NAME =  "rabbitmq"
 
 class DataBaseWorker():
     
-    def __init__ (self,queue_name_origin,data_base,result_query_port, listen_backlog):
+    def __init__ (self,queue_name_origin,data_base,result_query_port, listen_backlog, cant_clients):
         self.queue_name_origin = queue_name_origin
         self.service_queues = ServiceQueues(CHANNEL_NAME)
         self.data_base =  data_base
         self.running_queue = True
         self.running_socket = False
+        self.cant_clients = cant_clients
+        self.curr_cant_eofs = 0
         
         self.new_connection_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.new_connection_socket.bind(('', result_query_port))
@@ -62,11 +64,14 @@ class DataBaseWorker():
         
     def process_message(self, ch, method, properties, message: Message):
         if message.is_eof():
-            self.running_queue = False
+            self.curr_cant_eofs += 1
+            if  self.curr_cant_eofs == self.cant_clients:
+                self.running_queue = False
+                self.service_queues.ack(ch, method)
+                self.service_queues.close_connection()
+            else:
+                self.service_queues.ack(ch, method)
+        else:
+            msg_game_info = MessageGameInfo.from_message(message)
+            self.data_base.store_game(msg_game_info.get_client_id(),msg_game_info.game)
             self.service_queues.ack(ch, method)
-            self.service_queues.close_connection()
-            return
-
-        msg_game_info = MessageGameInfo.from_message(message)
-        self.data_base.store_game(msg_game_info.get_client_id(),msg_game_info.game)
-        self.service_queues.ack(ch, method)
