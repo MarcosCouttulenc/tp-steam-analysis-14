@@ -153,19 +153,18 @@ class ReducerWorker:
 
         msg_eof = MessageEndOfDataset.from_message(message)
         
-        if (msg_eof.is_last_eof()):
-            print(f"[SLAVE] Envio un EOF final al proximo paso para el clienteId: {message.get_client_id()}")
-            self.send_eofs(msg_eof)
+        print(f"[SLAVE] Envio un EOF final al proximo paso para el clienteId: {message.get_client_id()}")
+        self.send_eofs(msg_eof)
 
         time.sleep(4)
         
 
-    def send_eofs(self, msg_eof):
-        if  msg_eof.is_last_eof():
+    def send_eofs(self, msg_eof):\
+        #Agregar que pushee el eof al query
+        if msg_eof.is_last_eof():
             print("push last eof")
         
         if self.buffer_contains_items():
-           # print("Envio los ultimos datos")
             self.send_buffer_to_file(msg_eof.get_client_id(), self.service_queues_eof)
 
 
@@ -195,15 +194,8 @@ class ReducerWorker:
         if message.is_eof():
             self.handle_eof(ch, method, properties, message)
             return
-
-        #print(f"voy a actualizar con: {message.message_payload}")
-
-        #print("antes de actualizar buffer:")
-        #print(self.buffer)
+        
         self.update_buffer(message)
-
-        #print("despues de actualizar buffer:")
-        #print(self.buffer)
 
         if self.buffer_is_full():
             self.send_buffer_to_file(message.get_client_id(), self.service_queues)
@@ -211,7 +203,6 @@ class ReducerWorker:
         self.service_queues.ack(ch, method)
 
     def handle_eof(self, ch, method, properties, message: Message):
-        #print("[FILTER] me llego EOF DE LA QUEUED DE DATA, lo pusheo a la queue de EOFS")
         self.service_queues.push(self.queue_name_origin_eof, message)
         self.service_queues.ack(ch, method)
     
