@@ -163,10 +163,12 @@ class Client:
             msg_content = protocol_result_responser.receive()
             msg_results_content = MessageResultContent.from_message(msg_content)
             
+            msg_results_content.message_payload = msg_results_content.message_payload.replace("<br/>", "\n")
+
             print(msg_results_content.message_payload)
             
             # Si el resultado esta listo, escribe en un archivo y finaliza
-            if msg_results_status.message_payload == ResultStatus.FINISHED:
+            if msg_results_status.message_payload == ResultStatus.FINISHED.value:
                 file_path = f"results{str(self.client_id)}"
                 with open(file_path, "w") as file:
                     file.write(msg_results_content.message_payload)

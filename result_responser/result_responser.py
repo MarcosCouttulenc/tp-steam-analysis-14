@@ -67,11 +67,11 @@ class ResultResponser:
 
     def get_queries_results_and_create_tmp_file(self, client_id):
         is_finished = True
-        is_finished = is_finished and self.get_query1_results(client_id)
-        is_finished = is_finished and self.get_query2_results(client_id)
-        is_finished = is_finished and self.get_query3_results(client_id)
-        is_finished = is_finished and self.get_query4_results(client_id)
-        is_finished = is_finished and self.get_query5_results(client_id)
+        is_finished = self.get_query1_results(client_id) and is_finished 
+        is_finished = self.get_query2_results(client_id) and is_finished 
+        is_finished = self.get_query3_results(client_id) and is_finished
+        is_finished = self.get_query4_results(client_id) and is_finished
+        is_finished = self.get_query5_results(client_id) and is_finished
         return is_finished
         
         
@@ -97,16 +97,16 @@ class ResultResponser:
             return
         
         with open(self.tmp_file_path, "w") as file:
-            file.write(f"Query1 Resultados:\n")
-            file.write(f"Status: {status}\n")
-            file.write(f"----------------------------------------------------------\n")
-            file.write(f"Total Linux: {msg_query1_one_result.total_linux}\n")
-            file.write(f"Total Mac: {msg_query1_one_result.total_mac}\n")
-            file.write(f"Total Windows: {msg_query1_one_result.total_windows}\n")
-            file.write(f"----------------------------------------------------------\n")
+            file.write(f"Query1 Resultados: <br/>")
+            file.write(f"Status: {status} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
+            file.write(f"Total Linux: {msg_query1_one_result.total_linux} <br/>")
+            file.write(f"Total Mac: {msg_query1_one_result.total_mac} <br/>")
+            file.write(f"Total Windows: {msg_query1_one_result.total_windows} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
 
         client_q1_sock.close()
-        return status == ResultStatus.FINISHED
+        return status == ResultStatus.FINISHED.value
 
     def get_query2_results(self, client_id: int):
         query2_file_connection_data = self.query2_file_ip_port.split(',')
@@ -130,15 +130,15 @@ class ResultResponser:
             return
         
         with open(self.tmp_file_path, "a") as file:
-            file.write(f"Query2 Resultados:\n")
-            file.write(f"Status: {status}\n")
-            file.write(f"----------------------------------------------------------\n")
+            file.write(f"Query2 Resultados: <br/>")
+            file.write(f"Status: {status} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
             for game_name, playtime in msg_query2_two_result.top_ten_buffer:
-                file.write(f"{game_name}: {playtime}\n")
-            file.write(f"----------------------------------------------------------\n")
+                file.write(f"{game_name}: {playtime} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
         
         client_q2_sock.close()
-        return status == ResultStatus.FINISHED
+        return status == ResultStatus.FINISHED.value
 
     def get_query3_results(self, client_id: int):
         query3_file_connection_data = self.query3_file_ip_port.split(',')
@@ -161,15 +161,15 @@ class ResultResponser:
             return
 
         with open(self.tmp_file_path, "a") as file:
-            file.write(f"Query3 Resultados:\n")
-            file.write(f"Status: {status}\n")
-            file.write(f"----------------------------------------------------------\n")
+            file.write(f"Query3 Resultados: <br/>")
+            file.write(f"Status: {status} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
             for game_name, total_pos_reviews in msg_query3_three_result.top_five_buffer:
-                file.write(f"{game_name}: {total_pos_reviews}\n")
-            file.write(f"----------------------------------------------------------\n")
+                file.write(f"{game_name}: {total_pos_reviews} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
         
         client_q3_sock.close()
-        return status == ResultStatus.FINISHED
+        return status == ResultStatus.FINISHED.value
 
     def get_query4_results(self, client_id: int):
         query4_file_connection_data = self.query4_file_ip_port.split(',')
@@ -192,15 +192,15 @@ class ResultResponser:
             return
         
         with open(self.tmp_file_path, "a") as file:
-            file.write(f"Query4 Resultados:\n")
-            file.write(f"Status: {status}\n")
-            file.write(f"----------------------------------------------------------\n")
+            file.write(f"Query4 Resultados: <br/>")
+            file.write(f"Status: {status} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
             for name, _ in msg_query4_four_result.totals:
-                file.write(f"{name}\n")
-            file.write(f"----------------------------------------------------------\n")
+                file.write(f"{name} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
 
         client_q4_sock.close()
-        return status == ResultStatus.FINISHED
+        return status == ResultStatus.FINISHED.value
 
     def get_query5_results(self, client_id: int):
         query5_file_connection_data = self.query5_file_ip_port.split(',')
@@ -223,15 +223,15 @@ class ResultResponser:
             return
         
         with open(self.tmp_file_path, "a") as file:
-            file.write(f"Query5 Resultados:\n")
-            file.write(f"Status: {status}\n")
-            file.write(f"----------------------------------------------------------\n")
+            file.write(f"Query5 Resultados: <br/>")
+            file.write(f"Status: {status} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
             for id, name in msg_query5_five_result.totals:
-                file.write(f"{id},{name}\n")
-            file.write(f"----------------------------------------------------------\n")
+                file.write(f"{id},{name} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
 
         client_q5_sock.close()
-        return status == ResultStatus.FINISHED
+        return status == ResultStatus.FINISHED.value
 
     def send_queries_results_in_batch(self, client_sock, is_finished, client_id):
         protocol = Protocol(client_sock)
@@ -247,7 +247,7 @@ class ResultResponser:
         with open(self.tmp_file_path, "r") as file:
             while chunk := file.read(CHUNK_SIZE_FILE_READ):
                 file_content += chunk
-
+                
         msg_result_content = MessageResultContent(client_id, file_content)
         protocol.send(msg_result_content)
         

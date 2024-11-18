@@ -28,17 +28,18 @@ class QueryThreeReducer(ReducerWorker):
             #print("era positiva")
             self.curr_cant += 1
             client_id = str(msg_review_info.get_client_id())
-            
-            if client_id not in self.buffer:
-                self.buffer[client_id] = {}
-            
-            tmp = self.buffer[client_id]
 
-            if not msg_review_info.review.game_name in tmp:
-                tmp[msg_review_info.review.game_name] = 0
+            tmp = self.buffer
+            
+            if client_id not in tmp:
+                tmp[client_id] = {}
+
+            if not msg_review_info.review.game_name in tmp[client_id]:
+                tmp[client_id][msg_review_info.review.game_name] = 0
                 
-            tmp[msg_review_info.review.game_name] += 1
-            self.buffer[client_id] = tmp
+            tmp[client_id][msg_review_info.review.game_name] += 1
+            
+            self.buffer = tmp
 
 
     def send_buffer_to_file(self, client_id, service_queues):
