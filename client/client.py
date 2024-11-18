@@ -10,6 +10,9 @@ from common.protocol import Protocol
 from common.protocol import *
 from common.model.game import Game
 from common.model.review import Review
+from common.message import MessageResultStatus
+from common.message import MessageResultContent
+from common.message import ResultStatus
 
 class Client:
     def __init__(self, server_ip, server_port, result_responser_ip, games_file_path, reviews_file_path):
@@ -34,8 +37,6 @@ class Client:
         self.send_games()
         
         self.send_reviews()
-
-        self.notify_end_of_data()
 
         self.ask_for_results()
 
@@ -145,12 +146,7 @@ class Client:
         except Exception as e:
             print(f"\n\n\n Client_{self.client_id} ERROR AL LEER CSV DE REVIEWS\n\n\n")
             logging.critical(f'Client_{self.client_id} action: send_reviews | result: error | msg: {e}')
-    
-    
-    def notify_end_of_data(self):
-        logging.info(f'Client_{self.client_id} action: notify_end_of_data | result: start')
-        logging.info(f'Client_{self.client_id} action: notify_end_of_data | result: success')
-
+            
     def ask_for_results(self):
         logging.info(f'Client_{self.client_id} action: ask_for_results | result: start')
 
@@ -161,17 +157,24 @@ class Client:
             protocol_result_responser = Protocol(result_responser_sock)
             protocol_result_responser.send(MessageClientAskResults(self.client_id))
             
-            while True:
-                data = protocol_result_responser.receive_stream()
-                
-                if not data:
-                    break
-                
-                # Mostrar los datos recibidos por pantalla a medida que llegan
-                print(data)
-               
+            msg_status = protocol_result_responser.receive()
+            msg_results_status = MessageResultStatus.from_message(msg_status)
+
+            msg_content = protocol_result_responser.receive()
+            msg_results_content = MessageResultContent.from_message(msg_content)
+            
+            print(msg_results_content.message_payload)
+            
+            # Si el resultado esta listo, escribe en un archivo y finaliza
+            if msg_results_status.message_payload == ResultStatus.FINISHED:
+                file_path = f"results{str(self.client_id)}"
+                with open(file_path, "w") as file:
+                    file.write(msg_results_content.message_payload)
+                break
+            
             result_responser_sock.close()
             time.sleep(5)  # Esperar 5 segundos antes de la próxima ejecución
 
-
+        logging.info(f'Client_{self.client_id} action: ask_for_results | result: success')
+        logging.info(f'Client_{self.client_id} resultados procesados correctamente')
 

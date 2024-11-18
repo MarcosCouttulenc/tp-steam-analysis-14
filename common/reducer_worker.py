@@ -92,7 +92,6 @@ class ReducerWorker:
     ## Proceso master eof handler
     ## --------------------------------------------------------------------------------      
     def process_control_master_eof_handler(self, socket_master_slave, socket_master_slave_addr, barrier):
-        #print("Nuevo slave conectado en :", socket_master_slave_addr)
         protocol = Protocol(socket_master_slave)
         
         try:
@@ -122,9 +121,6 @@ class ReducerWorker:
     ## Proceso slave eof handler
     ## --------------------------------------------------------------------------------
     def process_control_slave_eof_handler(self):
-        #self.service_queues_eof = ServiceQueues(CHANNEL_NAME)
-        #print(f"[SLAVE] Por conectarme a {str(self.ip_master)}:{str(self.port_master)}")
-        
         time.sleep(10)
         self.socket_slave = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket_slave.connect((self.ip_master, self.port_master))
@@ -159,13 +155,16 @@ class ReducerWorker:
         time.sleep(4)
         
 
-    def send_eofs(self, msg_eof):\
-        #Agregar que pushee el eof al query
-        if msg_eof.is_last_eof():
-            print("push last eof")
-        
+    def send_eofs(self, msg_eof):        
         if self.buffer_contains_items():
             self.send_buffer_to_file(msg_eof.get_client_id(), self.service_queues_eof)
+
+        #Agregar que pushee el eof al query
+        if msg_eof.is_last_eof():
+            for queue_name in self.queues_name_destiny:
+                self.service_queues_eof.push(queue_name, msg_eof)
+            #self.service_queues.push(self.queues_name_destiny, msg_eof)
+            print("push last eof")
 
 
     ## Proceso reducer

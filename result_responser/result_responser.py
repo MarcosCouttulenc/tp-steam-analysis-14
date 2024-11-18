@@ -3,6 +3,7 @@ import logging
 logging.basicConfig(level=logging.CRITICAL)
 import errno
 import os
+import io
 import socket
 
 from common.message import MessageClientAskResults
@@ -11,6 +12,9 @@ from common.message import MessageQueryTwoResult
 from common.message import MessageQueryThreeResult
 from common.message import MessageQueryFourResult
 from common.message import MessageQueryFiveResult
+from common.message import MessageResultStatus
+from common.message import MessageResultContent
+from common.message import ResultStatus
 from common.protocol import Protocol
 from common.protocol import *
 
@@ -31,6 +35,8 @@ class ResultResponser:
         self.query4_file_ip_port = query4_file_ip_port
         self.query5_file_ip_port = query5_file_ip_port
 
+        self.final_results = {}
+
     def start(self):
         logging.critical("result responser corriendo")
         while self.running:
@@ -39,9 +45,9 @@ class ResultResponser:
 
             message = protocol.receive()
             
-            self.get_queries_results_and_create_tmp_file(message.get_client_id())
+            is_finished = self.get_queries_results_and_create_tmp_file(message.get_client_id())
 
-            self.send_queries_results_in_batch(client_sock)
+            self.send_queries_results_in_batch(client_sock, is_finished, message.get_client_id())
             
             os.remove(self.tmp_file_path)
 
@@ -60,11 +66,14 @@ class ResultResponser:
                 raise
 
     def get_queries_results_and_create_tmp_file(self, client_id):
-        self.get_query1_results(client_id)
-        self.get_query2_results(client_id)
-        self.get_query3_results(client_id)
-        self.get_query4_results(client_id)
-        self.get_query5_results(client_id)
+        is_finished = True
+        is_finished = is_finished and self.get_query1_results(client_id)
+        is_finished = is_finished and self.get_query2_results(client_id)
+        is_finished = is_finished and self.get_query3_results(client_id)
+        is_finished = is_finished and self.get_query4_results(client_id)
+        is_finished = is_finished and self.get_query5_results(client_id)
+        return is_finished
+        
         
 
     def get_query1_results(self, client_id: int):
@@ -76,6 +85,12 @@ class ResultResponser:
         self.protocol = Protocol(client_q1_sock)
         self.protocol.send(MessageClientAskResults(client_id))
 
+        #Recibe el primer mensaje con el status de la operacion.
+        msg_status = self.protocol.receive()
+        msg_query1_status = MessageResultStatus.from_message(msg_status)
+        status = msg_query1_status.message_payload
+
+        #Recibe el segundo mensaje con los resultados de la query.
         msg = self.protocol.receive()
         msg_query1_one_result = MessageQueryOneResult.from_message(msg)
         if msg_query1_one_result == None:
@@ -83,6 +98,7 @@ class ResultResponser:
         
         with open(self.tmp_file_path, "w") as file:
             file.write(f"Query1 Resultados:\n")
+            file.write(f"Status: {status}\n")
             file.write(f"----------------------------------------------------------\n")
             file.write(f"Total Linux: {msg_query1_one_result.total_linux}\n")
             file.write(f"Total Mac: {msg_query1_one_result.total_mac}\n")
@@ -90,6 +106,7 @@ class ResultResponser:
             file.write(f"----------------------------------------------------------\n")
 
         client_q1_sock.close()
+        return status == ResultStatus.FINISHED
 
     def get_query2_results(self, client_id: int):
         query2_file_connection_data = self.query2_file_ip_port.split(',')
@@ -100,6 +117,12 @@ class ResultResponser:
         self.protocol = Protocol(client_q2_sock)
         self.protocol.send(MessageClientAskResults(client_id))
 
+        #Recibe el primer mensaje con el status de la operacion.
+        msg_status = self.protocol.receive()
+        msg_query1_status = MessageResultStatus.from_message(msg_status)
+        status = msg_query1_status.message_payload
+
+        #Recibe el segundo mensaje con los resultados de la query.
         msg = self.protocol.receive()
 
         msg_query2_two_result = MessageQueryTwoResult.from_message(msg)
@@ -108,10 +131,14 @@ class ResultResponser:
         
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query2 Resultados:\n")
+            file.write(f"Status: {status}\n")
             file.write(f"----------------------------------------------------------\n")
             for game_name, playtime in msg_query2_two_result.top_ten_buffer:
                 file.write(f"{game_name}: {playtime}\n")
             file.write(f"----------------------------------------------------------\n")
+        
+        client_q2_sock.close()
+        return status == ResultStatus.FINISHED
 
     def get_query3_results(self, client_id: int):
         query3_file_connection_data = self.query3_file_ip_port.split(',')
@@ -121,6 +148,12 @@ class ResultResponser:
         self.protocol = Protocol(client_q3_sock)
         self.protocol.send(MessageClientAskResults(client_id))
 
+        #Recibe el primer mensaje con el status de la operacion.
+        msg_status = self.protocol.receive()
+        msg_query1_status = MessageResultStatus.from_message(msg_status)
+        status = msg_query1_status.message_payload
+
+        #Recibe el segundo mensaje con los resultados de la query.
         msg = self.protocol.receive()
 
         msg_query3_three_result = MessageQueryThreeResult.from_message(msg)
@@ -129,10 +162,14 @@ class ResultResponser:
 
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query3 Resultados:\n")
+            file.write(f"Status: {status}\n")
             file.write(f"----------------------------------------------------------\n")
             for game_name, total_pos_reviews in msg_query3_three_result.top_five_buffer:
                 file.write(f"{game_name}: {total_pos_reviews}\n")
             file.write(f"----------------------------------------------------------\n")
+        
+        client_q3_sock.close()
+        return status == ResultStatus.FINISHED
 
     def get_query4_results(self, client_id: int):
         query4_file_connection_data = self.query4_file_ip_port.split(',')
@@ -142,6 +179,12 @@ class ResultResponser:
         self.protocol = Protocol(client_q4_sock)
         self.protocol.send(MessageClientAskResults(client_id))
 
+        #Recibe el primer mensaje con el status de la operacion.
+        msg_status = self.protocol.receive()
+        msg_query1_status = MessageResultStatus.from_message(msg_status)
+        status = msg_query1_status.message_payload
+
+        #Recibe el segundo mensaje con los resultados de la query.
         msg = self.protocol.receive()
 
         msg_query4_four_result = MessageQueryFourResult.from_message(msg)
@@ -150,10 +193,14 @@ class ResultResponser:
         
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query4 Resultados:\n")
+            file.write(f"Status: {status}\n")
             file.write(f"----------------------------------------------------------\n")
             for name, _ in msg_query4_four_result.totals:
                 file.write(f"{name}\n")
             file.write(f"----------------------------------------------------------\n")
+
+        client_q4_sock.close()
+        return status == ResultStatus.FINISHED
 
     def get_query5_results(self, client_id: int):
         query5_file_connection_data = self.query5_file_ip_port.split(',')
@@ -163,6 +210,12 @@ class ResultResponser:
         self.protocol = Protocol(client_q5_sock)
         self.protocol.send(MessageClientAskResults(client_id))
 
+        #Recibe el primer mensaje con el status de la operacion.
+        msg_status = self.protocol.receive()
+        msg_query1_status = MessageResultStatus.from_message(msg_status)
+        status = msg_query1_status.message_payload
+
+        #Recibe el segundo mensaje con los resultados de la query.
         msg = self.protocol.receive()
 
         msg_query5_five_result = MessageQueryFiveResult.from_message(msg)
@@ -171,14 +224,30 @@ class ResultResponser:
         
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query5 Resultados:\n")
+            file.write(f"Status: {status}\n")
             file.write(f"----------------------------------------------------------\n")
             for id, name in msg_query5_five_result.totals:
                 file.write(f"{id},{name}\n")
             file.write(f"----------------------------------------------------------\n")
 
-    def send_queries_results_in_batch(self, client_sock):
+        client_q5_sock.close()
+        return status == ResultStatus.FINISHED
+
+    def send_queries_results_in_batch(self, client_sock, is_finished, client_id):
         protocol = Protocol(client_sock)
 
-        with open(self.tmp_file_path, "rb") as file:
+        # Enviar un mensaje con el estado "Processing" o "Finalizado"
+        msg_result_status = MessageResultStatus(client_id, ResultStatus.PENDING)
+        if is_finished:
+            msg_result_status = MessageResultStatus(client_id, ResultStatus.FINISHED)
+        protocol.send(msg_result_status)
+
+        # Enviar un mensaje con el contenido
+        file_content = ""
+        with open(self.tmp_file_path, "r") as file:
             while chunk := file.read(CHUNK_SIZE_FILE_READ):
-                protocol.send_stream(chunk)
+                file_content += chunk
+
+        msg_result_content = MessageResultContent(client_id, file_content)
+        protocol.send(msg_result_content)
+        

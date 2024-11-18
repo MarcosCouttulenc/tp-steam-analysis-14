@@ -5,6 +5,8 @@ from middleware.queue import ServiceQueues
 from common.message import Message
 from common.message import MessageQueryOneFileUpdate
 from common.message import MessageQueryOneResult
+from common.message import MessageResultStatus
+from common.message import ResultStatus
 from common.protocol import *
 import multiprocessing
 import socket
@@ -27,6 +29,7 @@ class QueryFile:
         self.service_queues = ServiceQueues(CHANNEL_NAME)
         manager = multiprocessing.Manager()
         self.totals = manager.dict()
+        self.eof_dict = manager.dict()
     
     def start(self):
         process_updates = multiprocessing.Process(target=self.process_handle_result_updates, args=())
@@ -45,11 +48,21 @@ class QueryFile:
 
             message = protocol.receive()
             client_id = int(message.get_client_id())
+
+
+            message_result_status = MessageResultStatus(str(client_id), ResultStatus.PENDING)
+            if str(client_id) in self.eof_dict.keys():
+                message_result_status = MessageResultStatus(client_id, ResultStatus.FINISHED)
+            
+            
             
             with self.file_lock:
                 file_snapshot = self.get_file_snapshot(client_id)
 
             message_result = self.get_message_result_from_file_snapshot(client_id, file_snapshot)
+
+
+            protocol.send(message_result_status)
             protocol.send(message_result)
 
     
@@ -74,6 +87,11 @@ class QueryFile:
     def handle_new_update(self, ch, method, properties, message: Message):
         #msg_query_one_file_update = MessageQueryOneFileUpdate.from_message(message)
 
+        if message.is_eof():
+            self.service_queues.ack(ch, method)
+            self.eof_dict[(str(message.get_client_id()))] = True
+            return
+
         with self.file_lock:
             self.update_results(message)
 
@@ -88,3 +106,6 @@ class QueryFile:
 
     def update_results(self, message):
         return 0
+    
+    def is_eof(self):
+        return self.EOF

@@ -35,8 +35,9 @@ class QueryOneReducer():
     
     def process_message(self, ch, method, properties, message: Message):
         if message.is_eof():
+
             self.handle_eof(ch, method, properties, message)
-            
+        
             return
 
         #print("Llego msj con data")
@@ -48,20 +49,23 @@ class QueryOneReducer():
         self.service_queues.ack(ch, method)
 
     def handle_eof(self, ch, method, properties, message: Message):
-        #self.total_eofs += 1
+
         client_id = str(message.get_client_id())
         if not client_id in self.total_eofs.keys():
             self.total_eofs[client_id] = 0
         self.total_eofs[client_id] += 1
         
-        #if self.total_eofs >= CANT_EOFS_TIL_CLOSE:
+    
         if self.total_eofs[client_id] >= CANT_EOFS_TIL_CLOSE:
-            #self.total_eofs = 0
+
             self.send_buffer_to_file(message.client_id)
-            #push eof to query1_file
-            #self.running = False
+
+            #Envio del eof al file. Chequear si va aca.
+            for queue_name in self.queues_name_destiny:
+                self.service_queues.push(queue_name, message)
+
             self.service_queues.ack(ch, method)
-            #self.service_queues.close_connection()
+
             return
         
         self.service_queues.ack(ch, method)

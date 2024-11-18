@@ -1,5 +1,6 @@
 from common.model.game import Game
 from common.model.review import Review
+from enum import Enum
 
 MESSAGE_TYPE_GAME_DATA = "game"
 MESSAGE_TYPE_REVIEW_DATA = "review"
@@ -19,6 +20,8 @@ MESSAGE_QUERY_FIVE_RESULT = "query-five-result"
 
 MESSAGE_TYPE_CLIENT_ASK_RESULTS = "client-ask-results"
 MESSAGE_TYPE_SERVER_WELCOME_CLIENT = "server-welcome-client"
+MESSAGE_TYPE_PEDING_RESULTS = "pending-results"
+MESSAGE_TYPE_CONTENT_RESULTS = "content-results"
 FALSE_STRING = "False"
 TRUE_STRING = "True"
 
@@ -494,4 +497,35 @@ class MessageClientAskResults(Message):
             return None
 
         data = message.message_payload.split(DATA_DELIMITER)
+        return cls(message.client_id, str(data[0]))
+
+
+class ResultStatus(Enum):
+    PENDING = "Pending"
+    FINISHED = "Finished"
+
+class MessageResultStatus(Message):
+    def __init__(self, client_id, status: ResultStatus):
+        message_payload = status.value
+        super().__init__(client_id, MESSAGE_TYPE_PEDING_RESULTS, message_payload)
+    
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageResultStatus':
+        if message.message_type != MESSAGE_TYPE_PEDING_RESULTS:
+            return None
+
+        data = message.message_payload.split(DATA_DELIMITER)
+        return cls(message.client_id, ResultStatus(str(data[0])))
+
+class MessageResultContent(Message):
+    def __init__(self, client_id, content):
+        message_payload = content
+        super().__init__(client_id, MESSAGE_TYPE_CONTENT_RESULTS, message_payload)
+    
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageResultContent':
+        if message.message_type != MESSAGE_TYPE_CONTENT_RESULTS:
+            return None
+
+        data = message.message_payload.split(MESSAGE_TYPE_CONTENT_RESULTS)
         return cls(message.client_id, str(data[0]))

@@ -35,16 +35,18 @@ cantidad_reducer_two = 6
 cantidad_reducer_three = 3
 cantidad_reducer_four = 3
 cantidad_reducer_five = 3
-cantidad_clientes = 2
+cantidad_clientes = 1
 cantidad_review_validator = 5 * cantidad_clientes
 cantidad_game_validator = 5 * cantidad_clientes
-'''
+
 game_files = {"1": "100games.csv", "2": "100games.csv"}
 review_files = {"1": "10reviews.csv", "2": "10reviews.csv"}
-'''
 
-game_files = {"1": "fullgames.csv", "2": "fullgames2.csv"}
-review_files = {"1": "data1porcent.csv", "2": "data0.1porcent.csv"}
+
+'''
+game_files = {"1": "fullgames.csv", "2": "fullgames.csv"}
+review_files = {"1": "data0.1porcent.csv", "2": "data0.1porcent.csv"}
+'''
 
 
 #Los puertos de los lideres arrancan en 9000
