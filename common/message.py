@@ -351,6 +351,8 @@ class MessageQueryThreeFileUpdate(Message):
         data = message.message_payload.split(DATA_DELIMITER)
         buffer = []
 
+        print(f"DATA: {data}")
+
         for review in data:
             review_data = review.split(FIELD_DELIMITER)
             buffer.append((review_data[0], int(review_data[1])))
