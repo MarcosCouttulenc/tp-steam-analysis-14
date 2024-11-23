@@ -22,6 +22,10 @@ MESSAGE_TYPE_CLIENT_ASK_RESULTS = "client-ask-results"
 MESSAGE_TYPE_SERVER_WELCOME_CLIENT = "server-welcome-client"
 MESSAGE_TYPE_PEDING_RESULTS = "pending-results"
 MESSAGE_TYPE_CONTENT_RESULTS = "content-results"
+
+MESSAGE_HEALTH_CHECK_ASK = 'health-check-ask'
+MESSAGE_HEALTH_CHECK_ACK = 'health-check-ack'
+
 FALSE_STRING = "False"
 TRUE_STRING = "True"
 
@@ -529,5 +533,5 @@ class MessageResultContent(Message):
         if message.message_type != MESSAGE_TYPE_CONTENT_RESULTS:
             return None
 
-        data = message.message_payload.split(MESSAGE_TYPE_CONTENT_RESULTS)
+        data = message.message_payload.split(DATA_DELIMITER)
         return cls(message.client_id, str(data[0]))

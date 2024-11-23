@@ -35,18 +35,21 @@ cantidad_reducer_two = 6
 cantidad_reducer_three = 3
 cantidad_reducer_four = 3
 cantidad_reducer_five = 3
-cantidad_clientes = 1
+cantidad_clientes = 2
 cantidad_review_validator = 5 * cantidad_clientes
 cantidad_game_validator = 5 * cantidad_clientes
+cantidad_health_checkers = 4
 
+
+'''
 game_files = {"1": "100games.csv", "2": "100games.csv"}
 review_files = {"1": "10reviews.csv", "2": "10reviews.csv"}
-
-
 '''
+
+
 game_files = {"1": "fullgames.csv", "2": "fullgames.csv"}
 review_files = {"1": "data0.1porcent.csv", "2": "data0.1porcent.csv"}
-'''
+
 
 
 #Los puertos de los lideres arrancan en 9000
@@ -67,6 +70,48 @@ def generar_compose():
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
     texto_a_escribir += f"      - CANT_GAME_VALIDATORS={cantidad_game_validator}\n"
     texto_a_escribir += f"      - CANT_REVIEW_VALIDATORS={cantidad_review_validator}\n"
+    texto_a_escribir += "    networks:\n"
+    texto_a_escribir += "      - testing_net\n"
+    texto_a_escribir += "    depends_on:\n"
+    texto_a_escribir += "      - rabbitmq\n\n"
+
+    texto_a_escribir += "  health_checker_1:\n"
+    texto_a_escribir += "    container_name: health_checker_1\n"
+    texto_a_escribir += "    image: health_checker:latest\n"
+    texto_a_escribir += "    environment:\n"
+    texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
+    texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+    texto_a_escribir += "      - CONNECT_IP=health_checker_2\n"
+    texto_a_escribir += "      - CONNECT_PORT=12002\n"
+    texto_a_escribir += "      - LISTEN_PORT=12001\n"
+    texto_a_escribir += "    networks:\n"
+    texto_a_escribir += "      - testing_net\n"
+    texto_a_escribir += "    depends_on:\n"
+    texto_a_escribir += "      - rabbitmq\n\n"
+
+    texto_a_escribir += "  health_checker_2:\n"
+    texto_a_escribir += "    container_name: health_checker_2\n"
+    texto_a_escribir += "    image: health_checker:latest\n"
+    texto_a_escribir += "    environment:\n"
+    texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
+    texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+    texto_a_escribir += "      - CONNECT_IP=health_checker_3\n"
+    texto_a_escribir += "      - CONNECT_PORT=12003\n"
+    texto_a_escribir += "      - LISTEN_PORT=12002\n"
+    texto_a_escribir += "    networks:\n"
+    texto_a_escribir += "      - testing_net\n"
+    texto_a_escribir += "    depends_on:\n"
+    texto_a_escribir += "      - rabbitmq\n\n"
+
+    texto_a_escribir += "  health_checker_3:\n"
+    texto_a_escribir += "    container_name: health_checker_3\n"
+    texto_a_escribir += "    image: health_checker:latest\n"
+    texto_a_escribir += "    environment:\n"
+    texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
+    texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+    texto_a_escribir += "      - CONNECT_IP=health_checker_1\n"
+    texto_a_escribir += "      - CONNECT_PORT=12001\n"
+    texto_a_escribir += "      - LISTEN_PORT=12003\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
