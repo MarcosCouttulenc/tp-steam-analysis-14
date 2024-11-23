@@ -119,8 +119,12 @@ docker-image-worker-review-action:
 	docker build -f ./worker_review_action/Dockerfile -t "worker_review_action:latest" .  # Construir imagen de worker_review_action
 .PHONY: docker-image-worker-review-action
 
+docker-image-health-checker:
+	docker build -f ./healthchecker/Dockerfile -t "healthchecker:latest" .  # Construir imagen de healthchecker
+.PHONY: docker-image-health-checker
 
-docker-image: docker-image-server docker-image-client docker-image-worker-game-validator docker-image-worker-mac docker-image-worker-linux docker-image-worker-windows docker-image-query1-reducer docker-image-query2-reducer docker-image-query3-reducer docker-image-query4-reducer docker-image-query5-reducer docker-image-worker-indie docker-image-worker-2010 docker-image-database docker-image-query1-file docker-image-result-responser docker-image-query2-file docker-image-worker-review-validator docker-image-worker-review-action docker-image-worker-review-english docker-image-worker-review-positive docker-image-worker-review-indie docker-image-query3-file docker-image-query4-file docker-image-query5-file # Construir imágenes
+
+docker-image: docker-image-server docker-image-client docker-image-worker-game-validator docker-image-worker-mac docker-image-worker-linux docker-image-worker-windows docker-image-query1-reducer docker-image-query2-reducer docker-image-query3-reducer docker-image-query4-reducer docker-image-query5-reducer docker-image-worker-indie docker-image-worker-2010 docker-image-database docker-image-query1-file docker-image-result-responser docker-image-query2-file docker-image-worker-review-validator docker-image-worker-review-action docker-image-worker-review-english docker-image-worker-review-positive docker-image-worker-review-indie docker-image-query3-file docker-image-query4-file docker-image-query5-file docker-image-health-checker # Construir imágenes
 .PHONY: docker-image
 
 docker-compose-up: docker-image

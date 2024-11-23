@@ -8,8 +8,8 @@ LISTEN_BACKLOG = 100
 
 class HealthChecker:
     def __init__(self, listen_port, connect_port, connect_ip):
-        self.connect_port = connect_port
-        self.listen_port = listen_port
+        self.connect_port = int(connect_port)
+        self.listen_port = int(listen_port)
         self.connect_ip = connect_ip
         self.running = True
 
@@ -52,7 +52,7 @@ class HealthChecker:
 
             # ciclo de checkeo de health
             while healthchecker_protocol.wait_for_health_check():
-                healthchecker_protocol.healt_check_ack()
+                healthchecker_protocol.health_check_ack()
 
 
     def process_accept_new_connection(self):
@@ -65,11 +65,11 @@ class HealthChecker:
         new_connection_skts = []
 
         while self.running:
-            new_connection_skt = skt_accept_connections.accept()
+            new_connection_skt, address = skt_accept_connections.accept()
 
             healthcheck_container_process = threading.Thread(
                 target = self.process_healthcheck_container,
-                args = (new_connection_skt)
+                args = (new_connection_skt, address)
             ) 
             healthcheck_container_process.start()
             new_connection_skts.append(healthcheck_container_process)
@@ -79,7 +79,8 @@ class HealthChecker:
             process.join()
 
     
-    def process_healthcheck_container(self, socket):
+    def process_healthcheck_container(self, socket, address):
+        #socket = socket[0]
         healthchecker_protocol = ProtocolHealthChecker(socket)
 
         while True:
