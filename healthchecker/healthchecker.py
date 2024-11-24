@@ -2,7 +2,7 @@ import socket
 import threading
 from time import sleep
 from common.protocol_healthchecker import ProtocolHealthChecker
-
+import docker
 
 LISTEN_BACKLOG = 100
 
@@ -12,7 +12,17 @@ class HealthChecker:
         self.listen_port = int(listen_port)
         self.connect_ip = connect_ip
         self.running = True
+        self.docker_client = docker.DockerClient(base_url="unix://var/run/docker.sock")
 
+
+    def restart_node(self, container_name):
+        # Reiniciamos el nodo que se cayo
+        try: 
+            container_name = self.docker_client.containers.get(container_name)
+            container_name.restart()
+            print(f"Contenedor {container_name} reiniciado")
+        except Exception as e:
+            print(f"Error reiniciando contenedor {container_name}: {e}")
 
     def start(self):
         processes = []
@@ -44,16 +54,20 @@ class HealthChecker:
         # Conectamos al socket del mi healthchecker, si algo sale mal me
         # vuelvo a intentar conectar
         while self.running:
-            skt_next_healthchecker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            skt_next_healthchecker.connect((self.connect_ip, self.connect_port))
-            
-            # comienza la comunicacion
-            healthchecker_protocol = ProtocolHealthChecker(skt_next_healthchecker)
+            try:
+                skt_next_healthchecker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                skt_next_healthchecker.connect((self.connect_ip, self.connect_port))
+                
+                # comienza la comunicacion
+                healthchecker_protocol = ProtocolHealthChecker(skt_next_healthchecker)
 
-            # ciclo de checkeo de health
-            while healthchecker_protocol.wait_for_health_check():
-                healthchecker_protocol.health_check_ack()
-
+                # ciclo de checkeo de health
+                while healthchecker_protocol.wait_for_health_check():
+                    healthchecker_protocol.health_check_ack()
+            except Exception as e:
+                print(f"Error conectando al nodo {self.connect_ip}:{self.connect_port}: {e}")
+                print(f"Reiniciando nodo {self.connect_ip}")
+                self.restart_node("health_checker_2")
 
     def process_accept_new_connection(self):
         # Esperamos que los nodos que tengo que cuidar se conecten a mi.
@@ -84,10 +98,16 @@ class HealthChecker:
         healthchecker_protocol = ProtocolHealthChecker(socket)
 
         while True:
-            if (not healthchecker_protocol.health_check_ask()):
-                break
+            try:
+                if (not healthchecker_protocol.health_check_ask()):
+                    break
 
-            if (not healthchecker_protocol.wait_for_node_ack()):
-                break
+                if (not healthchecker_protocol.wait_for_node_ack()):
+                    break
 
-            sleep(5)
+                sleep(5)
+            except Exception as e:
+                print(f"Error en nodo {address}: {e}")
+                print(f"Reiniciando nodo {address}")
+                self.restart_node("nombre_del_contenedor_a_reiniciar")
+                break
