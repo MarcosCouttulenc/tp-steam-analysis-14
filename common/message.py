@@ -25,6 +25,7 @@ MESSAGE_TYPE_CONTENT_RESULTS = "content-results"
 
 MESSAGE_HEALTH_CHECK_ASK = 'health-check-ask'
 MESSAGE_HEALTH_CHECK_ACK = 'health-check-ack'
+MESSAGE_CONTAINER_NAME = 'container-name'
 
 FALSE_STRING = "False"
 TRUE_STRING = "True"
