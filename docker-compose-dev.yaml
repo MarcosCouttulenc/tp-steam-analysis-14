@@ -16,6 +16,7 @@ services:
   health_checker_1:
     container_name: health_checker_1
     image: healthchecker:latest
+    privileged: true
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
@@ -24,10 +25,13 @@ services:
       - LISTEN_PORT=12001
     networks:
       - testing_net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   health_checker_2:
     container_name: health_checker_2
     image: healthchecker:latest
+    privileged: true
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
@@ -36,10 +40,13 @@ services:
       - LISTEN_PORT=12002
     networks:
       - testing_net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   health_checker_3:
     container_name: health_checker_3
     image: healthchecker:latest
+    privileged: true
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
@@ -48,6 +55,8 @@ services:
       - LISTEN_PORT=12003
     networks:
       - testing_net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   result_responser:
     container_name: result_responser
