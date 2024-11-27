@@ -20,6 +20,8 @@ def initialize_config():
         config_params["ip_master"] = os.getenv('IP_MASTER')
         config_params["cant_slaves"] = os.getenv('CANT_SLAVES')
         config_params["queue_name_origin_eof"] = os.getenv('QUEUE_NAME_ORIGIN_EOF', config["DEFAULT"]["QUEUE_NAME_ORIGIN_EOF"])
+        config_params["port_healthchecker"] = os.getenv('PORT_HEALTHCHECKER')
+        config_params["ip_healthchecker"] = os.getenv('IP_HEALTHCHECKER')
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -38,6 +40,8 @@ def main():
     ip_master = config_params["ip_master"]
     queue_name_origin_eof = config_params["queue_name_origin_eof"]
     cant_slaves = config_params["cant_slaves"]
+    port_healthchecker = config_params["port_healthchecker"]
+    ip_healthchecker = config_params["ip_healthchecker"]
     
     initialize_log(logging_level)
     
@@ -45,7 +49,9 @@ def main():
                   f"| logging_level: {logging_level}")
 
     print("action: WINDOWSWorker - start")
-    windows_worker = WINDOWSWorker(queue_name_origin_eof,queue_name_origin, queues_name_destiny, cant_next,cant_slaves, is_master, ip_master,port_master)
+    windows_worker = WINDOWSWorker(
+        queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, 
+        is_master, ip_master, port_master, ip_healthchecker, port_healthchecker)
     windows_worker.start()
 
 

@@ -16,7 +16,7 @@ CHANNEL_NAME =  "rabbitmq"
 # {"client_id": {"windows": int, "linux": int, "mac": int}}
 
 class QueryOneReducer():
-    def __init__(self, queue_name_origin, queues_name_destiny_str):
+    def __init__(self, queue_name_origin, queues_name_destiny_str, ip_healthchecker, port_healthchecker):
         self.queue_name_origin = queue_name_origin
         self.queues_name_destiny = queues_name_destiny_str.split(",")
         self.running = True

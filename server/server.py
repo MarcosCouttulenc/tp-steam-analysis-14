@@ -14,7 +14,8 @@ from middleware.queue import ServiceQueues
 CHANNEL_NAME =  "rabbitmq"
 
 class Server:
-    def __init__(self, listen_new_connection_port, listen_result_query_port, listen_backlog, cant_game_validators, cant_review_validators):
+    def __init__(self, listen_new_connection_port, listen_result_query_port, listen_backlog, cant_game_validators, 
+                 cant_review_validators, ip_healthchecker, port_healthchecker):
         self.listen_new_connection_port = listen_new_connection_port
         self.listen_result_query_port = listen_result_query_port
         self.cant_game_validators = cant_game_validators-1
@@ -27,7 +28,8 @@ class Server:
         self._server_is_running = True
         self._server_connected_clients = []
 
-        #self.service_queues = ServiceQueues(CHANNEL_NAME)
+        self.ip_healthchecker = ip_healthchecker
+        self.port_healthchecker = int(port_healthchecker)
 
     def initialize_signals(self):
         signal.signal(signal.SIGTERM, self.stop)

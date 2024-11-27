@@ -1,27 +1,12 @@
 import socket
 import threading
 from time import sleep
-from common.protocol_healthchecker import ProtocolHealthChecker
+from common.protocol_healthchecker import ProtocolHealthChecker, get_container_name
 import docker
 import os
 
 LISTEN_BACKLOG = 100
 TIME_BETWEEN_HEALTH_CHECKS = 5
-
-
-def get_container_name():
-    # Leer el ID del contenedor actual
-    with open('/etc/hostname', 'r') as f:
-        container_id = f.read().strip()
-
-    # Conectar al demonio de Docker
-    client = docker.from_env()
-
-    # Buscar el contenedor actual por su ID
-    container = client.containers.get(container_id)
-
-    # Retornar el nombre del contenedor
-    return container.name
 
 class HealthChecker:
     def __init__(self, listen_port, connect_port, connect_ip):
@@ -147,7 +132,10 @@ class HealthChecker:
         if (container_name_msg == None):
             return
 
-        container_name = container_name_msg.container_name
+        container_id = container_name_msg.container_name
+        container = self.docker_client.containers.get(container_id)
+
+        container_name = container.name
 
         with open(self.file_name_connected_containers, "w") as file:
             file.write(container_name)

@@ -9,8 +9,8 @@ import multiprocessing
 BUFFER_MAX_SIZE = 50
 
 class QueryFiveReducer(ReducerWorker):
-    def __init__(self,queue_name_origin_eof, queue_name_origin, queues_name_destiny_str, cant_slaves, is_master, ip_master, port_master):
-        super().__init__(queue_name_origin_eof, queue_name_origin, queues_name_destiny_str, cant_slaves, is_master, ip_master, port_master)
+    def __init__(self,queue_name_origin_eof, queue_name_origin, queues_name_destiny_str, cant_slaves, is_master, ip_master, port_master, ip_healthchecker, port_healthchecker):
+        super().__init__(queue_name_origin_eof, queue_name_origin, queues_name_destiny_str, cant_slaves, is_master, ip_master, port_master, ip_healthchecker, port_healthchecker)
         self.curr_cant = 0
         
 

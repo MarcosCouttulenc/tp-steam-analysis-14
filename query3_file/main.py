@@ -15,6 +15,8 @@ def initialize_config():
         config_params["file_path"] = os.getenv('FILE_PATH', config["DEFAULT"]["FILE_PATH"])
         config_params["result_query_port"] = os.getenv('RESULT_QUERY_PORT', config["DEFAULT"]["RESULT_QUERY_PORT"])
         config_params["listen_backlog"] = os.getenv('LISTEN_BACKLOG', config["DEFAULT"]["LISTEN_BACKLOG"])
+        config_params["port_healthchecker"] = os.getenv('PORT_HEALTHCHECKER')
+        config_params["ip_healthchecker"] = os.getenv('IP_HEALTHCHECKER')
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -29,12 +31,14 @@ def main():
     file_path = config_params["file_path"]
     result_query_port = config_params["result_query_port"]
     listen_backlog = config_params["listen_backlog"]
+    port_healthchecker = config_params["port_healthchecker"]
+    ip_healthchecker = config_params["ip_healthchecker"]
     
     initialize_log(logging_level)
     
     logging.debug(f"action: config | result: success | queue_name_origin: {queue_name_origin} | logging_level: {logging_level}")
 
-    query_three_file_worker = QueryThreeFile(queue_name_origin, file_path, int(result_query_port), int(listen_backlog))
+    query_three_file_worker = QueryThreeFile(queue_name_origin, file_path, int(result_query_port), int(listen_backlog), ip_healthchecker, port_healthchecker)
     query_three_file_worker.start()
 
 

@@ -14,6 +14,8 @@ def initialize_config():
         config_params["queue_name_origin"] = os.getenv('QUEUE_NAME_ORIGIN', config["DEFAULT"]["QUEUE_NAME_ORIGIN"])
         config_params["queues_name_destiny"] = os.getenv('QUEUES_NAME_DESTINY', config["DEFAULT"]["QUEUES_NAME_DESTINY"])
         config_params["logging_level"] = os.getenv('LOGGING_LEVEL', config["DEFAULT"]["LOGGING_LEVEL"])
+        config_params["port_healthchecker"] = os.getenv('PORT_HEALTHCHECKER')
+        config_params["ip_healthchecker"] = os.getenv('IP_HEALTHCHECKER')
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -26,12 +28,14 @@ def main():
     queue_name_origin = config_params["queue_name_origin"]
     queues_name_destiny = config_params["queues_name_destiny"]
     logging_level = config_params["logging_level"]
+    port_healthchecker = config_params["port_healthchecker"]
+    ip_healthchecker = config_params["ip_healthchecker"]
     
     initialize_log(logging_level)
     
     logging.debug(f"action: config | result: success | queue_name_origin: {queue_name_origin} | logging_level: {logging_level}")
 
-    query_one_reducer_worker = QueryOneReducer(queue_name_origin, queues_name_destiny)
+    query_one_reducer_worker = QueryOneReducer(queue_name_origin, queues_name_destiny, ip_healthchecker, port_healthchecker)
     query_one_reducer_worker.start()
 
 

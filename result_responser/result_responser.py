@@ -22,7 +22,7 @@ CHUNK_SIZE_FILE_READ = 1024
 
 class ResultResponser:
     def __init__(self, result_responser_port, tmp_file_path, listen_backlog, query1_file_ip_port, query2_file_ip_port, 
-                query3_file_ip_port, query4_file_ip_port, query5_file_ip_port):
+                query3_file_ip_port, query4_file_ip_port, query5_file_ip_port, ip_healthchecker, port_healthchecker):
         self.running = True
         self.new_connection_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.new_connection_socket.bind(('', result_responser_port))
@@ -36,6 +36,9 @@ class ResultResponser:
         self.query5_file_ip_port = query5_file_ip_port
 
         self.final_results = {}
+
+        self.ip_healthchecker = ip_healthchecker
+        self.port_healthchecker = int(port_healthchecker)
 
     def start(self):
         logging.critical("result responser corriendo")

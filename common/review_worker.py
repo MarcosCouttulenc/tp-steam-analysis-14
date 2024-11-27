@@ -10,6 +10,8 @@ from common.message import MessageReviewInfo
 from common.message import MessageEndOfDataset
 from common.message import Message
 from common.protocol import Protocol
+from common.protocol_healthchecker import ProtocolHealthChecker, get_container_name
+
 
 CHANNEL_NAME =  "rabbitmq"
 FALSE_STRING = "False"
@@ -28,7 +30,8 @@ def string_to_boolean(string_variable):
         raise Exception("Variable booleana incorrecta")
 
 class ReviewWorker:
-    def __init__(self, queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, port_master):
+    def __init__(self, queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, 
+                 is_master, ip_master, port_master, ip_healthchecker, port_healthchecker):
         self.queue_name_origin = queue_name_origin
         self.running = True
         self.service_queue_filter = ServiceQueues(CHANNEL_NAME)
@@ -40,6 +43,9 @@ class ReviewWorker:
         self.ip_master = ip_master
         self.port_master = int(port_master)
         self.running_threads = []
+
+        self.ip_healthchecker = ip_healthchecker
+        self.port_healthchecker = int(port_healthchecker)
     
     def init_queues_destiny(self, queues_name_destiny, cant_next):
         queues_name_destiny_list = queues_name_destiny.split(',')
@@ -51,6 +57,14 @@ class ReviewWorker:
 
 
     def start(self):
+
+        # Lanzamos proceso para conectarnos al health checker
+        connect_health_checker = threading.Thread(
+            target = self.process_connect_health_checker 
+        )
+        connect_health_checker.start()
+        self.running_threads.append(connect_health_checker)
+
         if (not self.is_master):
             # Lanzamos proceso filter
             filter_process = threading.Thread(
@@ -93,6 +107,27 @@ class ReviewWorker:
 
         for process in self.running_threads:
             process.join()
+
+
+    ## Proceso de conexion con health checker
+    ## --------------------------------------------------------------------------------      
+    def process_connect_health_checker(self):
+        time.sleep(10)
+
+        while self.running:
+            skt_next_healthchecker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            skt_next_healthchecker.connect((self.ip_healthchecker, self.port_healthchecker))
+            
+            # comienza la comunicacion
+            healthchecker_protocol = ProtocolHealthChecker(skt_next_healthchecker)
+
+            # le envio el nombre de mi container
+            if (not healthchecker_protocol.send_container_name(get_container_name())):
+                continue
+
+            # ciclo de checkeo de health
+            while healthchecker_protocol.wait_for_health_check():
+                healthchecker_protocol.health_check_ack()
 
 
     ## Proceso master eof handler

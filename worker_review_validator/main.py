@@ -23,6 +23,8 @@ def initialize_config():
         config_params["ip_master"] = os.getenv('IP_MASTER')
         config_params["queue_name_origin_eof"] = os.getenv('QUEUE_NAME_ORIGIN_EOF', config["DEFAULT"]["QUEUE_NAME_ORIGIN_EOF"])
         config_params["cant_slaves"] = os.getenv('CANT_SLAVES')
+        config_params["port_healthchecker"] = os.getenv('PORT_HEALTHCHECKER')
+        config_params["ip_healthchecker"] = os.getenv('IP_HEALTHCHECKER')
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -44,14 +46,17 @@ def main():
     ip_master = config_params["ip_master"]
     queue_name_origin_eof = config_params["queue_name_origin_eof"]
     cant_slaves = config_params["cant_slaves"]
+    port_healthchecker = config_params["port_healthchecker"]
+    ip_healthchecker = config_params["ip_healthchecker"]
 
     initialize_log(logging_level)
     
     logging.debug(f"action: config | result: success | queue_name_origin: {queue_name_origin} | queues_name_destiny: {queues_name_destiny}" 
                   f"| db_games_ip: {db_games_ip} | db_games_port: {db_games_port} | logging_level: {logging_level}")
 
-    worker_review_validator = WorkerReviewValidator(queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
-                                                    port_master, db_games_ip, int(db_games_port))
+    worker_review_validator = WorkerReviewValidator(
+        queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
+        port_master, db_games_ip, int(db_games_port), ip_healthchecker, port_healthchecker)
     worker_review_validator.start()
 
 def initialize_log(logging_level):

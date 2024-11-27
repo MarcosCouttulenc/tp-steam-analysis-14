@@ -38,7 +38,7 @@ cantidad_reducer_five = 3
 cantidad_clientes = 2
 cantidad_review_validator = 5 * cantidad_clientes
 cantidad_game_validator = 5 * cantidad_clientes
-cantidad_health_checkers = 4
+cantidad_health_checkers = 3
 
 
 '''
@@ -60,8 +60,10 @@ def generar_compose():
     port_master = 9000
     texto_a_escribir = "name: tp-steam-analysis\n"
     texto_a_escribir += "services:\n"
+    to_healt_checker_number = 0
 
     # Agregar la configuración del server
+    to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
     texto_a_escribir += "  server:\n"
     texto_a_escribir += "    container_name: server\n"
     texto_a_escribir += "    image: server:latest\n"
@@ -70,60 +72,86 @@ def generar_compose():
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
     texto_a_escribir += f"      - CANT_GAME_VALIDATORS={cantidad_game_validator}\n"
     texto_a_escribir += f"      - CANT_REVIEW_VALIDATORS={cantidad_review_validator}\n"
+    texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+    texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
     texto_a_escribir += "      - rabbitmq\n\n"
+    to_healt_checker_number += 1
 
-    texto_a_escribir += "  health_checker_1:\n"
-    texto_a_escribir += "    container_name: health_checker_1\n"
-    texto_a_escribir += "    image: healthchecker:latest\n"
-    texto_a_escribir += "    environment:\n"
-    texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
-    texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-    texto_a_escribir += "      - CONNECT_IP=health_checker_2\n"
-    texto_a_escribir += "      - CONNECT_PORT=12002\n"
-    texto_a_escribir += "      - LISTEN_PORT=12001\n"
-    texto_a_escribir += "    networks:\n"
-    texto_a_escribir += "      - testing_net\n"
+    # texto_a_escribir += "  health_checker_1:\n"
+    # texto_a_escribir += "    container_name: health_checker_1\n"
+    # texto_a_escribir += "    image: healthchecker:latest\n"
+    # texto_a_escribir += "    environment:\n"
+    # texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
+    # texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+    # texto_a_escribir += "      - CONNECT_IP=health_checker_2\n"
+    # texto_a_escribir += "      - CONNECT_PORT=12002\n"
+    # texto_a_escribir += "      - LISTEN_PORT=12001\n"
+    # texto_a_escribir += "    networks:\n"
+    # texto_a_escribir += "      - testing_net\n"
 
-    texto_a_escribir += "  health_checker_2:\n"
-    texto_a_escribir += "    container_name: health_checker_2\n"
-    texto_a_escribir += "    image: healthchecker:latest\n"
-    texto_a_escribir += "    environment:\n"
-    texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
-    texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-    texto_a_escribir += "      - CONNECT_IP=health_checker_3\n"
-    texto_a_escribir += "      - CONNECT_PORT=12003\n"
-    texto_a_escribir += "      - LISTEN_PORT=12002\n"
-    texto_a_escribir += "    networks:\n"
-    texto_a_escribir += "      - testing_net\n"
+    # texto_a_escribir += "  health_checker_2:\n"
+    # texto_a_escribir += "    container_name: health_checker_2\n"
+    # texto_a_escribir += "    image: healthchecker:latest\n"
+    # texto_a_escribir += "    environment:\n"
+    # texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
+    # texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+    # texto_a_escribir += "      - CONNECT_IP=health_checker_3\n"
+    # texto_a_escribir += "      - CONNECT_PORT=12003\n"
+    # texto_a_escribir += "      - LISTEN_PORT=12002\n"
+    # texto_a_escribir += "    networks:\n"
+    # texto_a_escribir += "      - testing_net\n"
 
-    texto_a_escribir += "  health_checker_3:\n"
-    texto_a_escribir += "    container_name: health_checker_3\n"
-    texto_a_escribir += "    image: healthchecker:latest\n"
-    texto_a_escribir += "    environment:\n"
-    texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
-    texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-    texto_a_escribir += "      - CONNECT_IP=health_checker_1\n"
-    texto_a_escribir += "      - CONNECT_PORT=12001\n"
-    texto_a_escribir += "      - LISTEN_PORT=12003\n"
-    texto_a_escribir += "    networks:\n"
-    texto_a_escribir += "      - testing_net\n"
+    # texto_a_escribir += "  health_checker_3:\n"
+    # texto_a_escribir += "    container_name: health_checker_3\n"
+    # texto_a_escribir += "    image: healthchecker:latest\n"
+    # texto_a_escribir += "    environment:\n"
+    # texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
+    # texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+    # texto_a_escribir += "      - CONNECT_IP=health_checker_1\n"
+    # texto_a_escribir += "      - CONNECT_PORT=12001\n"
+    # texto_a_escribir += "      - LISTEN_PORT=12003\n"
+    # texto_a_escribir += "    networks:\n"
+    # texto_a_escribir += "      - testing_net\n"
 
+    for i in range(1, cantidad_health_checkers + 1):
+        texto_a_escribir += f"  health_checker_{i}:\n"
+        texto_a_escribir += f"    container_name: health_checker_{i}\n"
+        texto_a_escribir += "    image: healthchecker:latest\n"
+        texto_a_escribir += "    privileged: true\n"
+        texto_a_escribir += "    environment:\n"
+        texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
+        texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - CONNECT_IP=health_checker_{i + 1 if i < cantidad_health_checkers else 1}\n"
+        texto_a_escribir += f"      - CONNECT_PORT=1200{i + 1 if i < cantidad_health_checkers else 1}\n"
+        texto_a_escribir += f"      - LISTEN_PORT=1200{i}\n"
+        texto_a_escribir += "    networks:\n"
+        texto_a_escribir += "      - testing_net\n"
+        texto_a_escribir += "    volumes:\n"
+        texto_a_escribir += "      - /var/run/docker.sock:/var/run/docker.sock\n\n"
+
+    to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
     texto_a_escribir += "  result_responser:\n"
     texto_a_escribir += "    container_name: result_responser\n"
     texto_a_escribir += "    image: result_responser:latest\n"
     texto_a_escribir += "    environment:\n"
     texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+    texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+    texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
-    texto_a_escribir += "      - server\n\n"
+    texto_a_escribir += "      - server\n"
+    texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+    to_healt_checker_number += 1
+
 
     # Agregar la configuración del cliente
     for i in range(1, cantidad_clientes + 1):
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  client_{i}:\n"
         texto_a_escribir += f"    container_name: client_{i}\n"
         texto_a_escribir += "    image: client:latest\n"
@@ -133,12 +161,16 @@ def generar_compose():
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
         texto_a_escribir += f"      - GAMES_FILE_PATH={game_files[str(i)]}\n"
         texto_a_escribir += f"      - REVIEWS_FILE_PATH={review_files[str(i)]}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    volumes:\n"
         texto_a_escribir += "      - ./client/config.ini:/client/config.ini\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += "      - result_responser\n\n"
+        texto_a_escribir += "      - result_responser\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
 
     # Agregar la configuración de RabbitMQ
     texto_a_escribir += "  rabbitmq:\n"
@@ -160,6 +192,7 @@ def generar_compose():
     # Generar contenedores para cada tipo según las cantidades
     port_master += 1
     for i in range(1, cantidad_windows + 1):
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         is_master = (i == 1)
         texto_a_escribir += f"  worker_windows_{i}:\n"
         texto_a_escribir += f"    container_name: worker_windows_{i}\n"
@@ -172,15 +205,20 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_windows_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_windows}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_windows_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_windows_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
 
     # Agregar contenedores para worker_linux
     port_master += 1
     for i in range(1, cantidad_linux + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  worker_linux_{i}:\n"
         texto_a_escribir += f"    container_name: worker_linux_{i}\n"
         texto_a_escribir += "    image: worker_linux:latest\n"
@@ -192,16 +230,21 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_linux_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_linux}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_linux_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_linux_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
 
     # Continuar con el resto de los tipos de contenedores basados en las variables recibidas...
     # Ejemplo para `worker_mac`
     port_master += 1
     for i in range(1, cantidad_mac + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  worker_mac_{i}:\n"
         texto_a_escribir += f"    container_name: worker_mac_{i}\n"
         texto_a_escribir += "    image: worker_mac:latest\n"
@@ -213,15 +256,20 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_mac_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_mac}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_mac_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_mac_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
     
      # Generar contenedores para worker_indie
     port_master += 1
     for i in range(1, cantidad_juego_indie + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  worker_indie_{i}:\n"
         texto_a_escribir += f"    container_name: worker_indie_{i}\n"
         texto_a_escribir += "    image: worker_indie:latest\n"
@@ -233,15 +281,20 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_indie_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_juego_indie}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_indie_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_indie_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
     
      # Generar contenedores para worker_2010
     port_master += 1
     for i in range(1, cantidad_decada + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  worker_2010_{i}:\n"
         texto_a_escribir += f"    container_name: worker_2010_{i}\n"
         texto_a_escribir += "    image: worker_2010:latest\n"
@@ -253,15 +306,20 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_2010_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_decada}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_2010_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_2010_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
     
      # Generar contenedores para worker_review_indie
     port_master += 1
     for i in range(1, cantidad_review_indie + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  worker_review_indie_{i}:\n"
         texto_a_escribir += f"    container_name: worker_review_indie_{i}\n"
         texto_a_escribir += "    image: worker_review_indie:latest\n"
@@ -273,15 +331,20 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_review_indie_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_review_indie}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_review_indie_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_review_indie_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
 
     # Generar contenedores para worker_review_positive
     port_master += 1
     for i in range(1, cantidad_positiva + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  worker_review_positive_{i}:\n"
         texto_a_escribir += f"    container_name: worker_review_positive_{i}\n"
         texto_a_escribir += "    image: worker_review_positive:latest\n"
@@ -293,15 +356,20 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_review_positive_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_positiva}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_review_positive_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_review_positive_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
 
     # Generar contenedores para worker_review_action
     port_master += 1
     for i in range(1, cantidad_action + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  worker_review_action_{i}:\n"
         texto_a_escribir += f"    container_name: worker_review_action_{i}\n"
         texto_a_escribir += "    image: worker_review_action:latest\n"
@@ -313,15 +381,20 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_review_action_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_action}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_review_action_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_review_action_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
 
     # Generar contenedores para worker_review_english
     port_master += 1
     for i in range(1, cantidad_ingles + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  worker_review_english_{i}:\n"
         texto_a_escribir += f"    container_name: worker_review_english_{i}\n"
         texto_a_escribir += "    image: worker_review_english:latest\n"
@@ -333,15 +406,20 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_review_english_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_ingles}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_review_english_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'worker_review_english_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
 
     # Generar contenedores para query reducers
     port_master += 1
     for i in range(1, cantidad_reducer_one + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  query1_reducer_{i}:\n"
         texto_a_escribir += f"    container_name: query1_reducer_{i}\n"
         texto_a_escribir += "    image: query1_reducer:latest\n"
@@ -352,14 +430,19 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=query1_reducer_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_reducer_one}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query1_reducer_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query1_reducer_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
 
     port_master += 1
     for i in range(1, cantidad_reducer_two + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  query2_reducer_{i}:\n"
         texto_a_escribir += f"    container_name: query2_reducer_{i}\n"
         texto_a_escribir += "    image: query2_reducer:latest\n"
@@ -370,14 +453,19 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=query2_reducer_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_reducer_two}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"  
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query2_reducer_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query2_reducer_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
 
     port_master += 1
     for i in range(1, cantidad_reducer_three + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  query3_reducer_{i}:\n"
         texto_a_escribir += f"    container_name: query3_reducer_{i}\n"
         texto_a_escribir += "    image: query3_reducer:latest\n"
@@ -388,14 +476,19 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=query3_reducer_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_reducer_three}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query3_reducer_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query3_reducer_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
 
     port_master += 1
     for i in range(1, cantidad_reducer_four + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  query4_reducer_{i}:\n"
         texto_a_escribir += f"    container_name: query4_reducer_{i}\n"
         texto_a_escribir += "    image: query4_reducer:latest\n"
@@ -406,14 +499,20 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=query4_reducer_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_reducer_four}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query4_reducer_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query4_reducer_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+
+        to_healt_checker_number += 1
 
     port_master += 1
     for i in range(1, cantidad_reducer_five + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  query5_reducer_{i}:\n"
         texto_a_escribir += f"    container_name: query5_reducer_{i}\n"
         texto_a_escribir += "    image: query5_reducer:latest\n"
@@ -424,69 +523,99 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=query5_reducer_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_reducer_five}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query5_reducer_1'}\n\n"
+        texto_a_escribir += f"      - {'rabbitmq' if is_master else 'query5_reducer_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
     
     # generar contenedores para cada query_file
+    to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
     texto_a_escribir += "  query1_file:\n"
     texto_a_escribir += "    container_name: query1_file\n"
     texto_a_escribir += "    image: query1_file:latest\n"
     texto_a_escribir += "    environment:\n"
     texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+    texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+    texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
-    texto_a_escribir += "      - rabbitmq\n\n"
+    texto_a_escribir += "      - rabbitmq\n"
+    texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+    to_healt_checker_number += 1
 
+    to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
     texto_a_escribir += "  query2_file:\n"
     texto_a_escribir += "    container_name: query2_file\n"
     texto_a_escribir += "    image: query2_file:latest\n"
     texto_a_escribir += "    environment:\n"
     texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+    texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+    texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
-    texto_a_escribir += "      - rabbitmq\n\n"
+    texto_a_escribir += "      - rabbitmq\n"
+    texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+    to_healt_checker_number += 1
 
+    to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
     texto_a_escribir += "  query3_file:\n"
     texto_a_escribir += "    container_name: query3_file\n"
     texto_a_escribir += "    image: query3_file:latest\n"
     texto_a_escribir += "    environment:\n"
     texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+    texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+    texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
-    texto_a_escribir += "      - rabbitmq\n\n"
+    texto_a_escribir += "      - rabbitmq\n"
+    texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+    to_healt_checker_number += 1
 
+    to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
     texto_a_escribir += "  query4_file:\n"
     texto_a_escribir += "    container_name: query4_file\n"
     texto_a_escribir += "    image: query4_file:latest\n"
     texto_a_escribir += "    environment:\n"
     texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+    texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+    texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
-    texto_a_escribir += "      - rabbitmq\n\n"
+    texto_a_escribir += "      - rabbitmq\n"
+    texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+    to_healt_checker_number += 1
 
+    to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
     texto_a_escribir += "  query5_file:\n"
     texto_a_escribir += "    container_name: query5_file\n"
     texto_a_escribir += "    image: query5_file:latest\n"
     texto_a_escribir += "    environment:\n"
     texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+    texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+    texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
-    texto_a_escribir += "      - rabbitmq\n\n"
+    texto_a_escribir += "      - rabbitmq\n"
+    texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+    to_healt_checker_number += 1
 
     # Generar contenedor de BDD
 
+    to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
     texto_a_escribir += "  database:\n"
     texto_a_escribir += "    container_name: database\n"
     texto_a_escribir += "    image: database:latest\n"
@@ -494,10 +623,14 @@ def generar_compose():
     texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
     texto_a_escribir += f"      - CANT_CLIENTS={cantidad_clientes}\n"
+    texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+    texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
-    texto_a_escribir += "      - rabbitmq\n\n"
+    texto_a_escribir += "      - rabbitmq\n"
+    texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+    to_healt_checker_number += 1
 
 
     port_master += 1
@@ -505,6 +638,7 @@ def generar_compose():
     for i in range(1, cantidad_game_validator + 1):
         is_master = (i == 1)
 
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  worker_game_validator_{i}:\n"
         texto_a_escribir += f"    container_name: worker_game_validator_{i}\n"
         texto_a_escribir += "    image: worker_game_validator:latest\n"
@@ -516,15 +650,20 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_game_validator_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_game_validator}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'database' if is_master else 'worker_game_validator_1'}\n\n"
+        texto_a_escribir += f"      - {'database' if is_master else 'worker_game_validator_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
 
     # Generar contenedores para worker_review_validator
     port_master += 1
     for i in range(1, cantidad_review_validator + 1):
         is_master = (i == 1)
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
         texto_a_escribir += f"  worker_review_validator_{i}:\n"
         texto_a_escribir += f"    container_name: worker_review_validator_{i}\n"
         texto_a_escribir += "    image: worker_review_validator:latest\n"
@@ -536,10 +675,14 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_review_validator_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_review_validator}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'database' if is_master else 'worker_review_validator_1'}\n\n"
+        texto_a_escribir += f"      - {'database' if is_master else 'worker_review_validator_1'}\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
 
     texto_a_escribir += "networks:\n"
     texto_a_escribir += "  testing_net:\n"

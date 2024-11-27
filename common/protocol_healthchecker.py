@@ -1,6 +1,6 @@
 from common.protocol import Protocol
 from common.message import Message, DATA_DELIMITER, MESSAGE_HEALTH_CHECK_ASK, MESSAGE_HEALTH_CHECK_ACK, MESSAGE_CONTAINER_NAME
-
+import docker
 
 USELESS_CLIENT_ID = -1
 class MessageHealthCheckerAsk(Message):
@@ -42,6 +42,14 @@ class MessageContainerName(Message):
         data = message.message_payload.split(DATA_DELIMITER)
         return cls(str(data[0]))
 
+
+def get_container_name():
+    # Leer el ID del contenedor actual
+    with open('/etc/hostname', 'r') as f:
+        container_id = f.read().strip()
+
+    # Retornar el nombre del contenedor
+    return container_id
 
 class ProtocolHealthChecker:
     def __init__(self, socket):

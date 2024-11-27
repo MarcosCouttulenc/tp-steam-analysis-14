@@ -26,7 +26,7 @@ def string_to_boolean(string_variable):
         raise Exception("Variable booleana incorrecta")
 
 class ReducerWorker:
-    def __init__ (self,queue_name_origin_eof, queue_name_origin, queues_name_destiny_str, cant_slaves, is_master, ip_master, port_master):
+    def __init__ (self,queue_name_origin_eof, queue_name_origin, queues_name_destiny_str, cant_slaves, is_master, ip_master, port_master,ip_healthchecker, port_healthchecker):
         self.queue_name_origin = queue_name_origin
         self.queues_name_destiny = queues_name_destiny_str.split(",")
         self.running = True
@@ -42,6 +42,9 @@ class ReducerWorker:
         self.ip_master = ip_master
         self.port_master = int(port_master)
         self.running_threads = []
+
+        self.ip_healthchecker = ip_healthchecker
+        self.port_healthchecker = int(port_healthchecker)
 
 
     def start(self):

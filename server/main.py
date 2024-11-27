@@ -29,6 +29,8 @@ def initialize_config():
         config_params["listen_backlog"] = int(os.getenv('SERVER_LISTEN_BACKLOG', config["DEFAULT"]["SERVER_LISTEN_BACKLOG"]))
         config_params["cant_game_validators"] = int(os.getenv('CANT_GAME_VALIDATORS'))
         config_params["cant_review_validators"] = int(os.getenv('CANT_REVIEW_VALIDATORS'))
+        config_params["port_healthchecker"] = os.getenv('PORT_HEALTHCHECKER')
+        config_params["ip_healthchecker"] = os.getenv('IP_HEALTHCHECKER')
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -47,6 +49,8 @@ def main():
     listen_backlog = config_params["listen_backlog"]
     cant_game_validators = config_params["cant_game_validators"]
     cant_review_validators = config_params["cant_review_validators"]
+    port_healthchecker = config_params["port_healthchecker"]
+    ip_healthchecker = config_params["ip_healthchecker"]
     
     initialize_log(logging_level)
 
@@ -57,7 +61,9 @@ def main():
 
     # Initialize server and start server loop
 
-    server = Server(listen_new_connection_port, listen_result_query_port, listen_backlog, cant_game_validators, cant_review_validators)
+    server = Server(
+        listen_new_connection_port, listen_result_query_port, listen_backlog, cant_game_validators, cant_review_validators, 
+        ip_healthchecker, int(port_healthchecker))
     server.start()
 
 def initialize_log(logging_level):

@@ -9,8 +9,8 @@ from common.query_file_worker import QueryFile
 
 class QueryTwoFile(QueryFile):
 
-    def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog):
-        super().__init__(queue_name_origin, file_path, result_query_port, listen_backlog)
+    def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog, ip_healthchecker, port_healthchecker):
+        super().__init__(queue_name_origin, file_path, result_query_port, listen_backlog, ip_healthchecker, port_healthchecker)
         self.clients_file_paths = []
 
     def get_message_result_from_file_snapshot(self, client_id, file_snapshot):
