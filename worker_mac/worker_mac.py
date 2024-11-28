@@ -12,5 +12,5 @@ class MACOSWorker(GameWorker):
         return game.mac
 
     def get_message_to_send(self, message: Message):
-        update_message = Message(message.get_client_id(), MESSAGE_TYPE_QUERY_ONE_UPDATE, PAYLOAD)
+        update_message = Message(message.message_id, message.get_client_id(), MESSAGE_TYPE_QUERY_ONE_UPDATE, PAYLOAD)
         return update_message

@@ -9,7 +9,7 @@ from common.message import *
 from common.protocol import Protocol
 from common.protocol import *
 from middleware.queue import ServiceQueues
-
+from common.sharding import Sharding
 
 CHANNEL_NAME =  "rabbitmq"
 
@@ -93,7 +93,6 @@ class Server:
 
             for message in receive_batch:
                 if message == None:
-                    #print("MENSAJE NONE")
                     continue
                 if message.is_game():
                     service_queue.push("queue-games", message)

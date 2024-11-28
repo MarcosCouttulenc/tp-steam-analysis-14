@@ -6,8 +6,8 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_GAME_VALIDATORS=10
-      - CANT_REVIEW_VALIDATORS=10
+      - CANT_GAME_VALIDATORS=5
+      - CANT_REVIEW_VALIDATORS=5
       - PORT_HEALTHCHECKER=12001
       - IP_HEALTHCHECKER=health_checker_1
     networks:
@@ -93,25 +93,6 @@ services:
       - result_responser
       - health_checker_3
 
-  client_2:
-    container_name: client_2
-    image: client:latest
-    environment:
-      - CLI_ID={i}
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - GAMES_FILE_PATH=fullgames.csv
-      - REVIEWS_FILE_PATH=data0.1porcent.csv
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
-    volumes:
-      - ./client/config.ini:/client/config.ini
-    networks:
-      - testing_net
-    depends_on:
-      - result_responser
-      - health_checker_1
-
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -139,13 +120,13 @@ services:
       - PORT_MASTER=9001
       - IP_MASTER=worker_windows_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_2
+      - health_checker_1
 
   worker_windows_2:
     container_name: worker_windows_2
@@ -158,13 +139,13 @@ services:
       - PORT_MASTER=9001
       - IP_MASTER=worker_windows_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_windows_1
-      - health_checker_3
+      - health_checker_2
 
   worker_windows_3:
     container_name: worker_windows_3
@@ -177,13 +158,13 @@ services:
       - PORT_MASTER=9001
       - IP_MASTER=worker_windows_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_windows_1
-      - health_checker_1
+      - health_checker_3
 
   worker_windows_4:
     container_name: worker_windows_4
@@ -196,13 +177,13 @@ services:
       - PORT_MASTER=9001
       - IP_MASTER=worker_windows_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_windows_1
-      - health_checker_2
+      - health_checker_1
 
   worker_windows_5:
     container_name: worker_windows_5
@@ -215,13 +196,13 @@ services:
       - PORT_MASTER=9001
       - IP_MASTER=worker_windows_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_windows_1
-      - health_checker_3
+      - health_checker_2
 
   worker_linux_1:
     container_name: worker_linux_1
@@ -234,13 +215,13 @@ services:
       - PORT_MASTER=9002
       - IP_MASTER=worker_linux_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_1
+      - health_checker_3
 
   worker_linux_2:
     container_name: worker_linux_2
@@ -253,13 +234,13 @@ services:
       - PORT_MASTER=9002
       - IP_MASTER=worker_linux_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_linux_1
-      - health_checker_2
+      - health_checker_1
 
   worker_linux_3:
     container_name: worker_linux_3
@@ -272,13 +253,13 @@ services:
       - PORT_MASTER=9002
       - IP_MASTER=worker_linux_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_linux_1
-      - health_checker_3
+      - health_checker_2
 
   worker_linux_4:
     container_name: worker_linux_4
@@ -291,13 +272,13 @@ services:
       - PORT_MASTER=9002
       - IP_MASTER=worker_linux_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_linux_1
-      - health_checker_1
+      - health_checker_3
 
   worker_linux_5:
     container_name: worker_linux_5
@@ -310,13 +291,13 @@ services:
       - PORT_MASTER=9002
       - IP_MASTER=worker_linux_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_linux_1
-      - health_checker_2
+      - health_checker_1
 
   worker_mac_1:
     container_name: worker_mac_1
@@ -329,13 +310,13 @@ services:
       - PORT_MASTER=9003
       - IP_MASTER=worker_mac_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_3
+      - health_checker_2
 
   worker_mac_2:
     container_name: worker_mac_2
@@ -348,13 +329,13 @@ services:
       - PORT_MASTER=9003
       - IP_MASTER=worker_mac_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_mac_1
-      - health_checker_1
+      - health_checker_3
 
   worker_mac_3:
     container_name: worker_mac_3
@@ -367,13 +348,13 @@ services:
       - PORT_MASTER=9003
       - IP_MASTER=worker_mac_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_mac_1
-      - health_checker_2
+      - health_checker_1
 
   worker_mac_4:
     container_name: worker_mac_4
@@ -386,13 +367,13 @@ services:
       - PORT_MASTER=9003
       - IP_MASTER=worker_mac_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_mac_1
-      - health_checker_3
+      - health_checker_2
 
   worker_mac_5:
     container_name: worker_mac_5
@@ -405,13 +386,13 @@ services:
       - PORT_MASTER=9003
       - IP_MASTER=worker_mac_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_mac_1
-      - health_checker_1
+      - health_checker_3
 
   worker_indie_1:
     container_name: worker_indie_1
@@ -424,13 +405,13 @@ services:
       - PORT_MASTER=9004
       - IP_MASTER=worker_indie_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_2
+      - health_checker_1
 
   worker_indie_2:
     container_name: worker_indie_2
@@ -443,13 +424,13 @@ services:
       - PORT_MASTER=9004
       - IP_MASTER=worker_indie_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_indie_1
-      - health_checker_3
+      - health_checker_2
 
   worker_indie_3:
     container_name: worker_indie_3
@@ -462,13 +443,13 @@ services:
       - PORT_MASTER=9004
       - IP_MASTER=worker_indie_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_indie_1
-      - health_checker_1
+      - health_checker_3
 
   worker_2010_1:
     container_name: worker_2010_1
@@ -481,13 +462,13 @@ services:
       - PORT_MASTER=9005
       - IP_MASTER=worker_2010_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_2
+      - health_checker_1
 
   worker_2010_2:
     container_name: worker_2010_2
@@ -500,13 +481,13 @@ services:
       - PORT_MASTER=9005
       - IP_MASTER=worker_2010_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_2010_1
-      - health_checker_3
+      - health_checker_2
 
   worker_2010_3:
     container_name: worker_2010_3
@@ -519,13 +500,13 @@ services:
       - PORT_MASTER=9005
       - IP_MASTER=worker_2010_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_2010_1
-      - health_checker_1
+      - health_checker_3
 
   worker_review_indie_1:
     container_name: worker_review_indie_1
@@ -538,13 +519,13 @@ services:
       - PORT_MASTER=9006
       - IP_MASTER=worker_review_indie_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_2
+      - health_checker_1
 
   worker_review_indie_2:
     container_name: worker_review_indie_2
@@ -557,13 +538,13 @@ services:
       - PORT_MASTER=9006
       - IP_MASTER=worker_review_indie_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_review_indie_1
-      - health_checker_3
+      - health_checker_2
 
   worker_review_indie_3:
     container_name: worker_review_indie_3
@@ -576,13 +557,13 @@ services:
       - PORT_MASTER=9006
       - IP_MASTER=worker_review_indie_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_review_indie_1
-      - health_checker_1
+      - health_checker_3
 
   worker_review_indie_4:
     container_name: worker_review_indie_4
@@ -595,13 +576,13 @@ services:
       - PORT_MASTER=9006
       - IP_MASTER=worker_review_indie_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_review_indie_1
-      - health_checker_2
+      - health_checker_1
 
   worker_review_indie_5:
     container_name: worker_review_indie_5
@@ -614,13 +595,13 @@ services:
       - PORT_MASTER=9006
       - IP_MASTER=worker_review_indie_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_review_indie_1
-      - health_checker_3
+      - health_checker_2
 
   worker_review_positive_1:
     container_name: worker_review_positive_1
@@ -633,13 +614,13 @@ services:
       - PORT_MASTER=9007
       - IP_MASTER=worker_review_positive_1
       - CANT_SLAVES=8
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_1
+      - health_checker_3
 
   worker_review_positive_2:
     container_name: worker_review_positive_2
@@ -652,13 +633,13 @@ services:
       - PORT_MASTER=9007
       - IP_MASTER=worker_review_positive_1
       - CANT_SLAVES=8
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_review_positive_1
-      - health_checker_2
+      - health_checker_1
 
   worker_review_positive_3:
     container_name: worker_review_positive_3
@@ -671,13 +652,13 @@ services:
       - PORT_MASTER=9007
       - IP_MASTER=worker_review_positive_1
       - CANT_SLAVES=8
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_review_positive_1
-      - health_checker_3
+      - health_checker_2
 
   worker_review_positive_4:
     container_name: worker_review_positive_4
@@ -690,13 +671,13 @@ services:
       - PORT_MASTER=9007
       - IP_MASTER=worker_review_positive_1
       - CANT_SLAVES=8
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_review_positive_1
-      - health_checker_1
+      - health_checker_3
 
   worker_review_positive_5:
     container_name: worker_review_positive_5
@@ -709,13 +690,13 @@ services:
       - PORT_MASTER=9007
       - IP_MASTER=worker_review_positive_1
       - CANT_SLAVES=8
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_review_positive_1
-      - health_checker_2
+      - health_checker_1
 
   worker_review_positive_6:
     container_name: worker_review_positive_6
@@ -728,13 +709,13 @@ services:
       - PORT_MASTER=9007
       - IP_MASTER=worker_review_positive_1
       - CANT_SLAVES=8
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_review_positive_1
-      - health_checker_3
+      - health_checker_2
 
   worker_review_positive_7:
     container_name: worker_review_positive_7
@@ -747,13 +728,13 @@ services:
       - PORT_MASTER=9007
       - IP_MASTER=worker_review_positive_1
       - CANT_SLAVES=8
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_review_positive_1
-      - health_checker_1
+      - health_checker_3
 
   worker_review_positive_8:
     container_name: worker_review_positive_8
@@ -766,13 +747,13 @@ services:
       - PORT_MASTER=9007
       - IP_MASTER=worker_review_positive_1
       - CANT_SLAVES=8
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_review_positive_1
-      - health_checker_2
+      - health_checker_1
 
   worker_review_action_1:
     container_name: worker_review_action_1
@@ -785,13 +766,13 @@ services:
       - PORT_MASTER=9008
       - IP_MASTER=worker_review_action_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_3
+      - health_checker_2
 
   worker_review_action_2:
     container_name: worker_review_action_2
@@ -804,13 +785,13 @@ services:
       - PORT_MASTER=9008
       - IP_MASTER=worker_review_action_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_review_action_1
-      - health_checker_1
+      - health_checker_3
 
   worker_review_action_3:
     container_name: worker_review_action_3
@@ -823,13 +804,13 @@ services:
       - PORT_MASTER=9008
       - IP_MASTER=worker_review_action_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_review_action_1
-      - health_checker_2
+      - health_checker_1
 
   worker_review_action_4:
     container_name: worker_review_action_4
@@ -842,13 +823,13 @@ services:
       - PORT_MASTER=9008
       - IP_MASTER=worker_review_action_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_review_action_1
-      - health_checker_3
+      - health_checker_2
 
   worker_review_action_5:
     container_name: worker_review_action_5
@@ -861,13 +842,13 @@ services:
       - PORT_MASTER=9008
       - IP_MASTER=worker_review_action_1
       - CANT_SLAVES=5
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_review_action_1
-      - health_checker_1
+      - health_checker_3
 
   worker_review_english_1:
     container_name: worker_review_english_1
@@ -880,13 +861,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_2
+      - health_checker_1
 
   worker_review_english_2:
     container_name: worker_review_english_2
@@ -899,13 +880,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_3
+      - health_checker_2
 
   worker_review_english_3:
     container_name: worker_review_english_3
@@ -918,13 +899,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_1
+      - health_checker_3
 
   worker_review_english_4:
     container_name: worker_review_english_4
@@ -937,13 +918,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_2
+      - health_checker_1
 
   worker_review_english_5:
     container_name: worker_review_english_5
@@ -956,13 +937,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_3
+      - health_checker_2
 
   worker_review_english_6:
     container_name: worker_review_english_6
@@ -975,13 +956,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_1
+      - health_checker_3
 
   worker_review_english_7:
     container_name: worker_review_english_7
@@ -994,13 +975,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_2
+      - health_checker_1
 
   worker_review_english_8:
     container_name: worker_review_english_8
@@ -1013,13 +994,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_3
+      - health_checker_2
 
   worker_review_english_9:
     container_name: worker_review_english_9
@@ -1032,13 +1013,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_1
+      - health_checker_3
 
   worker_review_english_10:
     container_name: worker_review_english_10
@@ -1051,13 +1032,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_2
+      - health_checker_1
 
   worker_review_english_11:
     container_name: worker_review_english_11
@@ -1070,13 +1051,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_3
+      - health_checker_2
 
   worker_review_english_12:
     container_name: worker_review_english_12
@@ -1089,13 +1070,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_1
+      - health_checker_3
 
   worker_review_english_13:
     container_name: worker_review_english_13
@@ -1108,13 +1089,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_2
+      - health_checker_1
 
   worker_review_english_14:
     container_name: worker_review_english_14
@@ -1127,13 +1108,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_3
+      - health_checker_2
 
   worker_review_english_15:
     container_name: worker_review_english_15
@@ -1146,13 +1127,13 @@ services:
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_1
       - CANT_SLAVES=15
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_review_english_1
-      - health_checker_1
+      - health_checker_3
 
   query1_reducer_1:
     container_name: query1_reducer_1
@@ -1164,13 +1145,13 @@ services:
       - PORT_MASTER=9010
       - IP_MASTER=query1_reducer_1
       - CANT_SLAVES=1
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_2
+      - health_checker_1
 
   query2_reducer_1:
     container_name: query2_reducer_1
@@ -1182,13 +1163,13 @@ services:
       - PORT_MASTER=9011
       - IP_MASTER=query2_reducer_1
       - CANT_SLAVES=6
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_3
+      - health_checker_2
 
   query2_reducer_2:
     container_name: query2_reducer_2
@@ -1200,13 +1181,13 @@ services:
       - PORT_MASTER=9011
       - IP_MASTER=query2_reducer_1
       - CANT_SLAVES=6
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - query2_reducer_1
-      - health_checker_1
+      - health_checker_3
 
   query2_reducer_3:
     container_name: query2_reducer_3
@@ -1218,13 +1199,13 @@ services:
       - PORT_MASTER=9011
       - IP_MASTER=query2_reducer_1
       - CANT_SLAVES=6
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - query2_reducer_1
-      - health_checker_2
+      - health_checker_1
 
   query2_reducer_4:
     container_name: query2_reducer_4
@@ -1236,13 +1217,13 @@ services:
       - PORT_MASTER=9011
       - IP_MASTER=query2_reducer_1
       - CANT_SLAVES=6
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - query2_reducer_1
-      - health_checker_3
+      - health_checker_2
 
   query2_reducer_5:
     container_name: query2_reducer_5
@@ -1254,13 +1235,13 @@ services:
       - PORT_MASTER=9011
       - IP_MASTER=query2_reducer_1
       - CANT_SLAVES=6
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - query2_reducer_1
-      - health_checker_1
+      - health_checker_3
 
   query2_reducer_6:
     container_name: query2_reducer_6
@@ -1272,13 +1253,13 @@ services:
       - PORT_MASTER=9011
       - IP_MASTER=query2_reducer_1
       - CANT_SLAVES=6
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - query2_reducer_1
-      - health_checker_2
+      - health_checker_1
 
   query3_reducer_1:
     container_name: query3_reducer_1
@@ -1290,13 +1271,13 @@ services:
       - PORT_MASTER=9012
       - IP_MASTER=query3_reducer_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_3
+      - health_checker_2
 
   query3_reducer_2:
     container_name: query3_reducer_2
@@ -1308,13 +1289,13 @@ services:
       - PORT_MASTER=9012
       - IP_MASTER=query3_reducer_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - query3_reducer_1
-      - health_checker_1
+      - health_checker_3
 
   query3_reducer_3:
     container_name: query3_reducer_3
@@ -1326,13 +1307,13 @@ services:
       - PORT_MASTER=9012
       - IP_MASTER=query3_reducer_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - query3_reducer_1
-      - health_checker_2
+      - health_checker_1
 
   query4_reducer_1:
     container_name: query4_reducer_1
@@ -1344,13 +1325,13 @@ services:
       - PORT_MASTER=9013
       - IP_MASTER=query4_reducer_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_3
+      - health_checker_2
 
   query4_reducer_2:
     container_name: query4_reducer_2
@@ -1362,13 +1343,13 @@ services:
       - PORT_MASTER=9013
       - IP_MASTER=query4_reducer_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - query4_reducer_1
-      - health_checker_1
+      - health_checker_3
 
   query4_reducer_3:
     container_name: query4_reducer_3
@@ -1380,13 +1361,13 @@ services:
       - PORT_MASTER=9013
       - IP_MASTER=query4_reducer_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - query4_reducer_1
-      - health_checker_2
+      - health_checker_1
 
   query5_reducer_1:
     container_name: query5_reducer_1
@@ -1398,13 +1379,13 @@ services:
       - PORT_MASTER=9014
       - IP_MASTER=query5_reducer_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_3
+      - health_checker_2
 
   query5_reducer_2:
     container_name: query5_reducer_2
@@ -1416,13 +1397,13 @@ services:
       - PORT_MASTER=9014
       - IP_MASTER=query5_reducer_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - query5_reducer_1
-      - health_checker_1
+      - health_checker_3
 
   query5_reducer_3:
     container_name: query5_reducer_3
@@ -1434,13 +1415,13 @@ services:
       - PORT_MASTER=9014
       - IP_MASTER=query5_reducer_1
       - CANT_SLAVES=3
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - query5_reducer_1
-      - health_checker_2
+      - health_checker_1
 
   query1_file:
     container_name: query1_file
@@ -1448,13 +1429,13 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - rabbitmq
-      - health_checker_3
+      - health_checker_2
 
   query2_file:
     container_name: query2_file
@@ -1462,6 +1443,20 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+      - health_checker_3
+
+  query3_file:
+    container_name: query3_file
+    image: query3_file:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
     networks:
@@ -1470,9 +1465,9 @@ services:
       - rabbitmq
       - health_checker_1
 
-  query3_file:
-    container_name: query3_file
-    image: query3_file:latest
+  query4_file:
+    container_name: query4_file
+    image: query4_file:latest
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
@@ -1484,9 +1479,9 @@ services:
       - rabbitmq
       - health_checker_2
 
-  query4_file:
-    container_name: query4_file
-    image: query4_file:latest
+  query5_file:
+    container_name: query5_file
+    image: query5_file:latest
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
@@ -1498,12 +1493,13 @@ services:
       - rabbitmq
       - health_checker_3
 
-  query5_file:
-    container_name: query5_file
-    image: query5_file:latest
+  database:
+    container_name: database
+    image: database:latest
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
+      - CANT_CLIENTS=1
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
     networks:
@@ -1511,21 +1507,6 @@ services:
     depends_on:
       - rabbitmq
       - health_checker_1
-
-  database:
-    container_name: database
-    image: database:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_CLIENTS=2
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
-    networks:
-      - testing_net
-    depends_on:
-      - rabbitmq
-      - health_checker_2
 
   worker_game_validator_1:
     container_name: worker_game_validator_1
@@ -1537,14 +1518,14 @@ services:
       - IS_MASTER=True
       - PORT_MASTER=9015
       - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - CANT_SLAVES=5
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - database
-      - health_checker_3
+      - health_checker_2
 
   worker_game_validator_2:
     container_name: worker_game_validator_2
@@ -1556,14 +1537,14 @@ services:
       - IS_MASTER=False
       - PORT_MASTER=9015
       - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
+      - CANT_SLAVES=5
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
       - worker_game_validator_1
-      - health_checker_1
+      - health_checker_3
 
   worker_game_validator_3:
     container_name: worker_game_validator_3
@@ -1575,14 +1556,14 @@ services:
       - IS_MASTER=False
       - PORT_MASTER=9015
       - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
+      - CANT_SLAVES=5
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
       - worker_game_validator_1
-      - health_checker_2
+      - health_checker_1
 
   worker_game_validator_4:
     container_name: worker_game_validator_4
@@ -1594,14 +1575,14 @@ services:
       - IS_MASTER=False
       - PORT_MASTER=9015
       - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
+      - CANT_SLAVES=5
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
       - worker_game_validator_1
-      - health_checker_3
+      - health_checker_2
 
   worker_game_validator_5:
     container_name: worker_game_validator_5
@@ -1613,102 +1594,7 @@ services:
       - IS_MASTER=False
       - PORT_MASTER=9015
       - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-      - health_checker_1
-
-  worker_game_validator_6:
-    container_name: worker_game_validator_6
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-      - health_checker_2
-
-  worker_game_validator_7:
-    container_name: worker_game_validator_7
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-      - health_checker_3
-
-  worker_game_validator_8:
-    container_name: worker_game_validator_8
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-      - health_checker_1
-
-  worker_game_validator_9:
-    container_name: worker_game_validator_9
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
-    networks:
-      - testing_net
-    depends_on:
-      - worker_game_validator_1
-      - health_checker_2
-
-  worker_game_validator_10:
-    container_name: worker_game_validator_10
-    image: worker_game_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
-      - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
-      - CANT_SLAVES=10
+      - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
     networks:
@@ -1727,7 +1613,7 @@ services:
       - IS_MASTER=True
       - PORT_MASTER=9016
       - IP_MASTER=worker_review_validator_1
-      - CANT_SLAVES=10
+      - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
     networks:
@@ -1746,7 +1632,7 @@ services:
       - IS_MASTER=False
       - PORT_MASTER=9016
       - IP_MASTER=worker_review_validator_1
-      - CANT_SLAVES=10
+      - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
     networks:
@@ -1765,7 +1651,7 @@ services:
       - IS_MASTER=False
       - PORT_MASTER=9016
       - IP_MASTER=worker_review_validator_1
-      - CANT_SLAVES=10
+      - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
     networks:
@@ -1784,7 +1670,7 @@ services:
       - IS_MASTER=False
       - PORT_MASTER=9016
       - IP_MASTER=worker_review_validator_1
-      - CANT_SLAVES=10
+      - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
     networks:
@@ -1803,7 +1689,7 @@ services:
       - IS_MASTER=False
       - PORT_MASTER=9016
       - IP_MASTER=worker_review_validator_1
-      - CANT_SLAVES=10
+      - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
     networks:
@@ -1811,101 +1697,6 @@ services:
     depends_on:
       - worker_review_validator_1
       - health_checker_2
-
-  worker_review_validator_6:
-    container_name: worker_review_validator_6
-    image: worker_review_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5
-      - IS_MASTER=False
-      - PORT_MASTER=9016
-      - IP_MASTER=worker_review_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
-    networks:
-      - testing_net
-    depends_on:
-      - worker_review_validator_1
-      - health_checker_3
-
-  worker_review_validator_7:
-    container_name: worker_review_validator_7
-    image: worker_review_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5
-      - IS_MASTER=False
-      - PORT_MASTER=9016
-      - IP_MASTER=worker_review_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
-    networks:
-      - testing_net
-    depends_on:
-      - worker_review_validator_1
-      - health_checker_1
-
-  worker_review_validator_8:
-    container_name: worker_review_validator_8
-    image: worker_review_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5
-      - IS_MASTER=False
-      - PORT_MASTER=9016
-      - IP_MASTER=worker_review_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
-    networks:
-      - testing_net
-    depends_on:
-      - worker_review_validator_1
-      - health_checker_2
-
-  worker_review_validator_9:
-    container_name: worker_review_validator_9
-    image: worker_review_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5
-      - IS_MASTER=False
-      - PORT_MASTER=9016
-      - IP_MASTER=worker_review_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
-    networks:
-      - testing_net
-    depends_on:
-      - worker_review_validator_1
-      - health_checker_3
-
-  worker_review_validator_10:
-    container_name: worker_review_validator_10
-    image: worker_review_validator:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5
-      - IS_MASTER=False
-      - PORT_MASTER=9016
-      - IP_MASTER=worker_review_validator_1
-      - CANT_SLAVES=10
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
-    networks:
-      - testing_net
-    depends_on:
-      - worker_review_validator_1
-      - health_checker_1
 
 networks:
   testing_net:

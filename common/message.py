@@ -33,6 +33,8 @@ TRUE_STRING = "True"
 DATA_DELIMITER = "$|"
 FIELD_DELIMITER = '%$'
 
+USELESS_ID = "bow_id"
+
 '''
 Todos los mensajes estan conformados por un tipo y un payload,
 el tipo es para indicar que forma o contenido va a tener el payload
@@ -52,13 +54,20 @@ def string_to_boolean(string_variable):
         raise Exception("Variable booleana incorrecta")
     
 class Message:
-    def __init__(self, client_id: int, message_type: str, message_payload: str):
+    def __init__(self, message_id, client_id: int, message_type: str, message_payload: str):
+        self.message_id = message_id
         self.client_id = client_id
         self.message_type = message_type
         self.message_payload = message_payload
 
+    def set_message_id(self, message_id):
+        self.message_id = message_id
+
     def get_client_id(self) -> int:
         return self.client_id
+    
+    def get_message_id(self) -> str:
+        return self.message_id
 
     def is_game(self) -> bool:
         return (self.message_type == MESSAGE_TYPE_GAME_DATA)
@@ -70,14 +79,14 @@ class Message:
         return  (self.message_type == MESSAGE_TYPE_END_OF_DATASET)
 
     def __str__(self) -> str:
-        return f"clientId: {str(self.client_id)} | type: {self.message_type} | payload: {self.message_payload}"
+        return f"messageId: {str(self.message_id)} |clientId: {str(self.client_id)} | type: {self.message_type} | payload: {self.message_payload}"
 
 
 '''
 Mensaje para enviar informacion sobre un juego.
 '''
 class MessageGameInfo(Message):
-    def __init__(self, client_id: int, game: Game):
+    def __init__(self, message_id, client_id: int, game: Game):
         self.game = game
 
         message_payload = (str(game.id) + DATA_DELIMITER + str(game.name) + DATA_DELIMITER + str(game.windows) + DATA_DELIMITER + str(game.mac) + 
@@ -86,7 +95,7 @@ class MessageGameInfo(Message):
                         DATA_DELIMITER + str(game.release_date)
         )
 
-        super().__init__(client_id, MESSAGE_TYPE_GAME_DATA, message_payload)
+        super().__init__(message_id, client_id, MESSAGE_TYPE_GAME_DATA, message_payload)
     
     def pretty_str(self):
         rta = f"[id: {self.game.id}]\n"
@@ -114,17 +123,17 @@ class MessageGameInfo(Message):
 
         data = message.message_payload.split(DATA_DELIMITER)
         game = Game(data[0], data[1], string_to_boolean(data[2]), string_to_boolean(data[3]), string_to_boolean(data[4]), int(data[5]), int(data[6]), data[7], data[8], int(data[9]), data[10])
-        return cls(message.client_id, game)
+        return cls(message.message_id, message.client_id, game)
 
 '''
 Mensaje para enviar informacion sobre una review.
 '''
 class MessageReviewInfo(Message):
-    def __init__(self, client_id: int, review: Review):
+    def __init__(self, message_id, client_id: int, review: Review):
         self.review = review
 
         message_payload = str(review.game_id) + DATA_DELIMITER + review.game_name + DATA_DELIMITER + review.review_text + DATA_DELIMITER +  str(review.score) + DATA_DELIMITER + review.game_genre
-        super().__init__(client_id, MESSAGE_TYPE_REVIEW_DATA, message_payload)
+        super().__init__(message_id, client_id, MESSAGE_TYPE_REVIEW_DATA, message_payload)
 
     def __str__(self) -> str:
         return super().__str__()
@@ -136,7 +145,7 @@ class MessageReviewInfo(Message):
 
         data = message.message_payload.split(DATA_DELIMITER)        
         review = Review(data[0], data[1], data[2], data[3], data[4])
-        return cls(message.client_id, review)
+        return cls(message.message_id, message.client_id, review)
 
 
 '''
@@ -148,7 +157,7 @@ class MessageWelcomeClient(Message):
         self.listen_result_query_port = listen_result_query_port
 
         message_payload = str(client_id) + DATA_DELIMITER + str(listen_result_query_port)
-        super().__init__(self.client_id,MESSAGE_TYPE_SERVER_WELCOME_CLIENT, message_payload)
+        super().__init__(USELESS_ID, self.client_id,MESSAGE_TYPE_SERVER_WELCOME_CLIENT, message_payload)
 
     def __str__(self) -> str:
         return super().__str__()
@@ -165,12 +174,12 @@ class MessageWelcomeClient(Message):
 Mensaje que envia el cliente cuando termina de enviar el dataset
 '''
 class MessageEndOfDataset(Message):
-    def __init__(self, client_id: int, type, last_eof=False):
+    def __init__(self,message_id, client_id: int, type, last_eof=False):
         self.type = type
         self.last_eof = last_eof
 
         message_payload = type + DATA_DELIMITER + str(last_eof)
-        super().__init__(client_id, MESSAGE_TYPE_END_OF_DATASET, message_payload)
+        super().__init__(message_id,client_id, MESSAGE_TYPE_END_OF_DATASET, message_payload)
 
     def __str__(self) -> str:
         return super().__str__()
@@ -192,14 +201,14 @@ class MessageEndOfDataset(Message):
             return None
 
         data = message.message_payload.split(DATA_DELIMITER)
-        return cls(message.client_id, data[0], string_to_boolean(data[1]))
+        return cls(message.message_id,message.client_id, data[0], string_to_boolean(data[1]))
 
 
 class MessageQueryOneUpdate(Message):
-    def __init__(self, client_id: int, op_system_supported):
+    def __init__(self,message_id, client_id: int, op_system_supported):
         self.op_system_supported = op_system_supported
         
-        super().__init__(client_id, MESSAGE_TYPE_QUERY_ONE_UPDATE, op_system_supported)
+        super().__init__(message_id,client_id, MESSAGE_TYPE_QUERY_ONE_UPDATE, op_system_supported)
     
     def __str__(self) -> str:
         return super().__str__()
@@ -209,17 +218,16 @@ class MessageQueryOneUpdate(Message):
         if message.message_type != MESSAGE_TYPE_QUERY_ONE_UPDATE:
             return None
 
-        # El payload de este tipo de mensaje solo contiene el sistema operativo soportad
-        return cls(message.client_id, message.message_payload)
+        return cls(message.message_id,message.client_id, message.message_payload)
 
 class MessageQueryOneFileUpdate(Message):
-    def __init__(self, client_id: int, total_linux, total_mac, total_windows):
+    def __init__(self, message_id,client_id: int, total_linux, total_mac, total_windows):
         self.total_linux = total_linux
         self.total_mac = total_mac
         self.total_windows = total_windows
         
         message_payload = str(total_linux) + DATA_DELIMITER + str(total_mac) + DATA_DELIMITER + str(total_windows)
-        super().__init__(client_id, MESSAGE_TYPE_QUERY_ONE_FILE_UPDATE, message_payload)
+        super().__init__(message_id,client_id, MESSAGE_TYPE_QUERY_ONE_FILE_UPDATE, message_payload)
     
     def __str__(self) -> str:
         return super().__str__()
@@ -230,7 +238,7 @@ class MessageQueryOneFileUpdate(Message):
             return None
 
         data = message.message_payload.split(DATA_DELIMITER)
-        return cls(message.client_id, int(data[0]), int(data[1]), int(data[2]))
+        return cls(message.message_id,message.client_id, int(data[0]), int(data[1]), int(data[2]))
 
 class MessageQueryOneResult(Message):
     def __init__(self, client_id: int, total_linux, total_mac, total_windows):
@@ -239,7 +247,7 @@ class MessageQueryOneResult(Message):
         self.total_windows = total_windows
 
         message_payload = str(total_linux) + DATA_DELIMITER + str(total_mac) + DATA_DELIMITER + str(total_windows)
-        super().__init__(client_id, MESSAGE_QUERY_ONE_RESULT, message_payload)
+        super().__init__(USELESS_ID, client_id, MESSAGE_QUERY_ONE_RESULT, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageQueryOneResult':
@@ -250,7 +258,7 @@ class MessageQueryOneResult(Message):
         return cls(message.client_id, int(data[0]), int(data[1]), int(data[2]))
 
 class MessageQueryTwoFileUpdate(Message):
-    def __init__(self, client_id: int, top_ten_buffer):
+    def __init__(self, message_id,client_id: int, top_ten_buffer):
         self.top_ten_buffer = top_ten_buffer
         
         message_payload = ""
@@ -259,7 +267,7 @@ class MessageQueryTwoFileUpdate(Message):
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
-        super().__init__(client_id, MESSAGE_TYPE_QUERY_TWO_FILE_UPDATE, message_payload)
+        super().__init__(message_id,client_id, MESSAGE_TYPE_QUERY_TWO_FILE_UPDATE, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageQueryTwoFileUpdate':
@@ -273,7 +281,7 @@ class MessageQueryTwoFileUpdate(Message):
             game_data = game.split(FIELD_DELIMITER)
             top_ten_buffer.append((game_data[0], game_data[1]))
 
-        return cls(message.client_id, top_ten_buffer)
+        return cls(message.message_id,message.client_id, top_ten_buffer)
 
 class MessageQueryTwoResult(Message):
     def __init__(self, client_id: int, top_ten_buffer):
@@ -286,7 +294,7 @@ class MessageQueryTwoResult(Message):
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
-        super().__init__(client_id, MESSAGE_QUERY_TWO_RESULT, message_payload)
+        super().__init__(USELESS_ID, client_id, MESSAGE_QUERY_TWO_RESULT, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageQueryTwoResult':
@@ -303,6 +311,7 @@ class MessageQueryTwoResult(Message):
             game_data = game.split(FIELD_DELIMITER)
             top_ten_buffer.append((game_data[0], int(game_data[1])))
 
+
         return cls(message.client_id, top_ten_buffer)
     
 class MessageQueryThreeResult(Message):
@@ -315,7 +324,7 @@ class MessageQueryThreeResult(Message):
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
-        super().__init__(client_id, MESSAGE_QUERY_THREE_RESULT, message_payload)
+        super().__init__(USELESS_ID ,client_id, MESSAGE_QUERY_THREE_RESULT, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageQueryThreeResult':
@@ -335,18 +344,17 @@ class MessageQueryThreeResult(Message):
         return cls(message.client_id, buffer)
 
 class MessageQueryThreeFileUpdate(Message):
-    def __init__(self, client_id: int, buffer):
+    def __init__(self, message_id, client_id: int, buffer):
         self.buffer = buffer
         
         message_payload = ""
         for review_data in buffer:
-            #review_data: (name, cant_reviews)
             message_payload +=  review_data[0] + FIELD_DELIMITER + str(review_data[1]) + DATA_DELIMITER 
 
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
-        super().__init__(client_id, MESSAGE_TYPE_QUERY_THREE_FILE_UPDATE, message_payload)
+        super().__init__(message_id,client_id, MESSAGE_TYPE_QUERY_THREE_FILE_UPDATE, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageQueryThreeFileUpdate':
@@ -362,10 +370,10 @@ class MessageQueryThreeFileUpdate(Message):
             review_data = review.split(FIELD_DELIMITER)
             buffer.append((review_data[0], int(review_data[1])))
 
-        return cls(message.client_id, buffer)
+        return cls(message.message_id,message.client_id, buffer)
 
 class MessageQueryFourFileUpdate(Message):
-    def __init__(self, client_id: int, buffer):
+    def __init__(self, message_id, client_id: int, buffer):
         self.buffer = buffer
         
         message_payload = ""
@@ -374,7 +382,7 @@ class MessageQueryFourFileUpdate(Message):
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
-        super().__init__(client_id, MESSAGE_TYPE_QUERY_FOUR_FILE_UPDATE, message_payload)
+        super().__init__(message_id,client_id, MESSAGE_TYPE_QUERY_FOUR_FILE_UPDATE, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageQueryFourFileUpdate':
@@ -388,10 +396,10 @@ class MessageQueryFourFileUpdate(Message):
             review_data = review.split(FIELD_DELIMITER)
             buffer.append((review_data[0], review_data[1]))
 
-        return cls(message.client_id,buffer)
+        return cls(message.message_id, message.client_id,buffer)
 
 class MessageQueryFourResult(Message):
-    def __init__(self,client_id: int, totals):
+    def __init__(self, client_id: int, totals):
         self.totals = totals
         
         message_payload = ""
@@ -400,7 +408,7 @@ class MessageQueryFourResult(Message):
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
-        super().__init__(client_id,MESSAGE_QUERY_FOUR_RESULT, message_payload)
+        super().__init__(USELESS_ID, client_id,MESSAGE_QUERY_FOUR_RESULT, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageQueryFourResult':
@@ -417,10 +425,10 @@ class MessageQueryFourResult(Message):
             review_data = review.split(FIELD_DELIMITER)
             buffer.append((review_data[0], review_data[1]))
 
-        return cls(message.client_id,buffer)
+        return cls(message.client_id, buffer)
 
 class MessageQueryFiveFileUpdate(Message):
-    def __init__(self,client_id: int, buffer):
+    def __init__(self, message_id, client_id: int, buffer):
         self.buffer = buffer
         
         message_payload = ""
@@ -429,7 +437,7 @@ class MessageQueryFiveFileUpdate(Message):
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
-        super().__init__(client_id, MESSAGE_TYPE_QUERY_FIVE_FILE_UPDATE, message_payload)
+        super().__init__(message_id, client_id, MESSAGE_TYPE_QUERY_FIVE_FILE_UPDATE, message_payload)
     
     @classmethod
     def from_message(cls,message: Message) -> 'MessageQueryFiveFileUpdate':
@@ -443,11 +451,11 @@ class MessageQueryFiveFileUpdate(Message):
             review_data = review.split(FIELD_DELIMITER)
             buffer.append((review_data[0], review_data[1], review_data[2], review_data[3]))
 
-        return cls(message.client_id,buffer)
+        return cls(message.message_id,message.client_id,buffer)
 
 
 class MessageQueryFiveResult(Message):
-    def __init__(self,client_id: int, totals):
+    def __init__(self, client_id: int, totals):
         self.totals = totals
         
         message_payload = ""
@@ -456,7 +464,7 @@ class MessageQueryFiveResult(Message):
 
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
-        super().__init__(client_id, MESSAGE_QUERY_FIVE_RESULT, message_payload)
+        super().__init__(USELESS_ID,client_id, MESSAGE_QUERY_FIVE_RESULT, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageQueryFiveResult':
@@ -477,12 +485,11 @@ class MessageQueryFiveResult(Message):
 
 
 class MessageQueryGameDatabase(Message):
-    # Type puede ser game o review
-    def __init__(self,client_id: int, game_id):
+    def __init__(self, message_id, client_id: int, game_id):
         self.game_id = game_id
 
         message_payload = str(game_id)
-        super().__init__(client_id, MESSAGE_TYPE_QUERY_DATABASE, message_payload)
+        super().__init__(message_id, client_id, MESSAGE_TYPE_QUERY_DATABASE, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageQueryGameDatabase':
@@ -490,13 +497,12 @@ class MessageQueryGameDatabase(Message):
             return None
 
         data = message.message_payload.split(DATA_DELIMITER)
-        return cls(message.client_id,str(data[0]))
+        return cls(message.message_id, message.client_id,str(data[0]))
 
 class MessageClientAskResults(Message):
-    # Type puede ser game o review
     def __init__(self, client_id: int):
         message_payload = str(client_id)
-        super().__init__(client_id, MESSAGE_TYPE_CLIENT_ASK_RESULTS, message_payload)
+        super().__init__(USELESS_ID, client_id, MESSAGE_TYPE_CLIENT_ASK_RESULTS, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageClientAskResults':
@@ -514,7 +520,7 @@ class ResultStatus(Enum):
 class MessageResultStatus(Message):
     def __init__(self, client_id, status: ResultStatus):
         message_payload = status.value
-        super().__init__(client_id, MESSAGE_TYPE_PEDING_RESULTS, message_payload)
+        super().__init__(USELESS_ID, client_id, MESSAGE_TYPE_PEDING_RESULTS, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageResultStatus':
@@ -527,7 +533,7 @@ class MessageResultStatus(Message):
 class MessageResultContent(Message):
     def __init__(self, client_id, content):
         message_payload = content
-        super().__init__(client_id, MESSAGE_TYPE_CONTENT_RESULTS, message_payload)
+        super().__init__(USELESS_ID, client_id, MESSAGE_TYPE_CONTENT_RESULTS, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageResultContent':

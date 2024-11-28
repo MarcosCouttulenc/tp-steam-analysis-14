@@ -12,17 +12,11 @@ LEN_END_OF_BATCH = len(END_OF_MESSAGE) + len(END_OF_BATCH)
 class MessageSerializer:
     
     def serialize(self, message: Message) -> str:
-        data = str(message.client_id) + DATA_DELIMITER + message.message_type + DATA_DELIMITER + message.message_payload + END_OF_MESSAGE
+        data = str(message.message_id) + DATA_DELIMITER + str(message.client_id) + DATA_DELIMITER + message.message_type + DATA_DELIMITER + message.message_payload + END_OF_MESSAGE
         return data.encode("utf-8")
 
     def deserialize(self, message_str: str) -> Message:
         data = message_str.decode('utf-8').split(DATA_DELIMITER)
-
-        # if data[0] == "Dupio":
-        #     print("\n\nDESERIALIZE\n\n")
-        #     print(message_str)
-        #     print(data[1:])
-        #     print("\n\npost DESERIALIZE\n\n")
 
         if data == '':
             print(f"Data es vacio por lo tanto devolvemos None {message_str}")
@@ -32,9 +26,9 @@ class MessageSerializer:
             print(f"Data es un array vacio por lo tanto devolvemos None {message_str}")
             return None
             
-        #A la izquierda esta el tipo, todo lo que esta a la derecha es payload
+        # data[0] = message_id;   data[1] = client_id;   data[2] = message_type;  data[3:] = payload
         try:
-            return Message(data[0], data[1], DATA_DELIMITER.join(data[2:]))
+            return Message(data[0], data[1], data[2], DATA_DELIMITER.join(data[3:]))
         except:
             print("Error al deserializar mensaje")
             print(data)

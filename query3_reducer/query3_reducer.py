@@ -46,7 +46,7 @@ class QueryThreeReducer(ReducerWorker):
             for client_id in self.buffer.keys():
 
                 list_of_tuples = self.buffer_to_list_of_tuples(client_id)
-                msg = MessageQueryThreeFileUpdate(client_id, list_of_tuples)
+                msg = MessageQueryThreeFileUpdate("test", client_id, list_of_tuples)
                 service_queues.push(queue_name, msg)
         
         self.buffer = self.init_buffer()

@@ -47,7 +47,7 @@ class DataBaseWorker():
 
             msg_query = MessageQueryGameDatabase.from_message(msg)
             game = self.data_base.get_game(msg_query.get_client_id(), msg_query.game_id)
-            msg_game_info = MessageGameInfo(msg_query.get_client_id(), game)
+            msg_game_info = MessageGameInfo(msg_query.message_id, msg_query.get_client_id(), game)
             protocol.send(msg_game_info)
 
     def __accept_new_connection(self):

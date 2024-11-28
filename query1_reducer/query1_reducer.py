@@ -87,7 +87,7 @@ class QueryOneReducer():
             for client_id in self.buffer.keys():
                 
                 msg = MessageQueryOneFileUpdate(
-                    client_id,self.buffer[client_id]["linux"], self.buffer[client_id]["mac"], self.buffer[client_id]["windows"]
+                    "test", client_id, self.buffer[client_id]["linux"], self.buffer[client_id]["mac"], self.buffer[client_id]["windows"]
                 )
                 self.service_queues.push(queue_name, msg)
         

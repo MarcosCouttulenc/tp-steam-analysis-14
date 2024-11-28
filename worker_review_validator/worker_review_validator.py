@@ -16,9 +16,10 @@ CHANNEL_NAME =  "rabbitmq"
 
 class WorkerReviewValidator(ReviewWorker):
     def __init__(self, queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
-                 port_master, db_games_ip, db_games_port):
+                 port_master, db_games_ip, db_games_port, ip_healthchecker, port_healthchecker):
         
-        super().__init__(queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, port_master)
+        super().__init__(queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
+                         port_master, ip_healthchecker, port_healthchecker)
         self.db_games_ip = db_games_ip
         self.db_games_port = db_games_port
         self.service_queues = ServiceQueues(CHANNEL_NAME)
@@ -34,7 +35,7 @@ class WorkerReviewValidator(ReviewWorker):
             return
 
         messageRI.review.set_genre(game.genre)
-        message_to_push = MessageReviewInfo(message.get_client_id(), messageRI.review)
+        message_to_push = MessageReviewInfo(message.message_id, message.get_client_id(), messageRI.review)
         
         for queue_name_destiny in self.queues_destiny.keys():
             self.service_queues.push(queue_name_destiny, message_to_push)
@@ -44,7 +45,8 @@ class WorkerReviewValidator(ReviewWorker):
         db_games.connect((self.db_games_ip, self.db_games_port))
 
         protocol_db_games = Protocol(db_games)
-        msg_query_game = MessageQueryGameDatabase(client_id, game_id)
+        message_id = f"C_{str(client_id)}_QUERY_{str(game_id)}"
+        msg_query_game = MessageQueryGameDatabase(message_id, client_id, game_id)
         protocol_db_games.send(msg_query_game)
 
         msg = protocol_db_games.receive()

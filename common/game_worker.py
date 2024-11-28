@@ -238,7 +238,6 @@ class GameWorker:
         self.service_queues_filter.ack(ch, method)
     
     def handle_eof(self, message, ch, method):
-        #print("[FILTER] me llego EOF DE LA QUEUED DE DATA, lo pusheo a la queue de EOFS")
         self.service_queues_filter.push(self.queue_name_origin_eof, message)
         self.service_queues_filter.ack(ch, method)
 

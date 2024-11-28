@@ -1,12 +1,11 @@
 from common.protocol import Protocol
-from common.message import Message, DATA_DELIMITER, MESSAGE_HEALTH_CHECK_ASK, MESSAGE_HEALTH_CHECK_ACK, MESSAGE_CONTAINER_NAME
-import docker
+from common.message import Message, DATA_DELIMITER, MESSAGE_HEALTH_CHECK_ASK, MESSAGE_HEALTH_CHECK_ACK, MESSAGE_CONTAINER_NAME, USELESS_ID
 
 USELESS_CLIENT_ID = -1
 class MessageHealthCheckerAsk(Message):
     def __init__(self):
         message_payload = "ASK"
-        super().__init__(USELESS_CLIENT_ID, MESSAGE_HEALTH_CHECK_ASK, message_payload)
+        super().__init__(USELESS_ID, USELESS_CLIENT_ID, MESSAGE_HEALTH_CHECK_ASK, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageHealthCheckerAsk':
@@ -18,7 +17,7 @@ class MessageHealthCheckerAsk(Message):
 class MessageHealthCheckerAck(Message):
     def __init__(self):
         message_payload = "ACK"
-        super().__init__(USELESS_CLIENT_ID, MESSAGE_HEALTH_CHECK_ACK, message_payload)
+        super().__init__(USELESS_ID, USELESS_CLIENT_ID, MESSAGE_HEALTH_CHECK_ACK, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageHealthCheckerAck':
@@ -32,7 +31,7 @@ class MessageContainerName(Message):
         self.container_name = container_name
 
         message_payload = container_name
-        super().__init__(USELESS_CLIENT_ID, MESSAGE_CONTAINER_NAME, message_payload)
+        super().__init__(USELESS_ID, USELESS_CLIENT_ID, MESSAGE_CONTAINER_NAME, message_payload)
     
     @classmethod
     def from_message(cls, message: Message) -> 'MessageContainerName':

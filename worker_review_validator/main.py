@@ -56,7 +56,7 @@ def main():
 
     worker_review_validator = WorkerReviewValidator(
         queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
-        port_master, db_games_ip, int(db_games_port), ip_healthchecker, port_healthchecker)
+        port_master, db_games_ip, int(db_games_port), ip_healthchecker, int(port_healthchecker))
     worker_review_validator.start()
 
 def initialize_log(logging_level):

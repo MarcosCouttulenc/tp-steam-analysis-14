@@ -37,7 +37,7 @@ class QueryFourReducer(ReducerWorker):
         for queue_name in self.queues_name_destiny:
             for client_id in self.buffer.keys():
                 list_of_tuples = self.buffer_to_list_of_tuples(client_id)
-                msg = MessageQueryFourFileUpdate(client_id,list_of_tuples)
+                msg = MessageQueryFourFileUpdate("test", client_id,list_of_tuples)
                 service_queues.push(queue_name, msg)
         
         self.buffer = self.init_buffer()

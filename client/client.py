@@ -80,13 +80,13 @@ class Client:
                         row[2].strip()   # Release date
                     )
 
-                    messageGI = MessageGameInfo(self.client_id, game_data)
+                    message_id = f"C_{self.client_id}_GAME_{str(game_data.id)}"
+                    messageGI = MessageGameInfo(message_id, self.client_id, game_data)
                     batch_list.append(messageGI)
 
                     if len(batch_list) == batch_size:
                         self.protocol.send_batch(batch_list)
                         logging.info(f'Client_{self.client_id} action: send_games | result: success | msg: sent {len(batch_list)} games')
-                        #logging.critical(f"Games sent: {total_sent_games}")
                         batch_list = []
                     
                     numero_mensaje_enivado += 1
@@ -94,10 +94,10 @@ class Client:
                 if len(batch_list) > 0:
                     self.protocol.send_batch(batch_list)
                     logging.info(f'Client_{self.client_id} action: send_games | result: success | msg: sent {len(batch_list)} games')
-                    #logging.critical(f"Games sent: {total_sent_games}")
                     batch_list = []
                 
-                self.protocol.send_batch([MessageEndOfDataset(self.client_id,"Game")])
+                message_id = f"C_{self.client_id}_GAME_EOF"
+                self.protocol.send_batch([MessageEndOfDataset(message_id, self.client_id, "Game")])
                 logging.critical(" All Games sent")
 
         except Exception as e:
@@ -125,7 +125,8 @@ class Client:
                         ""              # Genre
                     )
 
-                    messageRI = MessageReviewInfo(self.client_id, game_review)
+                    message_id = f"C_{self.client_id}_REVIEW_{str(game_review.game_id)}"
+                    messageRI = MessageReviewInfo(message_id, self.client_id, game_review)
                     batch_list.append(messageRI)
                     
 
@@ -141,7 +142,8 @@ class Client:
                     logging.critical(f'Client_{self.client_id} action: reviews | result: success | msg: sent {cant_sent} reviews')
                     batch_list = []
                 
-                self.protocol.send_batch([MessageEndOfDataset(self.client_id, "Review")])
+                message_id = f"C_{self.client_id}_REVIEW_EOF"
+                self.protocol.send_batch([MessageEndOfDataset(message_id, self.client_id, "Review")])
 
         except Exception as e:
             print(f"\n\n\n Client_{self.client_id} ERROR AL LEER CSV DE REVIEWS\n\n\n")
