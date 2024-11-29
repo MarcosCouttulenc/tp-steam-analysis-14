@@ -31,10 +31,10 @@ cantidad_positiva = 8
 cantidad_action = 5
 cantidad_ingles = 15
 cantidad_reducer_one = 1
-cantidad_reducer_two = 6
-cantidad_reducer_three = 3
-cantidad_reducer_four = 3
-cantidad_reducer_five = 3
+cantidad_reducer_two = 2
+cantidad_reducer_three = 2
+cantidad_reducer_four = 2
+cantidad_reducer_five = 2
 cantidad_clientes = 1
 cantidad_review_validator = 5 * cantidad_clientes
 cantidad_game_validator = 5 * cantidad_clientes
@@ -79,42 +79,6 @@ def generar_compose():
     texto_a_escribir += "    depends_on:\n"
     texto_a_escribir += "      - rabbitmq\n\n"
     to_healt_checker_number += 1
-
-    # texto_a_escribir += "  health_checker_1:\n"
-    # texto_a_escribir += "    container_name: health_checker_1\n"
-    # texto_a_escribir += "    image: healthchecker:latest\n"
-    # texto_a_escribir += "    environment:\n"
-    # texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
-    # texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-    # texto_a_escribir += "      - CONNECT_IP=health_checker_2\n"
-    # texto_a_escribir += "      - CONNECT_PORT=12002\n"
-    # texto_a_escribir += "      - LISTEN_PORT=12001\n"
-    # texto_a_escribir += "    networks:\n"
-    # texto_a_escribir += "      - testing_net\n"
-
-    # texto_a_escribir += "  health_checker_2:\n"
-    # texto_a_escribir += "    container_name: health_checker_2\n"
-    # texto_a_escribir += "    image: healthchecker:latest\n"
-    # texto_a_escribir += "    environment:\n"
-    # texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
-    # texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-    # texto_a_escribir += "      - CONNECT_IP=health_checker_3\n"
-    # texto_a_escribir += "      - CONNECT_PORT=12003\n"
-    # texto_a_escribir += "      - LISTEN_PORT=12002\n"
-    # texto_a_escribir += "    networks:\n"
-    # texto_a_escribir += "      - testing_net\n"
-
-    # texto_a_escribir += "  health_checker_3:\n"
-    # texto_a_escribir += "    container_name: health_checker_3\n"
-    # texto_a_escribir += "    image: healthchecker:latest\n"
-    # texto_a_escribir += "    environment:\n"
-    # texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
-    # texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-    # texto_a_escribir += "      - CONNECT_IP=health_checker_1\n"
-    # texto_a_escribir += "      - CONNECT_PORT=12001\n"
-    # texto_a_escribir += "      - LISTEN_PORT=12003\n"
-    # texto_a_escribir += "    networks:\n"
-    # texto_a_escribir += "      - testing_net\n"
 
     for i in range(1, cantidad_health_checkers + 1):
         texto_a_escribir += f"  health_checker_{i}:\n"
@@ -207,6 +171,7 @@ def generar_compose():
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_windows}\n"
         texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
         texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - ID={i}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -232,6 +197,7 @@ def generar_compose():
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_linux}\n"
         texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
         texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - ID={i}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -258,6 +224,7 @@ def generar_compose():
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_mac}\n"
         texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
         texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - ID={i}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -283,6 +250,7 @@ def generar_compose():
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_juego_indie}\n"
         texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
         texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - ID={i}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -308,6 +276,7 @@ def generar_compose():
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_decada}\n"
         texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
         texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - ID={i}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -333,6 +302,7 @@ def generar_compose():
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_review_indie}\n"
         texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
         texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - ID={i}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -358,6 +328,7 @@ def generar_compose():
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_positiva}\n"
         texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
         texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - ID={i}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -383,6 +354,7 @@ def generar_compose():
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_action}\n"
         texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
         texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - ID={i}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -408,6 +380,7 @@ def generar_compose():
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_ingles}\n"
         texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
         texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - ID={i}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -454,7 +427,7 @@ def generar_compose():
         texto_a_escribir += f"      - IP_MASTER=query2_reducer_1\n"
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_reducer_two}\n"
         texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
-        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"  
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -652,6 +625,7 @@ def generar_compose():
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_game_validator}\n"
         texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
         texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - ID={i}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
@@ -677,6 +651,7 @@ def generar_compose():
         texto_a_escribir += f"      - CANT_SLAVES={cantidad_review_validator}\n"
         texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
         texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - ID={i}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"

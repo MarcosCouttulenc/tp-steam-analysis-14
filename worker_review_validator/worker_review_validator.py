@@ -16,10 +16,10 @@ CHANNEL_NAME =  "rabbitmq"
 
 class WorkerReviewValidator(ReviewWorker):
     def __init__(self, queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
-                 port_master, db_games_ip, db_games_port, ip_healthchecker, port_healthchecker):
+                 port_master, db_games_ip, db_games_port, ip_healthchecker, port_healthchecker, id):
         
         super().__init__(queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
-                         port_master, ip_healthchecker, port_healthchecker)
+                         port_master, ip_healthchecker, port_healthchecker, id)
         self.db_games_ip = db_games_ip
         self.db_games_port = db_games_port
         self.service_queues = ServiceQueues(CHANNEL_NAME)
@@ -32,13 +32,33 @@ class WorkerReviewValidator(ReviewWorker):
         game = self.get_game_from_db(message.get_client_id(), messageRI.review.game_id)
 
         if game.id == "-1":
+            print(f"No encontre el juego")
             return
 
         messageRI.review.set_genre(game.genre)
         message_to_push = MessageReviewInfo(message.message_id, message.get_client_id(), messageRI.review)
         
+        '''
         for queue_name_destiny in self.queues_destiny.keys():
             self.service_queues.push(queue_name_destiny, message_to_push)
+        '''
+        
+        for queue_name_next, cant_queue_next in self.queues_destiny.items():
+            if cant_queue_next == 1:
+                queue_name_destiny = f"{queue_name_next}-1"
+                self.service_queues_filter.push(queue_name_destiny, message_to_push)
+                continue
+            else:
+                queue_next_id = (round(int(messageRI.review.game_id) / 10) % int(cant_queue_next)) + 1
+                #print(f"El id de la cola que voy a pushear es {queue_next_id} ya que es el resultado de {messageRI.review.game_id} % {cant_queue_next} + 1")
+                if queue_next_id == 1:
+                    queue_next_id += 1
+                    
+                #print(f"El id de la cola que voy a pushear es {queue_next_id}")
+                queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
+                #print(f"La cola que voy a pushear es {queue_name_destiny}")
+                self.service_queues_filter.push(queue_name_destiny, message_to_push)
+            
 
     def get_game_from_db(self, client_id, game_id) -> Game:
         db_games = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

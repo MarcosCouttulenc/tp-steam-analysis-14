@@ -25,6 +25,7 @@ def initialize_config():
         config_params["cant_slaves"] = os.getenv('CANT_SLAVES')
         config_params["port_healthchecker"] = os.getenv('PORT_HEALTHCHECKER')
         config_params["ip_healthchecker"] = os.getenv('IP_HEALTHCHECKER')
+        config_params["id"] = os.getenv('ID')
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -48,6 +49,7 @@ def main():
     cant_slaves = config_params["cant_slaves"]
     port_healthchecker = config_params["port_healthchecker"]
     ip_healthchecker = config_params["ip_healthchecker"]
+    id = config_params["id"]
 
     initialize_log(logging_level)
     
@@ -56,7 +58,7 @@ def main():
 
     worker_review_validator = WorkerReviewValidator(
         queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
-        port_master, db_games_ip, int(db_games_port), ip_healthchecker, int(port_healthchecker))
+        port_master, db_games_ip, int(db_games_port), ip_healthchecker, int(port_healthchecker), id)
     worker_review_validator.start()
 
 def initialize_log(logging_level):

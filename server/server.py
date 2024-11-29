@@ -9,7 +9,6 @@ from common.message import *
 from common.protocol import Protocol
 from common.protocol import *
 from middleware.queue import ServiceQueues
-from common.sharding import Sharding
 
 CHANNEL_NAME =  "rabbitmq"
 
@@ -94,10 +93,15 @@ class Server:
             for message in receive_batch:
                 if message == None:
                     continue
+                 
                 if message.is_game():
-                    service_queue.push("queue-games", message)
+                    msg_game_info = MessageGameInfo.from_message(message)
+                    self.forward_message(message, "queue-games", self.cant_game_validators, service_queue, msg_game_info.game.id)
+                    #service_queue.push("queue-games-4", message)
                 elif message.is_review():
-                    service_queue.push("queue-reviews", message)
+                    msg_review_info = MessageReviewInfo.from_message(message)
+                    self.forward_message(message, "queue-reviews", self.cant_review_validators, service_queue, msg_review_info.review.game_id)
+                    #service_queue.push("queue-reviews", message)
                 elif message.is_eof():
                     msg_end_of_dataset = MessageEndOfDataset.from_message(message)
 
@@ -108,8 +112,19 @@ class Server:
                         end_of_data = True
     
     def send_eofs_to_queue(self, msg_end_of_dataset, destiny_queue, cant_workers, service_queue):
-        for _ in range(cant_workers - 1):
-            service_queue.push(destiny_queue, msg_end_of_dataset)
+        for id in range(2, cant_workers):
+            queue_name_destiny = f"{destiny_queue}-{id}"
+
+            if (id == cant_workers):
+                msg_end_of_dataset.set_last_eof()
             
-        msg_end_of_dataset.set_last_eof()
-        service_queue.push(destiny_queue, msg_end_of_dataset)
+            service_queue.push(queue_name_destiny, msg_end_of_dataset)
+
+    def forward_message(self, message : Message, queue_name_next, cant_queue_next, service_queue, game_id):
+        queue_next_id = (round( int(game_id) / 10 ) % int(cant_queue_next)) + 1 
+        
+        if queue_next_id == 1:
+            queue_next_id += 1
+                    
+        queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
+        service_queue.push(queue_name_destiny, message)
