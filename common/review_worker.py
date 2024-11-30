@@ -221,20 +221,27 @@ class ReviewWorker:
     def process_filter(self):
         while self.running:
             queue_name_origin_id = f"{self.queue_name_origin}-{self.id}"
-            print(f"Voy a popear de {queue_name_origin_id}")
+            #print(f"Voy a popear de {queue_name_origin_id}")
             self.service_queue_filter.pop(queue_name_origin_id, self.process_message)
 
     def process_message(self, ch, method, properties, message: Message):
+        #print(f"Me llego un mensaje de la cola {self.queue_name_origin} y lo popie ")
+
         if message.is_eof():
+            #print(f"EOF de la cola {self.queue_name_origin}")
             self.handle_eof(message, ch, method)
             return
         
         msg_review_info = MessageReviewInfo.from_message(message)
         
+       # print("Voy a validar el review")
         if self.validate_review(msg_review_info.review):
+            #print("Review validado")
             self.forward_message(message)
 
+        #print("Voy a hacer ack")
         self.service_queue_filter.ack(ch, method)
+        #print("Hice ack")
     
     def handle_eof(self, message, ch, method):
         #print("me llego EOF DE LA QUEUED DE DATA, lo pusheo a la queue de EOFS")

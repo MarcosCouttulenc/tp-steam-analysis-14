@@ -196,8 +196,11 @@ class GameWorker:
         
 
         msg_eof = MessageEndOfDataset.from_message(message)
+
+        print("Llego un eof")
         
         if (msg_eof.is_last_eof()):
+            print("Fue el ultimo. Comienza Forwardeo de EOFS")
             #print(f"[SLAVE] Envio un EOF final al proximo paso para el clienteId: {message.get_client_id()}")
             self.send_eofs(msg_eof)
 
@@ -206,12 +209,21 @@ class GameWorker:
         
 
     def send_eofs(self, msg_eof):
+        print("Llegaron todos los EOFS")
         for queue_name, cant_next in self.queues_destiny.items():
+            print(f"envio EOFS a las queues: {queue_name}, cantidad: {cant_next}")
             self.send_eofs_to_queue(queue_name, cant_next, msg_eof)
 
     def send_eofs_to_queue(self, queue_name, queue_cant, msg_eof):
         msg_eof.set_not_last_eof()
 
+        print(f"VOY A ENVIAR EOF A LA COLA {queue_name}")
+        if queue_name == "queue-bdd":
+            queue_name_destiny = f"{queue_name}-1"
+            msg_eof.set_last_eof()
+            self.service_queues_eof.push(queue_name_destiny, msg_eof)
+            return
+            
         for id in range(2, queue_cant):
             queue_name_destiny = f"{queue_name}-{id}"
 

@@ -112,10 +112,12 @@ class Server:
                         end_of_data = True
     
     def send_eofs_to_queue(self, msg_end_of_dataset, destiny_queue, cant_workers, service_queue):
-        for id in range(2, cant_workers):
+        print("el server empieza a enviar los EOF")
+        for id in range(2, cant_workers+1 ):
             queue_name_destiny = f"{destiny_queue}-{id}"
 
             if (id == cant_workers):
+                print("el server envia el ultimo eof")
                 msg_end_of_dataset.set_last_eof()
             
             service_queue.push(queue_name_destiny, msg_end_of_dataset)
