@@ -68,6 +68,7 @@ class DataBaseWorker():
         
     def process_message(self, ch, method, properties, message: Message):
         if message.is_eof():
+            print(f"Recibi un eof {message}")
             self.curr_cant_eofs += 1
             if  self.curr_cant_eofs == self.cant_clients:
                 self.running_queue = False

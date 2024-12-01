@@ -47,30 +47,6 @@ docker-image-worker-2010:
 	docker build -f ./worker_2010/Dockerfile -t "worker_2010:latest" .  # Construir imagen del worker 2010
 .PHONY: docker-image-worker-2010
 
-docker-image-query1-reducer:
-	docker build -f ./query1_reducer/Dockerfile -t "query1_reducer:latest" .  # Construir imagen del query1 reducer
-.PHONY: docker-image-query1-reducer
-
-docker-image-query2-reducer:
-	docker build -f ./query2_reducer/Dockerfile -t "query2_reducer:latest" .  # Construir imagen del query2 reducer
-.PHONY: docker-image-query2-reducer
-
-docker-image-query3-reducer:
-	docker build -f ./query3_reducer/Dockerfile -t "query3_reducer:latest" .  # Construir imagen del query3 reducer
-.PHONY: docker-image-query3-reducer
-
-docker-image-query3-reducer:
-	docker build -f ./query3_reducer/Dockerfile -t "query3_reducer:latest" .  # Construir imagen del query3 reducer
-.PHONY: docker-image-query3-reducer
-
-docker-image-query4-reducer:
-	docker build -f ./query4_reducer/Dockerfile -t "query4_reducer:latest" .  # Construir imagen del query4 reducer
-.PHONY: docker-image-query4-reducer
-
-docker-image-query5-reducer:
-	docker build -f ./query5_reducer/Dockerfile -t "query5_reducer:latest" .  # Construir imagen del query5 reducer
-.PHONY: docker-image-query5-reducer
-
 docker-image-query1-file:
 	docker build -f ./query1_file/Dockerfile -t "query1_file:latest" .  # Construir imagen del query1 file
 .PHONY: docker-image-query1-file
@@ -124,7 +100,7 @@ docker-image-health-checker:
 .PHONY: docker-image-health-checker
 
 
-docker-image: docker-image-server docker-image-client docker-image-worker-game-validator docker-image-worker-mac docker-image-worker-linux docker-image-worker-windows docker-image-query1-reducer docker-image-query2-reducer docker-image-query3-reducer docker-image-query4-reducer docker-image-query5-reducer docker-image-worker-indie docker-image-worker-2010 docker-image-database docker-image-query1-file docker-image-result-responser docker-image-query2-file docker-image-worker-review-validator docker-image-worker-review-action docker-image-worker-review-english docker-image-worker-review-positive docker-image-worker-review-indie docker-image-query3-file docker-image-query4-file docker-image-query5-file docker-image-health-checker # Construir imágenes
+docker-image: docker-image-server docker-image-client docker-image-worker-game-validator docker-image-worker-mac docker-image-worker-linux docker-image-worker-windows docker-image-worker-indie docker-image-worker-2010 docker-image-database docker-image-query1-file docker-image-result-responser docker-image-query2-file docker-image-worker-review-validator docker-image-worker-review-action docker-image-worker-review-english docker-image-worker-review-positive docker-image-worker-review-indie docker-image-query3-file docker-image-query4-file docker-image-query5-file docker-image-health-checker # Construir imágenes
 .PHONY: docker-image
 
 docker-compose-up: docker-image

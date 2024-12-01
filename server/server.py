@@ -12,6 +12,8 @@ from middleware.queue import ServiceQueues
 from common.sharding import Sharding
 
 CHANNEL_NAME =  "rabbitmq"
+QUEUE_GAMES = "queue-games"
+QUEUE_REVIEWS = "queue-reviews"
 
 class Server:
     def __init__(self, listen_new_connection_port, listen_result_query_port, listen_backlog, cant_game_validators, 
@@ -97,28 +99,24 @@ class Server:
                  
                 if message.is_game():
                     msg_game_info = MessageGameInfo.from_message(message)
-                    self.forward_message(message, "queue-games", self.cant_game_validators, service_queue, msg_game_info.game.id)
-                    #service_queue.push("queue-games-4", message)
+                    self.forward_message(message, QUEUE_GAMES, self.cant_game_validators, service_queue, msg_game_info.game.id)
                 elif message.is_review():
                     msg_review_info = MessageReviewInfo.from_message(message)
-                    self.forward_message(message, "queue-reviews", self.cant_review_validators, service_queue, msg_review_info.review.game_id)
-                    #service_queue.push("queue-reviews", message)
+                    self.forward_message(message, QUEUE_REVIEWS, self.cant_review_validators, service_queue, msg_review_info.review.game_id)
                 elif message.is_eof():
                     msg_end_of_dataset = MessageEndOfDataset.from_message(message)
 
                     if msg_end_of_dataset.type == "Game":
-                        self.send_eofs_to_queue(msg_end_of_dataset, "queue-games", self.cant_game_validators, service_queue)
+                        self.send_eofs_to_queue(msg_end_of_dataset, QUEUE_GAMES, self.cant_game_validators, service_queue)
                     else:
-                        self.send_eofs_to_queue(msg_end_of_dataset, "queue-reviews", self.cant_review_validators, service_queue)
+                        self.send_eofs_to_queue(msg_end_of_dataset, QUEUE_REVIEWS, self.cant_review_validators, service_queue)
                         end_of_data = True
     
     def send_eofs_to_queue(self, msg_end_of_dataset, destiny_queue, cant_workers, service_queue):
-        print("el server empieza a enviar los EOF")
         for id in range(1, cant_workers + 1):
             queue_name_destiny = f"{destiny_queue}-{id}"
 
             if (id == cant_workers):
-                print("el server envia el ultimo eof")
                 msg_end_of_dataset.set_last_eof()
             
             service_queue.push(queue_name_destiny, msg_end_of_dataset)

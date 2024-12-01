@@ -1210,168 +1210,6 @@ services:
       - rabbitmq
       - health_checker_1
 
-  query1_reducer_1:
-    container_name: query1_reducer_1
-    image: query1_reducer:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=True
-      - PORT_MASTER=9010
-      - IP_MASTER=query1_reducer_1
-      - CANT_SLAVES=1
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
-    networks:
-      - testing_net
-    depends_on:
-      - rabbitmq
-      - health_checker_2
-
-  query2_reducer_1:
-    container_name: query2_reducer_1
-    image: query2_reducer:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=False
-      - PORT_MASTER=9011
-      - IP_MASTER=query2_reducer_2
-      - CANT_SLAVES=2
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
-    networks:
-      - testing_net
-    depends_on:
-      - query2_reducer_2
-      - health_checker_3
-
-  query2_reducer_2:
-    container_name: query2_reducer_2
-    image: query2_reducer:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=True
-      - PORT_MASTER=9011
-      - IP_MASTER=query2_reducer_2
-      - CANT_SLAVES=2
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
-    networks:
-      - testing_net
-    depends_on:
-      - rabbitmq
-      - health_checker_1
-
-  query3_reducer_1:
-    container_name: query3_reducer_1
-    image: query3_reducer:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=False
-      - PORT_MASTER=9012
-      - IP_MASTER=query3_reducer_2
-      - CANT_SLAVES=2
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
-    networks:
-      - testing_net
-    depends_on:
-      - query3_reducer_2
-      - health_checker_2
-
-  query3_reducer_2:
-    container_name: query3_reducer_2
-    image: query3_reducer:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=True
-      - PORT_MASTER=9012
-      - IP_MASTER=query3_reducer_2
-      - CANT_SLAVES=2
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
-    networks:
-      - testing_net
-    depends_on:
-      - rabbitmq
-      - health_checker_3
-
-  query4_reducer_1:
-    container_name: query4_reducer_1
-    image: query4_reducer:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=False
-      - PORT_MASTER=9013
-      - IP_MASTER=query4_reducer_2
-      - CANT_SLAVES=2
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
-    networks:
-      - testing_net
-    depends_on:
-      - query4_reducer_2
-      - health_checker_1
-
-  query4_reducer_2:
-    container_name: query4_reducer_2
-    image: query4_reducer:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=True
-      - PORT_MASTER=9013
-      - IP_MASTER=query4_reducer_2
-      - CANT_SLAVES=2
-      - IP_HEALTHCHECKER=health_checker_2
-      - PORT_HEALTHCHECKER=12002
-    networks:
-      - testing_net
-    depends_on:
-      - rabbitmq
-      - health_checker_2
-
-  query5_reducer_1:
-    container_name: query5_reducer_1
-    image: query5_reducer:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=False
-      - PORT_MASTER=9014
-      - IP_MASTER=query5_reducer_2
-      - CANT_SLAVES=2
-      - IP_HEALTHCHECKER=health_checker_3
-      - PORT_HEALTHCHECKER=12003
-    networks:
-      - testing_net
-    depends_on:
-      - query5_reducer_2
-      - health_checker_3
-
-  query5_reducer_2:
-    container_name: query5_reducer_2
-    image: query5_reducer:latest
-    environment:
-      - PYTHONUNBUFFERED=1
-      - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=True
-      - PORT_MASTER=9014
-      - IP_MASTER=query5_reducer_2
-      - CANT_SLAVES=2
-      - IP_HEALTHCHECKER=health_checker_1
-      - PORT_HEALTHCHECKER=12001
-    networks:
-      - testing_net
-    depends_on:
-      - rabbitmq
-      - health_checker_1
-
   query1_file:
     container_name: query1_file
     image: query1_file:latest
@@ -1465,7 +1303,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4,4,2,1
       - IS_MASTER=False
-      - PORT_MASTER=9015
+      - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_2
@@ -1485,7 +1323,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4,4,2,1
       - IS_MASTER=False
-      - PORT_MASTER=9015
+      - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_3
@@ -1505,7 +1343,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4,4,2,1
       - IS_MASTER=False
-      - PORT_MASTER=9015
+      - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_1
@@ -1525,7 +1363,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4,4,2,1
       - IS_MASTER=False
-      - PORT_MASTER=9015
+      - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_2
@@ -1545,7 +1383,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4,4,2,1
       - IS_MASTER=False
-      - PORT_MASTER=9015
+      - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_3
@@ -1565,7 +1403,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4,4,2,1
       - IS_MASTER=False
-      - PORT_MASTER=9015
+      - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_1
@@ -1585,7 +1423,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4,4,2,1
       - IS_MASTER=False
-      - PORT_MASTER=9015
+      - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_2
@@ -1605,7 +1443,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4,4,2,1
       - IS_MASTER=False
-      - PORT_MASTER=9015
+      - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_3
@@ -1625,7 +1463,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4,4,2,1
       - IS_MASTER=False
-      - PORT_MASTER=9015
+      - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_1
@@ -1645,7 +1483,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4,4,2,1
       - IS_MASTER=True
-      - PORT_MASTER=9015
+      - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_2
@@ -1665,7 +1503,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4
       - IS_MASTER=False
-      - PORT_MASTER=9016
+      - PORT_MASTER=9011
       - IP_MASTER=worker_review_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_3
@@ -1685,7 +1523,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4
       - IS_MASTER=False
-      - PORT_MASTER=9016
+      - PORT_MASTER=9011
       - IP_MASTER=worker_review_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_1
@@ -1705,7 +1543,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4
       - IS_MASTER=False
-      - PORT_MASTER=9016
+      - PORT_MASTER=9011
       - IP_MASTER=worker_review_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_2
@@ -1725,7 +1563,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4
       - IS_MASTER=False
-      - PORT_MASTER=9016
+      - PORT_MASTER=9011
       - IP_MASTER=worker_review_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_3
@@ -1745,7 +1583,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4
       - IS_MASTER=False
-      - PORT_MASTER=9016
+      - PORT_MASTER=9011
       - IP_MASTER=worker_review_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_1
@@ -1765,7 +1603,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4
       - IS_MASTER=False
-      - PORT_MASTER=9016
+      - PORT_MASTER=9011
       - IP_MASTER=worker_review_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_2
@@ -1785,7 +1623,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4
       - IS_MASTER=False
-      - PORT_MASTER=9016
+      - PORT_MASTER=9011
       - IP_MASTER=worker_review_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_3
@@ -1805,7 +1643,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4
       - IS_MASTER=False
-      - PORT_MASTER=9016
+      - PORT_MASTER=9011
       - IP_MASTER=worker_review_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_1
@@ -1825,7 +1663,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4
       - IS_MASTER=False
-      - PORT_MASTER=9016
+      - PORT_MASTER=9011
       - IP_MASTER=worker_review_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_2
@@ -1845,7 +1683,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4
       - IS_MASTER=True
-      - PORT_MASTER=9016
+      - PORT_MASTER=9011
       - IP_MASTER=worker_review_validator_10
       - CANT_SLAVES=10
       - IP_HEALTHCHECKER=health_checker_3

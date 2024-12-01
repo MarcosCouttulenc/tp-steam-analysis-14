@@ -29,43 +29,7 @@ class QueryFourFile(QueryFile):
             pass
 
         return games_with_more_positive_reviews
-
-
-        '''
-
-        client_id = str(client_id)
-        if client_id not in self.totals:
-            return []
-        
-        games_with_more_5000_positive_reviews = []
-
-        for name, cant_reviews in self.totals[client_id].items():
-            if (cant_reviews > 5000):
-                games_with_more_5000_positive_reviews.append((name, cant_reviews))
-            
-        return games_with_more_5000_positive_reviews
-
-        '''
-
-    '''
-    def update_results(self, message):
-        msg_query_four_file_update = MessageQueryFourFileUpdate.from_message(message)
-        client_id = str(msg_query_four_file_update.get_client_id())
-
-        if not client_id in self.totals:
-            self.totals[client_id] = {}
-        
-        dict = self.totals[client_id]
-
-        for name, cant_reviews in msg_query_four_file_update.buffer:
-            if not name in dict:
-                dict[name] = 0
-
-            dict[name] += int(cant_reviews)
-        
-        self.totals[client_id] = dict
-    '''
-
+    
     def update_results(self, message):
         msg_review_info = MessageReviewInfo.from_message(message)
         client_id = str(msg_review_info.get_client_id())

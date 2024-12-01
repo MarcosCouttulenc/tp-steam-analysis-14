@@ -1,6 +1,7 @@
 import sys
 
 archivo_salida = "docker-compose-dev.yaml"
+
 '''
 cantidad_windows = 3
 cantidad_linux = 3
@@ -19,8 +20,8 @@ cantidad_reducer_five = 1
 cantidad_review_validator = 3
 cantidad_clientes = 1
 cantidad_game_validator = 3 * cantidad_clientes
-
 '''
+
 cantidad_windows = 5
 cantidad_linux = 5
 cantidad_mac = 5
@@ -30,11 +31,11 @@ cantidad_review_indie = 5
 cantidad_positiva = 8
 cantidad_action = 5
 cantidad_ingles = 15
-cantidad_reducer_one = 1
-cantidad_reducer_two = 2
-cantidad_reducer_three = 2
-cantidad_reducer_four = 2
-cantidad_reducer_five = 2
+#cantidad_reducer_one = 1
+#cantidad_reducer_two = 2
+#cantidad_reducer_three = 2
+#cantidad_reducer_four = 2
+#cantidad_reducer_five = 2
 cantidad_clientes = 2
 cantidad_review_validator = 5 * cantidad_clientes
 cantidad_game_validator = 5 * cantidad_clientes
@@ -270,7 +271,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        texto_a_escribir += f"      - CANT_NEXT={cantidad_reducer_two - 1}\n"
+        texto_a_escribir += f"      - CANT_NEXT=1\n"
         texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_2010_{cantidad_decada}\n"
@@ -296,7 +297,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        texto_a_escribir += f"      - CANT_NEXT={cantidad_reducer_three - 1}\n" 
+        texto_a_escribir += f"      - CANT_NEXT={1}\n" 
         texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_review_indie_{cantidad_review_indie}\n"
@@ -348,7 +349,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        texto_a_escribir += f"      - CANT_NEXT={cantidad_positiva - 1},{cantidad_reducer_five - 1}\n"
+        texto_a_escribir += f"      - CANT_NEXT={cantidad_positiva - 1},1\n"
         texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_review_action_{cantidad_action}\n"
@@ -374,7 +375,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        texto_a_escribir += f"      - CANT_NEXT={cantidad_reducer_four - 1}\n"
+        texto_a_escribir += f"      - CANT_NEXT=1\n"
         texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_review_english_{cantidad_ingles}\n"
@@ -390,6 +391,7 @@ def generar_compose():
         to_healt_checker_number += 1
 
     # Generar contenedores para query reducers
+    '''
     port_master += 1
     for i in range(1, cantidad_reducer_one + 1):
         is_master = (i == cantidad_reducer_one)
@@ -505,6 +507,7 @@ def generar_compose():
         texto_a_escribir += f"      - {'rabbitmq' if is_master else f'query5_reducer_{cantidad_reducer_five}'}\n"
         texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
         to_healt_checker_number += 1
+    '''
     
     # generar contenedores para cada query_file
     to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
@@ -588,7 +591,6 @@ def generar_compose():
     to_healt_checker_number += 1
 
     # Generar contenedor de BDD
-
     to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
     texto_a_escribir += "  database:\n"
     texto_a_escribir += "    container_name: database\n"

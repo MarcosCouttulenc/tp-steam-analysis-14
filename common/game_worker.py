@@ -36,7 +36,10 @@ class GameWorker:
 
         self.ip_healthchecker = ip_healthchecker
         self.port_healthchecker = int(port_healthchecker)
+
         self.id = id
+        self.actual_seq_number = 0
+        self.last_seq_number_by_filter = {}
     
 
     def init_queues_destiny(self, queues_name_destiny, cant_next):
@@ -169,20 +172,15 @@ class GameWorker:
         _ = protocol.receive()
 
         msg_eof = MessageEndOfDataset.from_message(message)
-
-        print("Llego un eof")
         
         if (msg_eof.is_last_eof()):
-            print("Fue el ultimo. Comienza Forwardeo de EOFS")
             self.send_eofs(msg_eof)
 
         time.sleep(4)
         
         
     def send_eofs(self, msg_eof):
-        print("Llegaron todos los EOFS")
         for queue_name, cant_next in self.queues_destiny.items():
-            print(f"envio EOFS a las queues: {queue_name}, cantidad: {cant_next}")
             self.send_eofs_to_queue(queue_name, cant_next, msg_eof)
 
     def send_eofs_to_queue(self, queue_name, queue_cant, msg_eof):
@@ -190,8 +188,7 @@ class GameWorker:
         
         for id in range(1, queue_cant+1):
             queue_name_destiny = f"{queue_name}-{id}"
-            print(f"Voy a enviar eof a la cola {queue_name_destiny}")
-
+            
             if (id == queue_cant):
                 msg_eof.set_last_eof()
             
@@ -226,6 +223,7 @@ class GameWorker:
 
     def forward_message(self, message):
         message_to_send = self.get_message_to_send(message)
+
         msg_game_info = MessageGameInfo.from_message(message)
 
         for queue_name_next, cant_queue_next in self.queues_destiny.items():
@@ -236,5 +234,11 @@ class GameWorker:
     def get_message_to_send(self, message):
         return message
 
+    def get_new_message_id(self):
+        self.actual_seq_number += 1
+        return f"W_{self.id}_M_{self.actual_seq_number}"
+
+    def message_was_processed(self):
+        return "hola" 
 
     
