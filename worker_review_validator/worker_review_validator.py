@@ -29,11 +29,8 @@ class WorkerReviewValidator(ReviewWorker):
         return True
     
     def forward_message(self, message):
-        print("Forwardeando mensaje")
         messageRI = MessageReviewInfo.from_message(message)
         game = self.get_game_from_db(message.get_client_id(), messageRI.review.game_id)
-
-        print("obtuve el juego de la bdd")
 
         if game.id == "-1":
             print(f"No encontre el juego")
@@ -41,18 +38,10 @@ class WorkerReviewValidator(ReviewWorker):
 
         messageRI.review.set_genre(game.genre)
         message_to_push = MessageReviewInfo(message.message_id, message.get_client_id(), messageRI.review)
-        
-        '''
-        for queue_name_destiny in self.queues_destiny.keys():
-            self.service_queues.push(queue_name_destiny, message_to_push)
-        '''
 
         for queue_name_next, cant_queue_next in self.queues_destiny.items():
             queue_next_id = Sharding.calculate_shard(messageRI.review.game_id, cant_queue_next)
-                
-            print(f"El id de la cola que voy a pushear es {queue_next_id}")
             queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
-            print(f"La cola que voy a pushear es {queue_name_destiny}")
             self.service_queues.push(queue_name_destiny, message_to_push)
             
 
@@ -63,13 +52,10 @@ class WorkerReviewValidator(ReviewWorker):
         protocol_db_games = Protocol(db_games)
         message_id = f"C_{str(client_id)}_QUERY_{str(game_id)}"
         msg_query_game = MessageQueryGameDatabase(message_id, client_id, game_id)
-        print("enviando mensaje a la bdd")
         protocol_db_games.send(msg_query_game)
 
         msg = protocol_db_games.receive()
-        print(f"recibi rta de la bdd")
         msg_game_info = MessageGameInfo.from_message(msg)
-        print(f"juego recibido: {msg_game_info.game.name}")
 
         db_games.close()
         

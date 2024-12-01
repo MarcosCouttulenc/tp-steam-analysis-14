@@ -1,59 +1,70 @@
 import csv
 import logging
 logging.basicConfig(level=logging.CRITICAL)
-from middleware.queue import ServiceQueues
-from common.message import Message
-from common.message import MessageQueryThreeFileUpdate
+
+from common.message import MessageReviewInfo
 from common.message import MessageQueryThreeResult
-from common.protocol import Protocol
 from common.protocol import *
 from common.query_file_worker import QueryFile
 
 class QueryThreeFile(QueryFile):
     def get_message_result_from_file_snapshot(self, client_id, file_snapshot):
         message_result = MessageQueryThreeResult(client_id, file_snapshot)
-        #logging.critical(f"TO SEND: {message_result.message_payload}")
         return message_result
 
-    def get_file_snapshot(self, client_id):
-        client_id = str(client_id)
-        if client_id not in self.totals:
-            #print("NO HAY NADA")
-            return []
 
+    def get_file_snapshot(self, client_id):
         total_list = []
-        for name, cant_reviews in self.totals[client_id].items():
-            total_list.append((name, cant_reviews))
+        client_file_path = self.get_file_path_client(client_id)
+        
+        try:
+            with open(client_file_path, mode='r') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    total_list.append((row['game'], int(row['cant_positive'])))
+        except FileNotFoundError:
+            pass
 
         total_list_sorted = sorted(total_list, key=lambda item: item[1], reverse=True)
 
-        top_five = total_list_sorted[:5]
-        #print(top_five)
+        if (len(total_list_sorted) > 5):
+            return total_list_sorted[:5]
 
-        return top_five
+        return total_list_sorted
+
 
     def update_results(self, message):
-        msg_query_three_file_update = MessageQueryThreeFileUpdate.from_message(message)
-        client_id = str(msg_query_three_file_update.get_client_id())
+        msg_review_info = MessageReviewInfo.from_message(message)
 
-        if not client_id in self.totals:
-            self.totals[client_id] = {}
+        if not msg_review_info.review.is_positive():
+            return
+
+            
+        client_id = str(msg_review_info.get_client_id())
+
+        client_file_path = self.get_file_path_client(client_id)
+
+        games = {}
+        try :
+            with open(client_file_path, mode='r') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    games[row['game']] = int(row['cant_positive'])
+        except FileNotFoundError:
+            pass
         
-        #print("A ACTUALIZAR:")
-        #print(msg_query_three_file_update.buffer)
+        if not msg_review_info.review.game_name in games:
+            games[msg_review_info.review.game_name] = 0
 
-        #print("ANTES DE ACTUALIZAR:")
-        #print(self.totals)
+        games[msg_review_info.review.game_name] += 1
 
-        dict = self.totals[client_id]
+        with open(client_file_path, mode='w') as file:
+            fieldnames = ['game', 'cant_positive']
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+            for game, cant_positive in games.items():
+                writer.writerow({'game': game, 'cant_positive': cant_positive})
 
-        for name, cant_reviews in msg_query_three_file_update.buffer:
-            if not name in dict:
-                dict[name] = 0
-            dict[name] += int(cant_reviews)
-        
-        self.totals[client_id] = dict
 
-        #print("DESPUES DE ACTUALIZAR:")
-        #print(self.totals)
-
+    def get_file_path_client(self, client_id):
+        return f"{client_id}_{self.file_path}"

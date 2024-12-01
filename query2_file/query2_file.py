@@ -2,10 +2,12 @@ import csv
 import logging
 logging.basicConfig(level=logging.CRITICAL)
 
-from common.message import MessageQueryTwoFileUpdate
+from common.message import MessageGameInfo
 from common.message import MessageQueryTwoResult
 from common.protocol import *
 from common.query_file_worker import QueryFile
+
+TOP_NUMBER = 10
 
 class QueryTwoFile(QueryFile):
 
@@ -32,25 +34,23 @@ class QueryTwoFile(QueryFile):
         return top_ten
 
     def update_results(self, message):
-        msg_query_two_file_update = MessageQueryTwoFileUpdate.from_message(message)
-        client_id = str(msg_query_two_file_update.get_client_id())
+        msg_game_info = MessageGameInfo.from_message(message)
+        client_id = str(msg_game_info.get_client_id())
 
         client_file_path = self.get_file_path_client(client_id)
 
-        old_top_ten = []
+        top_games = []
         try :
             with open(client_file_path, mode='r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
-                    old_top_ten.append((row['game'], row['playTime']))
+                    top_games.append((row['game'], row['playTime']))
         except FileNotFoundError:
             pass
-        
-        new_doc = (old_top_ten + msg_query_two_file_update.top_ten_buffer)
 
-        new_doc_sorted = sorted(new_doc, key=lambda game_data: int(game_data[1]), reverse=True)
-
-        new_top_ten = new_doc_sorted[:10]
+        top_games.append((msg_game_info.game.name, msg_game_info.game.playTime))
+        new_doc_sorted = sorted(top_games, key=lambda game_data: int(game_data[1]), reverse=True)
+        new_top_ten = new_doc_sorted[:TOP_NUMBER]
 
         with open(client_file_path, mode='w') as file:
             fieldnames = ['game', 'playTime']

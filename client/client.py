@@ -171,7 +171,7 @@ class Client:
             
             # Si el resultado esta listo, escribe en un archivo y finaliza
             if msg_results_status.message_payload == ResultStatus.FINISHED.value:
-                file_path = f"results{str(self.client_id)}"
+                file_path = f"resultados/resultados-{str(self.client_id)}.txt"
                 with open(file_path, "w") as file:
                     file.write(msg_results_content.message_payload)
                 break

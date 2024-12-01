@@ -1,9 +1,8 @@
 import csv
 import logging
 logging.basicConfig(level=logging.CRITICAL)
-from middleware.queue import ServiceQueues
-from common.message import Message
-from common.message import MessageQueryOneFileUpdate
+
+from common.message import MessageQueryOneUpdate
 from common.message import MessageQueryOneResult
 from common.protocol import *
 
@@ -40,7 +39,7 @@ class QueryOneFile(QueryFile):
         return (total_linux, total_mac, total_windows)
 
     def update_results(self, message):
-        msg_query_one_file_update = MessageQueryOneFileUpdate.from_message(message)
+        msg_query_one_file_update = MessageQueryOneUpdate.from_message(message)
         current_total_linux = 0
         current_total_mac = 0
         current_total_windows = 0
@@ -61,16 +60,23 @@ class QueryOneFile(QueryFile):
                     current_total_mac = int(row['total_mac'])
                     current_total_windows = int(row['total_windows'])
         except FileNotFoundError:
-            # Si el archivo no existe, los totales permanecen en 0
             pass
-        
-        updated_total_linux = current_total_linux + int(msg_query_one_file_update.total_linux)
-        updated_total_mac = current_total_mac + int(msg_query_one_file_update.total_mac)
-        updated_total_windows = current_total_windows + int(msg_query_one_file_update.total_windows)
 
-        aux[str(client_id)] = (str(updated_total_linux), str(updated_total_mac), str(updated_total_windows))
+        if (msg_query_one_file_update.op_system_supported == "windows"):
+            current_total_windows += 1
 
-        logging.critical(f"---NUEVOS VALORES EN FILE---\nCLIENT: {client_id} LINUX: {updated_total_linux} MAC: {updated_total_mac} WINDOWS: {updated_total_windows}")
+        if (msg_query_one_file_update.op_system_supported == "linux"):
+            current_total_linux += 1
+
+        if (msg_query_one_file_update.op_system_supported == "mac"):
+            current_total_mac += 1
+
+        #Log aux (estado previo)
+        aux[str(client_id)] = (str(current_total_linux), str(current_total_mac), str(current_total_windows))
+
+        #Log aux (nuevo estado)
+
+        logging.critical(f"---NUEVOS VALORES EN FILE---\nCLIENT: {client_id} LINUX: {current_total_linux} MAC: {current_total_mac} WINDOWS: {current_total_windows}")
         
         with open(self.file_path, mode='w', newline='') as file:
             fieldnames = ['client_id', 'total_linux', 'total_mac', 'total_windows']

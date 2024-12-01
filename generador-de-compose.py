@@ -35,7 +35,7 @@ cantidad_reducer_two = 2
 cantidad_reducer_three = 2
 cantidad_reducer_four = 2
 cantidad_reducer_five = 2
-cantidad_clientes = 1
+cantidad_clientes = 2
 cantidad_review_validator = 5 * cantidad_clientes
 cantidad_game_validator = 5 * cantidad_clientes
 cantidad_health_checkers = 3
@@ -47,7 +47,7 @@ review_files = {"1": "10reviews.csv", "2": "10reviews.csv"}
 '''
 
 
-game_files = {"1": "fullgames.csv", "2": "fullgames.csv"}
+game_files = {"1": "10000games.csv", "2": "10000games.csv"}
 review_files = {"1": "data0.1porcent.csv", "2": "data0.1porcent.csv"}
 
 
@@ -120,7 +120,7 @@ def generar_compose():
         texto_a_escribir += f"    container_name: client_{i}\n"
         texto_a_escribir += "    image: client:latest\n"
         texto_a_escribir += "    environment:\n"
-        texto_a_escribir += "      - CLI_ID={i}\n"
+        texto_a_escribir += f"      - CLI_ID={i}\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
         texto_a_escribir += f"      - GAMES_FILE_PATH={game_files[str(i)]}\n"
@@ -129,6 +129,7 @@ def generar_compose():
         texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += "    volumes:\n"
         texto_a_escribir += "      - ./client/config.ini:/client/config.ini\n"
+        texto_a_escribir += "      - ./resultados:/resultados\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"

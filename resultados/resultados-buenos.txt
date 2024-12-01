@@ -1,0 +1,46 @@
+Query1 Resultados: 
+Status: Finished 
+---------------------------------------------------------- 
+Total Linux: 1504 
+Total Mac: 2253 
+Total Windows: 9739 
+---------------------------------------------------------- 
+Query2 Resultados: 
+Status: Finished 
+---------------------------------------------------------- 
+拯救大魔王2 Rescue the Great Demon 2: 49555 
+Clicker Heroes 2: 31708 
+Midas Gold Plus: 19196 
+Beasts of Bermuda: 17147 
+Revhead: 14716 
+ARK: Survival Evolved: 10660 
+懒人修仙传: 9679 
+Firestone Idle RPG: 9117 
+Dragon Cliff: 8285 
+Space Force: 8005 
+---------------------------------------------------------- 
+Query3 Resultados: 
+Status: Finished 
+---------------------------------------------------------- 
+Garry's Mod: 20 
+Torchlight II: 18 
+Hotline Miami: 18 
+To the Moon: 16 
+No More Room in Hell: 15 
+---------------------------------------------------------- 
+Query4 Resultados: 
+Status: Finished 
+---------------------------------------------------------- 
+---------------------------------------------------------- 
+Query5 Resultados: 
+Status: Finished 
+---------------------------------------------------------- 
+200210,Realm of the Mad God Exalt 
+204300,Awesomenauts 
+273350,Evolve Stage 2 
+275850,No Man's Sky 
+344760,Reign Of Kings 
+346110,ARK: Survival Evolved 
+409710,BioShock Remastered 
+437220,The Culling 
+---------------------------------------------------------- 

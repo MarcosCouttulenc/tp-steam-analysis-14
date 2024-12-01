@@ -9,26 +9,13 @@ from common.sharding import Sharding
 from middleware.queue import ServiceQueues
 from common.message import MessageReviewInfo
 from common.message import MessageEndOfDataset
-from common.message import Message
+from common.message import Message, string_to_boolean
 from common.protocol import Protocol
 from common.protocol_healthchecker import ProtocolHealthChecker, get_container_name
 
 
 CHANNEL_NAME =  "rabbitmq"
-FALSE_STRING = "False"
-TRUE_STRING = "True"
 LISTEN_BACKLOG = 100
-
-
-
-def string_to_boolean(string_variable):
-    if string_variable == TRUE_STRING:
-        return True
-    elif string_variable == FALSE_STRING:
-        return False
-    else:
-        print(f"\n\n\n VARIABLE: {string_variable} \n\n\n")
-        raise Exception("Variable booleana incorrecta")
 
 class ReviewWorker:
     def __init__(self, queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, 
@@ -88,7 +75,6 @@ class ReviewWorker:
             socket_master.bind(('', self.port_master))
             socket_master.listen(LISTEN_BACKLOG)
             barrier = threading.Barrier(self.cant_slaves)
-            #print(f"cantidad de esclavos ")
 
             while self.running:
                 try:
@@ -136,22 +122,18 @@ class ReviewWorker:
     ## Proceso master eof handler
     ## --------------------------------------------------------------------------------      
     def process_control_master_eof_handler(self, socket_master_slave, socket_master_slave_addr, barrier):
-        #print("Nuevo slave conectado en :", socket_master_slave_addr)
         protocol = Protocol(socket_master_slave)
 
         try:
             while self.running:
-               #print(f"[MASTER] Esperando un EOF desde {socket_master_slave_addr}")
                 msg = protocol.receive()
 
                 if (msg == None):
                     print(f"[MASTER] Recibe un None desde {socket_master_slave_addr}")
                     break
-
-                #print(f"[MASTER] Recibe un EOF desde {socket_master_slave_addr} idCliente: {msg}")
+                
                 barrier.wait()
-
-                #print(f"[MASTER] Se notifica a {socket_master_slave_addr} que ya llegaron todos los EOFs")
+                
                 protocol.send(msg)
         except OSError as e:
             if e.errno == errno.EBADF:  # Bad file descriptor, server socket closed
@@ -165,7 +147,6 @@ class ReviewWorker:
     ## --------------------------------------------------------------------------------
     def process_control_slave_eof_handler(self):
         self.service_queues_eof = ServiceQueues(CHANNEL_NAME)
-        #print(f"[SLAVE] Por conectarme a {str(self.ip_master)}:{str(self.port_master)}")
         
         time.sleep(10)
         self.socket_slave = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -175,29 +156,22 @@ class ReviewWorker:
             self.service_queues_eof.pop_non_blocking(self.queue_name_origin_eof, self.process_message_slave_eof)
 
     def process_message_slave_eof(self, ch, method, properties, message: Message):
-        #print(f"[SLAVE] EMPIEZO CICLO DE EOFS DE CLIENTE, ME LLEGO EOF DE LA QUEUE DE EOFS de cliente: {message.get_client_id()}")
-
         if message == None:
             return
         
-        #Le notificamos al master el eof
+        # Le notificamos al master el eof
         protocol = Protocol(self.socket_slave)
-        
-        #print(f"Envio un EOF al master del clienteId: {message.get_client_id()}")
-        bytes_sent = protocol.send(message)
-        
-        #print(f"[SLAVE] Enviado un EOF al master del clienteId: {message.get_client_id()}; cant de bytes enviados: {bytes_sent}")
+
+        _ = protocol.send(message)
 
         self.service_queues_eof.ack(ch, method)
 
-        #Nos quedamos esperando que el master nos notifique que se termino de procesar.
+        # Nos quedamos esperando que el master nos notifique que se termino de procesar.
         _ = protocol.receive()
-        
 
         msg_eof = MessageEndOfDataset.from_message(message)
         
         if (msg_eof.is_last_eof()):
-            #print(f"Envio un EOF final al proximo paso para el clienteId: {message.get_client_id()}")
             self.send_eofs(msg_eof)
 
         time.sleep(4)
@@ -223,30 +197,21 @@ class ReviewWorker:
     def process_filter(self):
         while self.running:
             queue_name_origin_id = f"{self.queue_name_origin}-{self.id}"
-            #print(f"Voy a popear de {queue_name_origin_id}")
             self.service_queue_filter.pop(queue_name_origin_id, self.process_message)
 
     def process_message(self, ch, method, properties, message: Message):
-        #print(f"Me llego un mensaje de la cola {self.queue_name_origin} y lo popie ")
-
         if message.is_eof():
-            #print(f"EOF de la cola {self.queue_name_origin}")
             self.handle_eof(message, ch, method)
             return
         
         msg_review_info = MessageReviewInfo.from_message(message)
         
-       # print("Voy a validar el review")
         if self.validate_review(msg_review_info.review):
-            #print("Review validado")
             self.forward_message(message)
 
-        #print("Voy a hacer ack")
         self.service_queue_filter.ack(ch, method)
-        #print("Hice ack")
     
     def handle_eof(self, message, ch, method):
-        #print("me llego EOF DE LA QUEUED DE DATA, lo pusheo a la queue de EOFS")
         self.service_queue_filter.push(self.queue_name_origin_eof, message)
         self.service_queue_filter.ack(ch, method)
 
@@ -256,11 +221,6 @@ class ReviewWorker:
     def forward_message(self, message):
         message_to_send = self.get_message_to_send(message)
         msg_review_info = MessageReviewInfo.from_message(message)
-
-        '''
-        for queue_name_destiny in self.queues_destiny.keys():
-            self.service_queue_filter.push(queue_name_destiny, message_to_send)
-        '''
 
         for queue_name_next, cant_queue_next in self.queues_destiny.items():
             queue_next_id = Sharding.calculate_shard(msg_review_info.review.game_id, cant_queue_next)
