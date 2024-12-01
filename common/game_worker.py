@@ -17,6 +17,8 @@ from common.protocol_healthchecker import ProtocolHealthChecker, get_container_n
 CHANNEL_NAME =  "rabbitmq"
 LISTEN_BACKLOG = 100
 
+PATH_FILE_STATE = "worker-state.txt"
+
 class GameWorker:
     def __init__(self, queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, 
             is_master, ip_master, port_master, ip_healthchecker, port_healthchecker, id):
@@ -203,15 +205,25 @@ class GameWorker:
             self.service_queues_filter.pop(queue_name_origin_id, self.process_message)
     
     def process_message(self, ch, method, properties, message: Message):
+
+        # Chequeamos si el mensaje ya fue procesado.
+        if self.message_was_processed(message):
+            self.service_queues_filter.ack(ch, method)
+            return
+        
+        # Chequeamos si es un eof
         if message.is_eof():
             self.handle_eof(message, ch, method)
             return
         
         msg_game_info = MessageGameInfo.from_message(message)
-        
+
         if self.validate_game(msg_game_info.game):
+            
             self.forward_message(message)
 
+            self.last_seq_number_by_filter[msg_game_info.get_filter_id()] = msg_game_info.get_seq_num()
+            
         self.service_queues_filter.ack(ch, method)
     
     def handle_eof(self, message, ch, method):
@@ -236,9 +248,20 @@ class GameWorker:
 
     def get_new_message_id(self):
         self.actual_seq_number += 1
-        return f"W_{self.id}_M_{self.actual_seq_number}"
+        return f"F{str(self.id)}_M{str(self.actual_seq_number)}"
 
-    def message_was_processed(self):
-        return "hola" 
+    def message_was_processed(self, message):
+
+        filter = message.get_filterid_from_message_id()
+        seq_num = message.get_seqnum_from_message_id()
+        
+        return (filter,seq_num) in self.last_seq_number_by_filter.items()
+
+
+    def save_state_in_disk(self):
+        return "a"
+    
+    def get_state_from_disk(self):
+        return "a"
 
     

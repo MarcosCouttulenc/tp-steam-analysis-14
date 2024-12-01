@@ -68,6 +68,18 @@ class Message:
     
     def get_message_id(self) -> str:
         return self.message_id
+    
+    def get_filterid_from_message_id(self) -> str:
+        vec = self.message_id.split("_")
+        if (len(vec) == 0):
+            return None
+        vec[0]
+    
+    def get_seqnum_from_message_id(self) -> str:
+        vec = self.message_id.split("_")
+        if (len(vec) == 1):
+            return None
+        vec[1]
 
     def is_game(self) -> bool:
         return (self.message_type == MESSAGE_TYPE_GAME_DATA)
@@ -79,7 +91,7 @@ class Message:
         return  (self.message_type == MESSAGE_TYPE_END_OF_DATASET)
 
     def __str__(self) -> str:
-        return f"messageId: {str(self.message_id)} |clientId: {str(self.client_id)} | type: {self.message_type} | payload: {self.message_payload}"
+        return f"messageId: {str(self.message_id)} | clientId: {str(self.client_id)} | type: {self.message_type} | payload: {self.message_payload}"
 
 
 '''
