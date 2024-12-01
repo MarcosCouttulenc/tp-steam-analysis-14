@@ -5,6 +5,7 @@ import socket
 import time
 import threading
 
+from common.sharding import Sharding
 from middleware.queue import ServiceQueues
 from common.message import MessageGameInfo
 from common.message import MessageEndOfDataset
@@ -216,16 +217,10 @@ class GameWorker:
 
     def send_eofs_to_queue(self, queue_name, queue_cant, msg_eof):
         msg_eof.set_not_last_eof()
-
-        print(f"VOY A ENVIAR EOF A LA COLA {queue_name}")
-        if queue_name == "queue-bdd":
-            queue_name_destiny = f"{queue_name}-1"
-            msg_eof.set_last_eof()
-            self.service_queues_eof.push(queue_name_destiny, msg_eof)
-            return
-            
-        for id in range(2, queue_cant):
+        
+        for id in range(1, queue_cant+1):
             queue_name_destiny = f"{queue_name}-{id}"
+            print(f"Voy a enviar eof a la cola {queue_name_destiny}")
 
             if (id == queue_cant):
                 msg_eof.set_last_eof()
@@ -269,22 +264,11 @@ class GameWorker:
             self.service_queues_filter.push(queue_name_destiny, message_to_send)
 
         '''
-        
+
         for queue_name_next, cant_queue_next in self.queues_destiny.items():
-            if cant_queue_next == 1:
-                queue_name_destiny = f"{queue_name_next}-1"
-                self.service_queues_filter.push(queue_name_destiny, message_to_send)
-                continue
-            else:
-                queue_next_id = (round(int(msg_game_info.game.id) / 10) % int(cant_queue_next)) + 1
-                #print(f"El id de la cola que voy a pushear es {queue_next_id} ya que es el resultado de {msg_game_info.game.id} % {cant_queue_next} + 1")
-                if queue_next_id == 1:
-                    queue_next_id += 1
-                    
-                #print(f"El id de la cola que voy a pushear es {queue_next_id}")
-                queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
-                #print(f"La cola que voy a pushear es {queue_name_destiny}")
-                self.service_queues_filter.push(queue_name_destiny, message_to_send)
+            queue_next_id = Sharding.calculate_shard(msg_game_info.game.id, cant_queue_next)
+            queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
+            self.service_queues_filter.push(queue_name_destiny, message_to_send)
             
     def get_message_to_send(self, message):
         return message

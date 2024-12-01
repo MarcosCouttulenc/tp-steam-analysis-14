@@ -6,8 +6,8 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_GAME_VALIDATORS=5
-      - CANT_REVIEW_VALIDATORS=5
+      - CANT_GAME_VALIDATORS=4
+      - CANT_REVIEW_VALIDATORS=4
       - PORT_HEALTHCHECKER=12001
       - IP_HEALTHCHECKER=health_checker_1
     networks:
@@ -116,9 +116,9 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - IS_MASTER=True
+      - IS_MASTER=False
       - PORT_MASTER=9001
-      - IP_MASTER=worker_windows_1
+      - IP_MASTER=worker_windows_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -126,7 +126,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_windows_5
       - health_checker_1
 
   worker_windows_2:
@@ -138,7 +138,7 @@ services:
       - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9001
-      - IP_MASTER=worker_windows_1
+      - IP_MASTER=worker_windows_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -146,7 +146,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_windows_1
+      - worker_windows_5
       - health_checker_2
 
   worker_windows_3:
@@ -158,7 +158,7 @@ services:
       - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9001
-      - IP_MASTER=worker_windows_1
+      - IP_MASTER=worker_windows_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -166,7 +166,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_windows_1
+      - worker_windows_5
       - health_checker_3
 
   worker_windows_4:
@@ -178,7 +178,7 @@ services:
       - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9001
-      - IP_MASTER=worker_windows_1
+      - IP_MASTER=worker_windows_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -186,7 +186,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_windows_1
+      - worker_windows_5
       - health_checker_1
 
   worker_windows_5:
@@ -196,9 +196,9 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - IS_MASTER=False
+      - IS_MASTER=True
       - PORT_MASTER=9001
-      - IP_MASTER=worker_windows_1
+      - IP_MASTER=worker_windows_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -206,7 +206,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_windows_1
+      - rabbitmq
       - health_checker_2
 
   worker_linux_1:
@@ -216,9 +216,9 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - IS_MASTER=True
+      - IS_MASTER=False
       - PORT_MASTER=9002
-      - IP_MASTER=worker_linux_1
+      - IP_MASTER=worker_linux_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -226,7 +226,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_linux_5
       - health_checker_3
 
   worker_linux_2:
@@ -238,7 +238,7 @@ services:
       - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9002
-      - IP_MASTER=worker_linux_1
+      - IP_MASTER=worker_linux_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -246,7 +246,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_linux_1
+      - worker_linux_5
       - health_checker_1
 
   worker_linux_3:
@@ -258,7 +258,7 @@ services:
       - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9002
-      - IP_MASTER=worker_linux_1
+      - IP_MASTER=worker_linux_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -266,7 +266,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_linux_1
+      - worker_linux_5
       - health_checker_2
 
   worker_linux_4:
@@ -278,7 +278,7 @@ services:
       - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9002
-      - IP_MASTER=worker_linux_1
+      - IP_MASTER=worker_linux_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -286,7 +286,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_linux_1
+      - worker_linux_5
       - health_checker_3
 
   worker_linux_5:
@@ -296,9 +296,9 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - IS_MASTER=False
+      - IS_MASTER=True
       - PORT_MASTER=9002
-      - IP_MASTER=worker_linux_1
+      - IP_MASTER=worker_linux_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -306,7 +306,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_linux_1
+      - rabbitmq
       - health_checker_1
 
   worker_mac_1:
@@ -316,9 +316,9 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - IS_MASTER=True
+      - IS_MASTER=False
       - PORT_MASTER=9003
-      - IP_MASTER=worker_mac_1
+      - IP_MASTER=worker_mac_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -326,7 +326,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_mac_5
       - health_checker_2
 
   worker_mac_2:
@@ -338,7 +338,7 @@ services:
       - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9003
-      - IP_MASTER=worker_mac_1
+      - IP_MASTER=worker_mac_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -346,7 +346,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_mac_1
+      - worker_mac_5
       - health_checker_3
 
   worker_mac_3:
@@ -358,7 +358,7 @@ services:
       - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9003
-      - IP_MASTER=worker_mac_1
+      - IP_MASTER=worker_mac_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -366,7 +366,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_mac_1
+      - worker_mac_5
       - health_checker_1
 
   worker_mac_4:
@@ -378,7 +378,7 @@ services:
       - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9003
-      - IP_MASTER=worker_mac_1
+      - IP_MASTER=worker_mac_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -386,7 +386,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_mac_1
+      - worker_mac_5
       - health_checker_2
 
   worker_mac_5:
@@ -396,9 +396,9 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=1
-      - IS_MASTER=False
+      - IS_MASTER=True
       - PORT_MASTER=9003
-      - IP_MASTER=worker_mac_1
+      - IP_MASTER=worker_mac_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -406,7 +406,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_mac_1
+      - rabbitmq
       - health_checker_3
 
   worker_indie_1:
@@ -415,10 +415,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=3
-      - IS_MASTER=True
+      - CANT_NEXT=2
+      - IS_MASTER=False
       - PORT_MASTER=9004
-      - IP_MASTER=worker_indie_1
+      - IP_MASTER=worker_indie_3
       - CANT_SLAVES=3
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -426,7 +426,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_indie_3
       - health_checker_1
 
   worker_indie_2:
@@ -435,10 +435,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=3
+      - CANT_NEXT=2
       - IS_MASTER=False
       - PORT_MASTER=9004
-      - IP_MASTER=worker_indie_1
+      - IP_MASTER=worker_indie_3
       - CANT_SLAVES=3
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -446,7 +446,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_indie_1
+      - worker_indie_3
       - health_checker_2
 
   worker_indie_3:
@@ -455,10 +455,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=3
-      - IS_MASTER=False
+      - CANT_NEXT=2
+      - IS_MASTER=True
       - PORT_MASTER=9004
-      - IP_MASTER=worker_indie_1
+      - IP_MASTER=worker_indie_3
       - CANT_SLAVES=3
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -466,7 +466,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_indie_1
+      - rabbitmq
       - health_checker_3
 
   worker_2010_1:
@@ -475,10 +475,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
-      - IS_MASTER=True
+      - CANT_NEXT=1
+      - IS_MASTER=False
       - PORT_MASTER=9005
-      - IP_MASTER=worker_2010_1
+      - IP_MASTER=worker_2010_3
       - CANT_SLAVES=3
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -486,7 +486,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_2010_3
       - health_checker_1
 
   worker_2010_2:
@@ -495,10 +495,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9005
-      - IP_MASTER=worker_2010_1
+      - IP_MASTER=worker_2010_3
       - CANT_SLAVES=3
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -506,7 +506,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_2010_1
+      - worker_2010_3
       - health_checker_2
 
   worker_2010_3:
@@ -515,10 +515,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
-      - IS_MASTER=False
+      - CANT_NEXT=1
+      - IS_MASTER=True
       - PORT_MASTER=9005
-      - IP_MASTER=worker_2010_1
+      - IP_MASTER=worker_2010_3
       - CANT_SLAVES=3
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -526,7 +526,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_2010_1
+      - rabbitmq
       - health_checker_3
 
   worker_review_indie_1:
@@ -535,10 +535,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
-      - IS_MASTER=True
+      - CANT_NEXT=1
+      - IS_MASTER=False
       - PORT_MASTER=9006
-      - IP_MASTER=worker_review_indie_1
+      - IP_MASTER=worker_review_indie_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -546,7 +546,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_indie_5
       - health_checker_1
 
   worker_review_indie_2:
@@ -555,10 +555,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9006
-      - IP_MASTER=worker_review_indie_1
+      - IP_MASTER=worker_review_indie_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -566,7 +566,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_indie_1
+      - worker_review_indie_5
       - health_checker_2
 
   worker_review_indie_3:
@@ -575,10 +575,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9006
-      - IP_MASTER=worker_review_indie_1
+      - IP_MASTER=worker_review_indie_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -586,7 +586,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_indie_1
+      - worker_review_indie_5
       - health_checker_3
 
   worker_review_indie_4:
@@ -595,10 +595,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9006
-      - IP_MASTER=worker_review_indie_1
+      - IP_MASTER=worker_review_indie_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -606,7 +606,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_indie_1
+      - worker_review_indie_5
       - health_checker_1
 
   worker_review_indie_5:
@@ -615,10 +615,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
-      - IS_MASTER=False
+      - CANT_NEXT=1
+      - IS_MASTER=True
       - PORT_MASTER=9006
-      - IP_MASTER=worker_review_indie_1
+      - IP_MASTER=worker_review_indie_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -626,7 +626,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_indie_1
+      - rabbitmq
       - health_checker_2
 
   worker_review_positive_1:
@@ -635,10 +635,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=15
-      - IS_MASTER=True
+      - CANT_NEXT=14
+      - IS_MASTER=False
       - PORT_MASTER=9007
-      - IP_MASTER=worker_review_positive_1
+      - IP_MASTER=worker_review_positive_8
       - CANT_SLAVES=8
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -646,7 +646,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_positive_8
       - health_checker_3
 
   worker_review_positive_2:
@@ -655,10 +655,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=15
+      - CANT_NEXT=14
       - IS_MASTER=False
       - PORT_MASTER=9007
-      - IP_MASTER=worker_review_positive_1
+      - IP_MASTER=worker_review_positive_8
       - CANT_SLAVES=8
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -666,7 +666,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_positive_1
+      - worker_review_positive_8
       - health_checker_1
 
   worker_review_positive_3:
@@ -675,10 +675,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=15
+      - CANT_NEXT=14
       - IS_MASTER=False
       - PORT_MASTER=9007
-      - IP_MASTER=worker_review_positive_1
+      - IP_MASTER=worker_review_positive_8
       - CANT_SLAVES=8
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -686,7 +686,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_positive_1
+      - worker_review_positive_8
       - health_checker_2
 
   worker_review_positive_4:
@@ -695,10 +695,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=15
+      - CANT_NEXT=14
       - IS_MASTER=False
       - PORT_MASTER=9007
-      - IP_MASTER=worker_review_positive_1
+      - IP_MASTER=worker_review_positive_8
       - CANT_SLAVES=8
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -706,7 +706,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_positive_1
+      - worker_review_positive_8
       - health_checker_3
 
   worker_review_positive_5:
@@ -715,10 +715,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=15
+      - CANT_NEXT=14
       - IS_MASTER=False
       - PORT_MASTER=9007
-      - IP_MASTER=worker_review_positive_1
+      - IP_MASTER=worker_review_positive_8
       - CANT_SLAVES=8
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -726,7 +726,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_positive_1
+      - worker_review_positive_8
       - health_checker_1
 
   worker_review_positive_6:
@@ -735,10 +735,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=15
+      - CANT_NEXT=14
       - IS_MASTER=False
       - PORT_MASTER=9007
-      - IP_MASTER=worker_review_positive_1
+      - IP_MASTER=worker_review_positive_8
       - CANT_SLAVES=8
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -746,7 +746,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_positive_1
+      - worker_review_positive_8
       - health_checker_2
 
   worker_review_positive_7:
@@ -755,10 +755,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=15
+      - CANT_NEXT=14
       - IS_MASTER=False
       - PORT_MASTER=9007
-      - IP_MASTER=worker_review_positive_1
+      - IP_MASTER=worker_review_positive_8
       - CANT_SLAVES=8
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -766,7 +766,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_positive_1
+      - worker_review_positive_8
       - health_checker_3
 
   worker_review_positive_8:
@@ -775,10 +775,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=15
-      - IS_MASTER=False
+      - CANT_NEXT=14
+      - IS_MASTER=True
       - PORT_MASTER=9007
-      - IP_MASTER=worker_review_positive_1
+      - IP_MASTER=worker_review_positive_8
       - CANT_SLAVES=8
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -786,7 +786,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_positive_1
+      - rabbitmq
       - health_checker_1
 
   worker_review_action_1:
@@ -795,10 +795,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=8,2
-      - IS_MASTER=True
+      - CANT_NEXT=7,1
+      - IS_MASTER=False
       - PORT_MASTER=9008
-      - IP_MASTER=worker_review_action_1
+      - IP_MASTER=worker_review_action_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -806,7 +806,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_action_5
       - health_checker_2
 
   worker_review_action_2:
@@ -815,10 +815,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=8,2
+      - CANT_NEXT=7,1
       - IS_MASTER=False
       - PORT_MASTER=9008
-      - IP_MASTER=worker_review_action_1
+      - IP_MASTER=worker_review_action_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -826,7 +826,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_action_1
+      - worker_review_action_5
       - health_checker_3
 
   worker_review_action_3:
@@ -835,10 +835,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=8,2
+      - CANT_NEXT=7,1
       - IS_MASTER=False
       - PORT_MASTER=9008
-      - IP_MASTER=worker_review_action_1
+      - IP_MASTER=worker_review_action_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -846,7 +846,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_action_1
+      - worker_review_action_5
       - health_checker_1
 
   worker_review_action_4:
@@ -855,10 +855,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=8,2
+      - CANT_NEXT=7,1
       - IS_MASTER=False
       - PORT_MASTER=9008
-      - IP_MASTER=worker_review_action_1
+      - IP_MASTER=worker_review_action_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -866,7 +866,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_action_1
+      - worker_review_action_5
       - health_checker_2
 
   worker_review_action_5:
@@ -875,10 +875,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=8,2
-      - IS_MASTER=False
+      - CANT_NEXT=7,1
+      - IS_MASTER=True
       - PORT_MASTER=9008
-      - IP_MASTER=worker_review_action_1
+      - IP_MASTER=worker_review_action_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -886,7 +886,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_action_1
+      - rabbitmq
       - health_checker_3
 
   worker_review_english_1:
@@ -895,10 +895,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
-      - IS_MASTER=True
+      - CANT_NEXT=1
+      - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -906,7 +906,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - worker_review_english_15
       - health_checker_1
 
   worker_review_english_2:
@@ -915,10 +915,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -926,7 +926,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - worker_review_english_15
       - health_checker_2
 
   worker_review_english_3:
@@ -935,10 +935,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -946,7 +946,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - worker_review_english_15
       - health_checker_3
 
   worker_review_english_4:
@@ -955,10 +955,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -966,7 +966,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - worker_review_english_15
       - health_checker_1
 
   worker_review_english_5:
@@ -975,10 +975,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -986,7 +986,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - worker_review_english_15
       - health_checker_2
 
   worker_review_english_6:
@@ -995,10 +995,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -1006,7 +1006,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - worker_review_english_15
       - health_checker_3
 
   worker_review_english_7:
@@ -1015,10 +1015,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -1026,7 +1026,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - worker_review_english_15
       - health_checker_1
 
   worker_review_english_8:
@@ -1035,10 +1035,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -1046,7 +1046,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - worker_review_english_15
       - health_checker_2
 
   worker_review_english_9:
@@ -1055,10 +1055,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -1066,7 +1066,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - worker_review_english_15
       - health_checker_3
 
   worker_review_english_10:
@@ -1075,10 +1075,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -1086,7 +1086,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - worker_review_english_15
       - health_checker_1
 
   worker_review_english_11:
@@ -1095,10 +1095,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -1106,7 +1106,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - worker_review_english_15
       - health_checker_2
 
   worker_review_english_12:
@@ -1115,10 +1115,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -1126,7 +1126,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - worker_review_english_15
       - health_checker_3
 
   worker_review_english_13:
@@ -1135,10 +1135,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -1146,7 +1146,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - worker_review_english_15
       - health_checker_1
 
   worker_review_english_14:
@@ -1155,10 +1155,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
+      - CANT_NEXT=1
       - IS_MASTER=False
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -1166,7 +1166,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - worker_review_english_15
       - health_checker_2
 
   worker_review_english_15:
@@ -1175,10 +1175,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=2
-      - IS_MASTER=False
+      - CANT_NEXT=1
+      - IS_MASTER=True
       - PORT_MASTER=9009
-      - IP_MASTER=worker_review_english_1
+      - IP_MASTER=worker_review_english_15
       - CANT_SLAVES=15
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -1186,7 +1186,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_english_1
+      - rabbitmq
       - health_checker_3
 
   query1_reducer_1:
@@ -1213,16 +1213,16 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=True
+      - IS_MASTER=False
       - PORT_MASTER=9011
-      - IP_MASTER=query2_reducer_1
+      - IP_MASTER=query2_reducer_2
       - CANT_SLAVES=2
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - query2_reducer_2
       - health_checker_2
 
   query2_reducer_2:
@@ -1231,16 +1231,16 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=False
+      - IS_MASTER=True
       - PORT_MASTER=9011
-      - IP_MASTER=query2_reducer_1
+      - IP_MASTER=query2_reducer_2
       - CANT_SLAVES=2
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
-      - query2_reducer_1
+      - rabbitmq
       - health_checker_3
 
   query3_reducer_1:
@@ -1249,16 +1249,16 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=True
+      - IS_MASTER=False
       - PORT_MASTER=9012
-      - IP_MASTER=query3_reducer_1
+      - IP_MASTER=query3_reducer_2
       - CANT_SLAVES=2
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - query3_reducer_2
       - health_checker_1
 
   query3_reducer_2:
@@ -1267,16 +1267,16 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=False
+      - IS_MASTER=True
       - PORT_MASTER=9012
-      - IP_MASTER=query3_reducer_1
+      - IP_MASTER=query3_reducer_2
       - CANT_SLAVES=2
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
-      - query3_reducer_1
+      - rabbitmq
       - health_checker_2
 
   query4_reducer_1:
@@ -1285,16 +1285,16 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=True
+      - IS_MASTER=False
       - PORT_MASTER=9013
-      - IP_MASTER=query4_reducer_1
+      - IP_MASTER=query4_reducer_2
       - CANT_SLAVES=2
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - query4_reducer_2
       - health_checker_3
 
   query4_reducer_2:
@@ -1303,16 +1303,16 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=False
+      - IS_MASTER=True
       - PORT_MASTER=9013
-      - IP_MASTER=query4_reducer_1
+      - IP_MASTER=query4_reducer_2
       - CANT_SLAVES=2
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
     networks:
       - testing_net
     depends_on:
-      - query4_reducer_1
+      - rabbitmq
       - health_checker_1
 
   query5_reducer_1:
@@ -1321,16 +1321,16 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=True
+      - IS_MASTER=False
       - PORT_MASTER=9014
-      - IP_MASTER=query5_reducer_1
+      - IP_MASTER=query5_reducer_2
       - CANT_SLAVES=2
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
     networks:
       - testing_net
     depends_on:
-      - rabbitmq
+      - query5_reducer_2
       - health_checker_2
 
   query5_reducer_2:
@@ -1339,16 +1339,16 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - IS_MASTER=False
+      - IS_MASTER=True
       - PORT_MASTER=9014
-      - IP_MASTER=query5_reducer_1
+      - IP_MASTER=query5_reducer_2
       - CANT_SLAVES=2
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
     networks:
       - testing_net
     depends_on:
-      - query5_reducer_1
+      - rabbitmq
       - health_checker_3
 
   query1_file:
@@ -1442,10 +1442,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=True
+      - CANT_NEXT=4,4,4,2,1
+      - IS_MASTER=False
       - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
+      - IP_MASTER=worker_game_validator_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -1453,7 +1453,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_game_validator_5
       - health_checker_1
 
   worker_game_validator_2:
@@ -1462,10 +1462,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
+      - CANT_NEXT=4,4,4,2,1
       - IS_MASTER=False
       - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
+      - IP_MASTER=worker_game_validator_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -1473,7 +1473,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_game_validator_1
+      - worker_game_validator_5
       - health_checker_2
 
   worker_game_validator_3:
@@ -1482,10 +1482,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
+      - CANT_NEXT=4,4,4,2,1
       - IS_MASTER=False
       - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
+      - IP_MASTER=worker_game_validator_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -1493,7 +1493,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_game_validator_1
+      - worker_game_validator_5
       - health_checker_3
 
   worker_game_validator_4:
@@ -1502,10 +1502,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
+      - CANT_NEXT=4,4,4,2,1
       - IS_MASTER=False
       - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
+      - IP_MASTER=worker_game_validator_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -1513,7 +1513,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_game_validator_1
+      - worker_game_validator_5
       - health_checker_1
 
   worker_game_validator_5:
@@ -1522,10 +1522,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5,5,3,1
-      - IS_MASTER=False
+      - CANT_NEXT=4,4,4,2,1
+      - IS_MASTER=True
       - PORT_MASTER=9015
-      - IP_MASTER=worker_game_validator_1
+      - IP_MASTER=worker_game_validator_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -1533,7 +1533,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_game_validator_1
+      - database
       - health_checker_2
 
   worker_review_validator_1:
@@ -1542,10 +1542,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5
-      - IS_MASTER=True
+      - CANT_NEXT=4,4
+      - IS_MASTER=False
       - PORT_MASTER=9016
-      - IP_MASTER=worker_review_validator_1
+      - IP_MASTER=worker_review_validator_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -1553,7 +1553,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - database
+      - worker_review_validator_5
       - health_checker_3
 
   worker_review_validator_2:
@@ -1562,10 +1562,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5
+      - CANT_NEXT=4,4
       - IS_MASTER=False
       - PORT_MASTER=9016
-      - IP_MASTER=worker_review_validator_1
+      - IP_MASTER=worker_review_validator_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -1573,7 +1573,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_validator_1
+      - worker_review_validator_5
       - health_checker_1
 
   worker_review_validator_3:
@@ -1582,10 +1582,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5
+      - CANT_NEXT=4,4
       - IS_MASTER=False
       - PORT_MASTER=9016
-      - IP_MASTER=worker_review_validator_1
+      - IP_MASTER=worker_review_validator_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
@@ -1593,7 +1593,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_validator_1
+      - worker_review_validator_5
       - health_checker_2
 
   worker_review_validator_4:
@@ -1602,10 +1602,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5
+      - CANT_NEXT=4,4
       - IS_MASTER=False
       - PORT_MASTER=9016
-      - IP_MASTER=worker_review_validator_1
+      - IP_MASTER=worker_review_validator_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
@@ -1613,7 +1613,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_validator_1
+      - worker_review_validator_5
       - health_checker_3
 
   worker_review_validator_5:
@@ -1622,10 +1622,10 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=5,5
-      - IS_MASTER=False
+      - CANT_NEXT=4,4
+      - IS_MASTER=True
       - PORT_MASTER=9016
-      - IP_MASTER=worker_review_validator_1
+      - IP_MASTER=worker_review_validator_5
       - CANT_SLAVES=5
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
@@ -1633,7 +1633,7 @@ services:
     networks:
       - testing_net
     depends_on:
-      - worker_review_validator_1
+      - database
       - health_checker_1
 
 networks:

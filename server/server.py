@@ -9,6 +9,7 @@ from common.message import *
 from common.protocol import Protocol
 from common.protocol import *
 from middleware.queue import ServiceQueues
+from common.sharding import Sharding
 
 CHANNEL_NAME =  "rabbitmq"
 
@@ -17,8 +18,8 @@ class Server:
                  cant_review_validators, ip_healthchecker, port_healthchecker):
         self.listen_new_connection_port = listen_new_connection_port
         self.listen_result_query_port = listen_result_query_port
-        self.cant_game_validators = cant_game_validators-1
-        self.cant_review_validators = cant_review_validators-1
+        self.cant_game_validators = cant_game_validators
+        self.cant_review_validators = cant_review_validators
 
         self.new_connection_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.new_connection_socket.bind(('', listen_new_connection_port))
@@ -113,7 +114,7 @@ class Server:
     
     def send_eofs_to_queue(self, msg_end_of_dataset, destiny_queue, cant_workers, service_queue):
         print("el server empieza a enviar los EOF")
-        for id in range(2, cant_workers+1 ):
+        for id in range(1, cant_workers + 1):
             queue_name_destiny = f"{destiny_queue}-{id}"
 
             if (id == cant_workers):
@@ -122,11 +123,7 @@ class Server:
             
             service_queue.push(queue_name_destiny, msg_end_of_dataset)
 
-    def forward_message(self, message : Message, queue_name_next, cant_queue_next, service_queue, game_id):
-        queue_next_id = (round( int(game_id) / 10 ) % int(cant_queue_next)) + 1 
-        
-        if queue_next_id == 1:
-            queue_next_id += 1
-                    
+    def forward_message(self, message, queue_name_next, cant_queue_next, service_queue, game_id):
+        queue_next_id = Sharding.calculate_shard(game_id, cant_queue_next)
         queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
         service_queue.push(queue_name_destiny, message)

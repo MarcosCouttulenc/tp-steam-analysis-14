@@ -5,6 +5,7 @@ import socket
 import time
 import threading
 
+from common.sharding import Sharding
 from middleware.queue import ServiceQueues
 from common.message import MessageReviewInfo
 from common.message import MessageEndOfDataset
@@ -208,8 +209,9 @@ class ReviewWorker:
     def send_eofs_to_queue(self, queue_name, queue_cant, msg_eof):
         msg_eof.set_not_last_eof()
 
-        for id in range(2, queue_cant):
+        for id in range(1, queue_cant + 1):
             queue_name_destiny = f"{queue_name}-{id}"
+            print(f"Voy a enviar eof a la cola {queue_name_destiny}")
 
             if (id == queue_cant):
                 msg_eof.set_last_eof()
@@ -261,18 +263,10 @@ class ReviewWorker:
         '''
 
         for queue_name_next, cant_queue_next in self.queues_destiny.items():
-            queue_next_id = ( round(int(msg_review_info.review.game_id) / 10 )% int(cant_queue_next)) + 1 
-            #print(f"El id de la cola que voy a pushear es {queue_next_id}")
-
-            if queue_next_id == 1:
-                    queue_next_id += 1
-
+            queue_next_id = Sharding.calculate_shard(msg_review_info.review.game_id, cant_queue_next)
             queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
-            #print(f"Envio mensaje a {queue_name_destiny}")
-            self.service_queues_filter.push(queue_name_destiny, message_to_send)
+            self.service_queue_filter.push(queue_name_destiny, message_to_send)
 
     def get_message_to_send(self, message):
         return message
 
-
-    

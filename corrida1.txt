@@ -1,0 +1,185 @@
+CORRIDA 1:
+
+cantidad_windows = 5
+cantidad_linux = 5
+cantidad_mac = 5
+cantidad_juego_indie = 3
+cantidad_decada = 3
+cantidad_review_indie = 5
+cantidad_positiva = 8
+cantidad_action = 5
+cantidad_ingles = 15
+cantidad_reducer_one = 1
+cantidad_reducer_two = 6
+cantidad_reducer_three = 3
+cantidad_reducer_four = 3
+cantidad_reducer_five = 3
+cantidad_clientes = 2
+cantidad_review_validator = 5 * cantidad_clientes
+cantidad_game_validator = 5 * cantidad_clientes
+
+
+
+
+client_2                    | Query1 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | Total Linux: 12307
+client_2                    | Total Mac: 17703
+client_2                    | Total Windows: 92534
+client_2                    | ----------------------------------------------------------
+client_2                    | Query2 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | Relive: 68357
+client_2                    | 拯救大魔王2 Rescue the Great Demon 2: 49555
+client_2                    | Out of the Park Baseball 20: 34798
+client_2                    | 时之回廊/Corridor of time: 33343
+client_2                    | Clicker Heroes 2: 31708
+client_2                    | Time of Dragons: 27080
+client_2                    | Project AURA: 26827
+client_2                    | Midas Gold Plus: 19196
+client_2                    | Beasts of Bermuda: 17147
+client_2                    | Rust: 16623
+client_2                    | ----------------------------------------------------------
+client_2                    | Query3 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | Terraria: 84
+client_2                    | Rust: 57
+client_2                    | Undertale: 51
+client_2                    | Rocket League: 47
+client_2                    | Starbound: 37
+client_2                    | ----------------------------------------------------------
+client_2                    | Query4 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | ----------------------------------------------------------
+client_2                    | Query5 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | 570,Dota 2
+client_2                    | 
+client_2                    | 2870,X Rebirth
+client_2                    | 10180,Call of Duty: Modern Warfare 2
+client_2                    | 12210,Grand Theft Auto IV: The Complete Edition
+client_2                    | 17300,
+client_2                    | 20900,The Witcher: Enhanced Edition
+client_2                    | 104900,ORION: Prelude
+client_2                    | 105600,Terraria
+client_2                    | 107410,Arma 3
+client_2                    | 113400,APB Reloaded
+client_2                    | ----------------------------------------------------------
+client_2                    | 
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+client_1                    | Query1 Resultados:
+client_1                    | ----------------------------------------------------------
+client_1                    | Total Linux: 12307
+client_1                    | Total Mac: 17703
+client_1                    | Total Windows: 92534
+client_1                    | ----------------------------------------------------------
+client_1                    | Query2 Resultados:
+client_1                    | ----------------------------------------------------------
+client_1                    | Relive: 68357
+client_1                    | 拯救大魔王2 Rescue the Great Demon 2: 49555
+client_1                    | Out of the Park Baseball 20: 34798
+client_1                    | 时之回廊/Corridor of time: 33343
+client_1                    | Clicker Heroes 2: 31708
+client_1                    | Time of Dragons: 27080
+client_1                    | Project AURA: 26827
+client_1                    | Midas Gold Plus: 19196
+client_1                    | Beasts of Bermuda: 17147
+client_1                    | Rust: 16623
+client_1                    | ----------------------------------------------------------
+client_1                    | Query3 Resultados:
+client_1                    | ----------------------------------------------------------
+client_1                    | Terraria: 794
+client_1                    | Rust: 580
+client_1                    | Rocket League: 486
+client_1                    | Undertale: 483
+client_1                    | Starbound: 360
+client_1                    | ----------------------------------------------------------
+client_1                    | Query4 Resultados:
+client_1                    | ----------------------------------------------------------
+client_1                    | Counter-Strike
+client_1                    | ----------------------------------------------------------
+client_1                    | Query5 Resultados:
+client_1                    | --------------------------------------------------
+client_1                    | --------
+client_1                    | 10,Counter-Strike
+client_1                    | 300,Day of Defeat: Source
+client_1                    | 440,Team Fortress 2
+client_1                    | 550,Left 4 Dead 2
+client_1                    | 570,Dota 2
+client_1                    | 620,Portal 2
+client_1                    | 1250,Killing Floor
+client_1                    | 2400,The Ship
+client_1                    | 2870,X Rebirth
+client_1                    | 7510,X-Blades
+client_1                    | ----------------------------------------------------------
+client_1            
+
+
+
+2024-10-31 22:11:26.403949+00:00 [error] <0.2396.0> Error on AMQP connection <0.2396.0> (172.25.125.29:51960 -> 172.25.125.2:5672, vhost: '/', user: 'admin', state: running), channel 768:
+2024-10-31 22:11:26.403949+00:00 [error] <0.2396.0>  operation none caused a connection exception frame_error: "type 206, all octets = <<>>: {frame_too_large,16777216,131064}"
+2024-10-31 22:11:26.404070+00:00 [error] <0.2405.0> Channel error on connection <0.2396.0> (172.25.125.29:51960 -> 172.25.125.2:5672, vhost: '/', user: 'admin'), channel 1:
+2024-10-31 22:11:26.404070+00:00 [error] <0.2405.0> operation basic.ack caused a channel exception precondition_failed: unknown delivery tag 756
+2024-10-31 22:11:26.448135+00:00 [warning] <0.2409.0> closing AMQP connection <0.2409.0> (172.25.125.29:51966 -> 172.25.125.2:5672, vhost: '/', user: 'admin'):
+2024-10-31 22:11:26.448135+00:00 [warning] <0.2409.0> client unexpectedly closed TCP connection
+2024-10-31 22:11:29.419033+00:00 [error] <0.2396.0> closing AMQP connection <0.2396.0> (172.25.125.29:51960 -> 172.25.125.2:5672):
+2024-10-31 22:11:29.419033+00:00 [error] <0.2396.0> fatal_frame_error
+2024-10-31 22:13:26.646134+00:00 [error] <0.1226.0> closing AMQP connection <0.1226.0> (172.25.125.3:41356 -> 172.25.125.2:5672):
+2024-10-31 22:13:26.646134+00:00 [error] <0.1226.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:26.648627+00:00 [error] <0.1213.0> closing AMQP connection <0.1213.0> (172.25.125.3:41346 -> 172.25.125.2:5672):
+2024-10-31 22:13:26.648627+00:00 [error] <0.1213.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:26.837989+00:00 [error] <0.1291.0> closing AMQP connection <0.1291.0> (172.25.125.4:40348 -> 172.25.125.2:5672):
+2024-10-31 22:13:26.837989+00:00 [error] <0.1291.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:26.854375+00:00 [error] <0.1304.0> closing AMQP connection <0.1304.0> (172.25.125.4:40360 -> 172.25.125.2:5672):
+2024-10-31 22:13:26.854375+00:00 [error] <0.1304.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:26.973139+00:00 [error] <0.1360.0> closing AMQP connection <0.1360.0> (172.25.125.6:55748 -> 172.25.125.2:5672):
+2024-10-31 22:13:26.973139+00:00 [error] <0.1360.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:26.973145+00:00 [error] <0.1343.0> closing AMQP connection <0.1343.0> (172.25.125.6:55746 -> 172.25.125.2:5672):
+2024-10-31 22:13:26.973145+00:00 [error] <0.1343.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:26.976173+00:00 [error] <0.1390.0> closing AMQP connection <0.1390.0> (172.25.125.8:49354 -> 172.25.125.2:5672):
+2024-10-31 22:13:26.976173+00:00 [error] <0.1390.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:26.976859+00:00 [error] <0.1377.0> closing AMQP connection <0.1377.0> (172.25.125.8:49342 -> 172.25.125.2:5672):
+2024-10-31 22:13:26.976859+00:00 [error] <0.1377.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:27.082671+00:00 [error] <0.1434.0> closing AMQP connection <0.1434.0> (172.25.125.10:41120 -> 172.25.125.2:5672):
+2024-10-31 22:13:27.082671+00:00 [error] <0.1434.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:27.086808+00:00 [error] <0.1447.0> closing AMQP connection <0.1447.0> (172.25.125.10:41124 -> 172.25.125.2:5672):
+2024-10-31 22:13:27.086808+00:00 [error] <0.1447.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:27.246199+00:00 [error] <0.1486.0> closing AMQP connection <0.1486.0> (172.25.125.11:49066 -> 172.25.125.2:5672):
+2024-10-31 22:13:27.246199+00:00 [error] <0.1486.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:27.383080+00:00 [error] <0.1621.0> closing AMQP connection <0.1621.0> (172.25.125.13:40490 -> 172.25.125.2:5672):
+2024-10-31 22:13:27.383080+00:00 [error] <0.1621.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:27.455448+00:00 [error] <0.1678.0> closing AMQP connection <0.1678.0> (172.25.125.14:49988 -> 172.25.125.2:5672):
+2024-10-31 22:13:27.455448+00:00 [error] <0.1678.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:27.478889+00:00 [error] <0.1665.0> closing AMQP connection <0.1665.0> (172.25.125.14:49978 -> 172.25.125.2:5672):
+2024-10-31 22:13:27.478889+00:00 [error] <0.1665.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:27.807033+00:00 [error] <0.1828.0> closing AMQP connection <0.1828.0> (172.25.125.18:53754 -> 172.25.125.2:5672):
+2024-10-31 22:13:27.807033+00:00 [error] <0.1828.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:27.938044+00:00 [error] <0.1902.0> closing AMQP connection <0.1902.0> (172.25.125.19:40826 -> 172.25.125.2:5672):
+2024-10-31 22:13:27.938044+00:00 [error] <0.1902.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:27.952167+00:00 [error] <0.1916.0> closing AMQP connection <0.1916.0> (172.25.125.20:56576 -> 172.25.125.2:5672):
+2024-10-31 22:13:27.952167+00:00 [error] <0.1916.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:27.952268+00:00 [error] <0.1929.0> closing AMQP connection <0.1929.0> (172.25.125.20:56588 -> 172.25.125.2:5672):
+2024-10-31 22:13:27.952268+00:00 [error] <0.1929.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:28.210336+00:00 [error] <0.2026.0> closing AMQP connection <0.2026.0> (172.25.125.21:39482 -> 172.25.125.2:5672):
+2024-10-31 22:13:28.210336+00:00 [error] <0.2026.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:28.210362+00:00 [error] <0.2020.0> closing AMQP connection <0.2020.0> (172.25.125.23:34324 -> 172.25.125.2:5672):
+2024-10-31 22:13:28.210362+00:00 [error] <0.2020.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:28.220517+00:00 [error] <0.2062.0> closing AMQP connection <0.2062.0> (172.25.125.21:39494 -> 172.25.125.2:5672):
+2024-10-31 22:13:28.220517+00:00 [error] <0.2062.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:28.220541+00:00 [error] <0.2065.0> closing AMQP connection <0.2065.0> (172.25.125.23:34338 -> 172.25.125.2:5672):
+2024-10-31 22:13:28.220541+00:00 [error] <0.2065.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:29.924040+00:00 [error] <0.3344.0> closing AMQP connection <0.3344.0> (172.25.125.47:45034 -> 172.25.125.2:5672):
+2024-10-31 22:13:29.924040+00:00 [error] <0.3344.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:29.977489+00:00 [error] <0.3357.0> closing AMQP connection <0.3357.0> (172.25.125.47:45036 -> 172.25.125.2:5672):
+2024-10-31 22:13:29.977489+00:00 [error] <0.3357.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:30.041121+00:00 [error] <0.3370.0> closing AMQP connection <0.3370.0> (172.25.125.48:38544 -> 172.25.125.2:5672):
+2024-10-31 22:13:30.041121+00:00 [error] <0.3370.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:13:30.060501+00:00 [error] <0.3383.0> closing AMQP connection <0.3383.0> (172.25.125.48:38558 -> 172.25.125.2:5672):
+2024-10-31 22:13:30.060501+00:00 [error] <0.3383.0> missed heartbeats from client, timeout: 120s
+2024-10-31 22:15:28.231058+00:00 [error] <0.2111.0> closing AMQP connection <0.2111.0> (172.25.125.9:42832 -> 172.25.125.2:5672):
+2024-10-31 22:15:28.231058+00:00 [error] <0.2111.0> missed heartbeats from client, timeout: 120s

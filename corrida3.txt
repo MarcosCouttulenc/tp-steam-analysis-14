@@ -1,0 +1,190 @@
+client_1                    | Query1 Resultados:
+client_1                    | ----------------------------------------------------------
+client_1                    | Total Linux: 12307
+client_1                    | Total Mac: 17703
+client_1                    | Total Windows: 92534
+client_1                    | ----------------------------------------------------------
+client_1                    | Query2 Resultados:
+client_1                    | ----------------------------------------------------------
+client_1                    | Relive: 68357
+client_1                    | 拯救大魔王2 Rescue the Great Demon 2: 49555
+client_1                    | Out of the Park Baseball 20: 34798
+client_1                    | 时之回廊/Corridor of time: 33343
+client_1                    | Clicker Heroes 2: 31708
+client_1                    | Time of Dragons: 27080
+client_1                    | Project AURA: 26827
+client_1                    | Midas Gold Plus: 19196
+client_1                    | Beasts of Bermuda: 17147
+client_1                    | Rust: 16623
+client_1                    | ----------------------------------------------------------
+client_1                    | Query3 Resultados:
+client_1                    | ----------------------------------------------------------
+client_1                    | Terraria: 793
+client_1                    | Rust: 581
+client_1                    | Rocket League: 486
+client_1                    | Undertale: 483
+client_1                    | Starbound: 360
+client_1                    | ----------------------------------------------------------
+client_1                    | Query4 Resultados:
+client_1                    | ----------------------------------------------------------
+client_1                    | Counter-Strike
+client_1                    | ----------------------------------------------------------
+client_1                    | Query5 Resultados:
+client_1                    | --------------------------------------------------
+client_1                    | --------
+client_1                    | 10,Counter-Strike
+client_1                    | 300,Day of Defeat: Source
+client_1                    | 440,Team Fortress 2
+client_1                    | 550,Left 4 Dead 2
+client_1                    | 570,Dota 2
+client_1                    | 620,Portal 2
+client_1                    | 1250,Killing Floor
+client_1                    | 2400,The Ship
+client_1                    | 2870,X Rebirth
+client_1                    | 7510,X-Blades
+client_1                    | ----------------------------------------------------------
+client_1                    | 
+result_responser            | CRITICAL:root:action: accept_connections | result: success | ip: 172.25.125.84
+client_2                    | Query1 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | Total Linux: 12307
+client_2                    | Total Mac: 17703
+client_2                    | Total Windows: 92534
+client_2                    | ----------------------------------------------------------
+client_2                    | Query2 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | Relive: 68357
+client_2                    | 拯救大魔王2 Rescue the Great Demon 2: 49555
+client_2                    | Out of the Park Baseball 20: 34798
+client_2                    | 时之回廊/Corridor of time: 33343
+client_2                    | Clicker Heroes 2: 31708
+client_2                    | Time of Dragons: 27080
+client_2                    | Project AURA: 26827
+client_2                    | Midas Gold Plus: 19196
+client_2                    | Beasts of Bermuda: 17147
+client_2                    | Rust: 16623
+client_2                    | ----------------------------------------------------------
+client_2                    | Query3 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | Terraria: 84
+client_2                    | Rust: 57
+client_2                    | Undertale: 51
+client_2                    | Rocket League: 47
+client_2                    | Starbound: 37
+client_2                    | ----------------------------------------------------------
+client_2                    | Query4 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | ----------------------------------------------------------
+client_2                    | Query5 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | 570,Dota 2
+client_2                    | 
+client_2                    | 2870,X Rebirth
+client_2                    | 10180,Call of Duty: Modern Warfare 2
+client_2                    | 12210,Grand Theft Auto IV: The Complete Edition
+client_2                    | 17300,
+client_2                    | 20900,The Witcher: Enhanced Edition
+client_2                    | 104900,ORION: Prelude
+client_2                    | 105600,Terraria
+client_2                    | 107410,Arma 3
+client_2                    | 113400,APB Reloaded
+client_2                    | ----------------------------------------------------------
+client_2                    | 
+^Ccanceled
+make: *** [Makefile:136: docker-compose-logs] Error 130
+
+=========================================
+
+ success | ip: 172.25.125.83
+client_1                    | Query1 Resultados:
+client_1                    | ----------------------------------------------------------
+client_1                    | Total Linux: 12307
+client_1                    | Total Mac: 17703
+client_1                    | Total Windows: 92534
+client_1                    | ----------------------------------------------------------
+client_1                    | Query2 Resultados:
+client_1                    | ----------------------------------------------------------
+client_1                    | Relive: 68357
+client_1                    | 拯救大魔王2 Rescue the Great Demon 2: 49555
+client_1                    | Out of the Park Baseball 20: 34798
+client_1                    | 时之回廊/Corridor of time: 33343
+client_1                    | Clicker Heroes 2: 31708
+client_1                    | Time of Dragons: 27080
+client_1                    | Project AURA: 26827
+client_1                    | Midas Gold Plus: 19196
+client_1                    | Beasts of Bermuda: 17147
+client_1                    | Rust: 16623
+client_1                    | ----------------------------------------------------------
+client_1                    | Query3 Resultados:
+client_1                    | ----------------------------------------------------------
+client_1                    | Terraria: 796
+client_1                    | Rust: 580
+client_1                    | Rocket League: 487
+client_1                    | Undertale: 483
+client_1                    | Starbound: 361
+client_1                    | ----------------------------------------------------------
+client_1                    | Query4 Resultados:
+client_1                    | ----------------------------------------------------------
+client_1                    | Counter-Strike
+client_1                    | ----------------------------------------------------------
+client_1                    | Query5 Resultados:
+client_1                    | --------------------------------------------------
+client_1                    | --------
+client_1                    | 10,Counter-Strike
+client_1                    | 300,Day of Defeat: Source
+client_1                    | 440,Team Fortress 2
+client_1                    | 550,Left 4 Dead 2
+client_1                    | 570,Dota 2
+client_1                    | 620,Portal 2
+client_1                    | 1250,Killing Floor
+client_1                    | 2400,The Ship
+client_1                    | 2870,X Rebirth
+client_1                    | 7510,X-Blades
+client_1                    | ----------------------------------------------------------
+client_1                    | 
+result_responser            | CRITICAL:root:action: accept_connections | result: success | ip: 172.25.125.84
+client_2                    | Query1 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | Total Linux: 12307
+client_2                    | Total Mac: 17703
+client_2                    | Total Windows: 92534
+client_2                    | ----------------------------------------------------------
+client_2                    | Query2 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | Relive: 68357
+client_2                    | 拯救大魔王2 Rescue the Great Demon 2: 49555
+client_2                    | Out of the Park Baseball 20: 34798
+client_2                    | 时之回廊/Corridor of time: 33343
+client_2                    | Clicker Heroes 2: 31708
+client_2                    | Time of Dragons: 27080
+client_2                    | Project AURA: 26827
+client_2                    | Midas Gold Plus: 19196
+client_2                    | Beasts of Bermuda: 17147
+client_2                    | Rust: 16623
+client_2                    | ----------------------------------------------------------
+client_2                    | Query3 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | Terraria: 84
+client_2                    | Rust: 57
+client_2                    | Undertale: 51
+client_2                    | Rocket League: 47
+client_2                    | Starbound: 37
+client_2                    | ----------------------------------------------------------
+client_2                    | Query4 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | ----------------------------------------------------------
+client_2                    | Query5 Resultados:
+client_2                    | ----------------------------------------------------------
+client_2                    | 570,Dota 2
+client_2                    | 
+client_2                    | 2870,X Rebirth
+client_2                    | 10180,Call of Duty: Modern Warfare 2
+client_2                    | 12210,Grand Theft Auto IV: The Complete Edition
+client_2                    | 17300,
+client_2                    | 20900,The Witcher: Enhanced Edition
+client_2                    | 104900,ORION: Prelude
+client_2                    | 105600,Terraria
+client_2                    | 107410,Arma 3
+client_2                    | 113400,APB Reloaded
+client_2                    | ----------------------------------------------------------
+client_2                    | 

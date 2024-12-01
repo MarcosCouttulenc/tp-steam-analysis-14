@@ -9,6 +9,7 @@ from common.message import MessageGameInfo
 from common.message import MessageQueryGameDatabase
 from common.message import MessageReviewInfo
 from common.message import *
+from common.sharding import Sharding
 
 from common.review_worker import  ReviewWorker
 
@@ -45,22 +46,14 @@ class WorkerReviewValidator(ReviewWorker):
         for queue_name_destiny in self.queues_destiny.keys():
             self.service_queues.push(queue_name_destiny, message_to_push)
         '''
-        
+
         for queue_name_next, cant_queue_next in self.queues_destiny.items():
-            if cant_queue_next == 1:
-                queue_name_destiny = f"{queue_name_next}-1"
-                self.service_queues_filter.push(queue_name_destiny, message_to_push)
-                continue
-            else:
-                queue_next_id = (round(int(messageRI.review.game_id) / 10) % int(cant_queue_next)) + 1
-                print(f"El id de la cola que voy a pushear es {queue_next_id} ya que es el resultado de {messageRI.review.game_id} % {cant_queue_next} + 1")
-                if queue_next_id == 1:
-                    queue_next_id += 1
-                    
-                print(f"El id de la cola que voy a pushear es {queue_next_id}")
-                queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
-                print(f"La cola que voy a pushear es {queue_name_destiny}")
-                self.service_queues_filter.push(queue_name_destiny, message_to_push)
+            queue_next_id = Sharding.calculate_shard(messageRI.review.game_id, cant_queue_next)
+                
+            print(f"El id de la cola que voy a pushear es {queue_next_id}")
+            queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
+            print(f"La cola que voy a pushear es {queue_name_destiny}")
+            self.service_queues.push(queue_name_destiny, message_to_push)
             
 
     def get_game_from_db(self, client_id, game_id) -> Game:
