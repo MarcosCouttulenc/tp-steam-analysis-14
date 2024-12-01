@@ -22,6 +22,7 @@ class WorkerMain():
         cant_slaves = config_params["cant_slaves"]
         port_healthchecker = config_params["port_healthchecker"]
         ip_healthchecker = config_params["ip_healthchecker"]
+        id = config_params["id"]
 
         self.initialize_log(logging_level)
     
@@ -30,7 +31,7 @@ class WorkerMain():
         print(f"action: {self.ClassToInitialize.__name__} - start")
         worker = self.ClassToInitialize(
             queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, 
-            is_master, ip_master, port_master, ip_healthchecker, port_healthchecker
+            is_master, ip_master, port_master, ip_healthchecker, port_healthchecker, id
         )
         worker.start()
 
@@ -53,6 +54,7 @@ class WorkerMain():
             config_params["cant_slaves"] = os.getenv('CANT_SLAVES')
             config_params["port_healthchecker"] = os.getenv('PORT_HEALTHCHECKER')
             config_params["ip_healthchecker"] = os.getenv('IP_HEALTHCHECKER')
+            config_params["id"] = os.getenv('ID')
             
         except KeyError as e:
             raise KeyError("Key was not found. Error: {} .Aborting server".format(e))

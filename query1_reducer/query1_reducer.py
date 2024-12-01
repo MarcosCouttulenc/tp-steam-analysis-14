@@ -8,7 +8,7 @@ from common.message import MessageQueryOneFileUpdate
 from common.reducer_worker import ReducerWorker
 from middleware.queue import ServiceQueues
 
-BUFFER_MAX_SIZE = 50
+BUFFER_MAX_SIZE = 0
 CANT_EOFS_TIL_CLOSE = 3
 CHANNEL_NAME =  "rabbitmq"
 

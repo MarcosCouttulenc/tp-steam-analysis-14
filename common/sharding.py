@@ -1,14 +1,7 @@
-from common.message import Message
+from random import randint, seed
+class Sharding:
 
-
-class Sharding():
-    def __init__(self, cant_prox_nodes):
-        self.cant_prox_nodes = cant_prox_nodes
-
-    def calculate_shard(self, message: Message):
-        return self.hash_function(message.message_id) % self.cant_prox_nodes
-
-    def hash_function(self, message_id):
-        return message_id
-    
-    
+    @classmethod
+    def calculate_shard(cls, id, cant_prox_nodes):
+        seed(int(id))
+        return randint(1, cant_prox_nodes)
