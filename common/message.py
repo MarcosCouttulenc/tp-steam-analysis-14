@@ -70,16 +70,24 @@ class Message:
         return self.message_id
     
     def get_filterid_from_message_id(self) -> str:
-        vec = self.message_id.split("_")
+        vec = self.message_id.split('_')
+
+        #print("[FilterID] vec despues de splitear: ", end='')
+        #print(vec)
+
         if (len(vec) == 0):
             return None
-        vec[0]
+        return vec[0]
     
     def get_seqnum_from_message_id(self) -> str:
-        vec = self.message_id.split("_")
+        vec = self.message_id.split('_')
+
+        #print("[FilterID] vec despues de splitear: ", end='')
+        #print(vec)
+        
         if (len(vec) == 1):
             return None
-        vec[1]
+        return vec[1]
 
     def is_game(self) -> bool:
         return (self.message_type == MESSAGE_TYPE_GAME_DATA)

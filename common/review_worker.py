@@ -36,6 +36,7 @@ class ReviewWorker:
         self.port_healthchecker = int(port_healthchecker)
         
         self.id = id
+        self.path_status_info = path_status_info
     
     def init_queues_destiny(self, queues_name_destiny, cant_next):
         queues_name_destiny_list = queues_name_destiny.split(',')

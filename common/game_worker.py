@@ -43,7 +43,9 @@ class GameWorker:
         self.id = id
         self.actual_seq_number = 0
         self.last_seq_number_by_filter = {}
-        self.path_status_info = self.init_file_state()
+        self.path_status_info = f"{path_status_info}/state{str(self.id)}.txt"
+        
+        self.init_worker_state()
     
 
     def init_queues_destiny(self, queues_name_destiny, cant_next):
@@ -53,13 +55,21 @@ class GameWorker:
         for i in range(len(queues_name_destiny_list)):
             rta[queues_name_destiny_list[i]] = int(cant_next_list[i])
         return rta
-    
-    def init_file_state(self):
-        file_path = f"{self.path_status_info}/state{str(self.id)}.txt"
-        if not os.path.exists(file_path):
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            
-        return file_path
+
+
+    def init_worker_state(self):
+        if not os.path.exists(self.path_status_info):
+            os.makedirs(os.path.dirname(self.path_status_info), exist_ok=True)
+        else:
+            with open(self.path_status_info, 'r') as file:
+                line = file.readline().strip()
+
+                # La linea tiene esta forma -> seq_number_actual|F1,M1|F2,M3|F3,M6..
+                data = line.split("|")
+                self.actual_seq_number = int(data[0])
+                for filter_data in data[1:]:
+                    filter_info = filter_data.split(",")
+                    self.last_seq_number_by_filter[filter_info[0]] = filter_info[1]
 
 
     def start(self):
@@ -214,9 +224,13 @@ class GameWorker:
             self.service_queues_filter.pop(queue_name_origin_id, self.process_message)
     
     def process_message(self, ch, method, properties, message: Message):
+        #print(f"Me llega mensaje con id: {message.get_message_id()} \n")
+        #print(f"Dict: {self.last_seq_number_by_filter} \n")
 
         # Chequeamos si el mensaje ya fue procesado.
         if self.message_was_processed(message):
+            print(f"El mensaje {message.get_message_id()} ya fue procesado\n")
+            print(f"Dict: {self.last_seq_number_by_filter} \n")
             self.service_queues_filter.ack(ch, method)
             return
         
@@ -227,11 +241,16 @@ class GameWorker:
         
         msg_game_info = MessageGameInfo.from_message(message)
 
+        # Lo reenviamos a la proxima instancia si es un mensaje valido
         if self.validate_game(msg_game_info.game):
-            
             self.forward_message(message)
 
-            self.last_seq_number_by_filter[msg_game_info.get_filter_id()] = msg_game_info.get_seq_num()
+        # Actualizamos el diccionario
+        
+        self.last_seq_number_by_filter[msg_game_info.get_filterid_from_message_id()] = msg_game_info.get_seqnum_from_message_id()
+
+        # Bajamos la informacion a disco
+        self.save_state_in_disk()
             
         self.service_queues_filter.ack(ch, method)
     
@@ -247,6 +266,8 @@ class GameWorker:
 
         msg_game_info = MessageGameInfo.from_message(message)
 
+        message_to_send.set_message_id(self.get_new_message_id())
+
         for queue_name_next, cant_queue_next in self.queues_destiny.items():
             queue_next_id = Sharding.calculate_shard(msg_game_info.game.id, cant_queue_next)
             queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
@@ -259,18 +280,39 @@ class GameWorker:
         self.actual_seq_number += 1
         return f"F{str(self.id)}_M{str(self.actual_seq_number)}"
 
-    def message_was_processed(self, message):
+    def message_was_processed(self, message : Message):
+        if self.last_seq_number_by_filter == None:
+            return False
+
+        if len(self.last_seq_number_by_filter.items()) == 0:
+            return False
 
         filter = message.get_filterid_from_message_id()
         seq_num = message.get_seqnum_from_message_id()
+
+        #print((filter,seq_num))
+        #print(self.last_seq_number_by_filter.items())
         
+        #print(f"El diccionario es {self.last_seq_number_by_filter}")
+
         return (filter,seq_num) in self.last_seq_number_by_filter.items()
 
 
     def save_state_in_disk(self):
-        return "a"
-    
-    def get_state_from_disk(self):
-        return "a"
+        last_seq_number_by_filter_data = "|".join(f"{key},{value}" for key, value in self.last_seq_number_by_filter.items())
+        data = f"{str(self.actual_seq_number)}|{last_seq_number_by_filter_data}"
+        temp_path = self.path_status_info + '.tmp'
+        
+        with open(temp_path, 'w') as temp_file:
+            temp_file.write(data)
+            temp_file.flush() # Forzar escritura al sistema operativo
+            os.fsync(temp_file.fileno()) # Asegurar que se escriba físicamente en disco
 
-    
+        os.replace(temp_path, self.path_status_info)
+        
+        # with open(self.path_status_info, 'r+') as file:
+        #     line = file.readline().strip()
+        #     # La linea tiene esta forma -> seq_number_actual|F1,M1|F2,M3|F3,M6..
+        #     line.replace(f"{filter},{self.actual_seq_number}", f"{filter},{seq_num}")
+        #     file.seek(0)
+        #     file.write(line)

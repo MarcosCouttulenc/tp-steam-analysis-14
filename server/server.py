@@ -33,6 +33,9 @@ class Server:
         self.ip_healthchecker = ip_healthchecker
         self.port_healthchecker = int(port_healthchecker)
 
+        self.actual_seq_number = multiprocessing.Value('i', 0)
+        self.lock = multiprocessing.Lock()
+
     def initialize_signals(self):
         signal.signal(signal.SIGTERM, self.stop)
 
@@ -122,6 +125,14 @@ class Server:
             service_queue.push(queue_name_destiny, msg_end_of_dataset)
 
     def forward_message(self, message, queue_name_next, cant_queue_next, service_queue, game_id):
+        message.set_message_id(self.get_new_message_id())
         queue_next_id = Sharding.calculate_shard(game_id, cant_queue_next)
         queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
+        if message.get_message_id() == "S1_M4":
+            print(f"Forwarding message to {queue_name_destiny}, y el mensaje es {message}/n")
         service_queue.push(queue_name_destiny, message)
+
+    def get_new_message_id(self):
+        with self.lock:
+            self.actual_seq_number.value += 1
+            return f"S1_M{str(self.actual_seq_number.value)}"

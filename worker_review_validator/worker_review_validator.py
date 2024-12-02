@@ -17,10 +17,10 @@ CHANNEL_NAME =  "rabbitmq"
 
 class WorkerReviewValidator(ReviewWorker):
     def __init__(self, queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
-                 port_master, db_games_ip, db_games_port, ip_healthchecker, port_healthchecker, id):
+                 port_master, db_games_ip, db_games_port, ip_healthchecker, port_healthchecker, id, path_status_info):
         
         super().__init__(queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
-                         port_master, ip_healthchecker, port_healthchecker, id)
+                         port_master, ip_healthchecker, port_healthchecker, id, path_status_info)
         self.db_games_ip = db_games_ip
         self.db_games_port = db_games_port
         self.service_queues = ServiceQueues(CHANNEL_NAME)
