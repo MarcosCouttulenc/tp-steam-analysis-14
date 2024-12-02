@@ -5,6 +5,7 @@ import socket
 import time
 import threading
 import os
+import signal
 
 from common.sharding import Sharding
 from middleware.queue import ServiceQueues
@@ -44,6 +45,8 @@ class GameWorker:
         self.actual_seq_number = 0
         self.last_seq_number_by_filter = {}
         self.path_status_info = f"{path_status_info}/state{str(self.id)}.txt"
+
+        self.cant_mensajes_procesados = 0
         
         self.init_worker_state()
     
@@ -70,6 +73,10 @@ class GameWorker:
                 for filter_data in data[1:]:
                     filter_info = filter_data.split(",")
                     self.last_seq_number_by_filter[filter_info[0]] = filter_info[1]
+
+        print("Me levanto")
+        print(f"Seq Number {self.actual_seq_number} \n")
+        print(f"Dict: {self.last_seq_number_by_filter} \n")
 
 
     def start(self):
@@ -127,7 +134,7 @@ class GameWorker:
     ## Proceso de conexion con health checker
     ## --------------------------------------------------------------------------------      
     def process_connect_health_checker(self):
-        time.sleep(10)
+        time.sleep(5)
         
         while self.running:
             skt_next_healthchecker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -246,12 +253,25 @@ class GameWorker:
             self.forward_message(message)
 
         # Actualizamos el diccionario
-        
         self.last_seq_number_by_filter[msg_game_info.get_filterid_from_message_id()] = msg_game_info.get_seqnum_from_message_id()
 
         # Bajamos la informacion a disco
         self.save_state_in_disk()
-            
+
+
+        # print(f"Voy procesando {self.cant_mensajes_procesados}")
+        if (self.cant_mensajes_procesados == 1000 and int(self.id) == 1):
+            print("Me caigo")
+            print(f"Seq Number {self.actual_seq_number} \n")
+            print(f"Dict: {self.last_seq_number_by_filter} \n")
+            os.kill(os.getpid(), signal.SIGKILL)
+            os.kill(os.getpid(), signal.SIGTERM)
+            self.running = False
+            os._exit(1)
+            return
+        self.cant_mensajes_procesados += 1
+
+
         self.service_queues_filter.ack(ch, method)
     
     def handle_eof(self, message, ch, method):

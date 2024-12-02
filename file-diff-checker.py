@@ -24,7 +24,7 @@ class FileDiffChecker:
 init(autoreset=True)
 
 validated_results = "resultados/resultados-buenos.txt"
-results_to_validate = "resultados/resultados-1.txt"
+results_to_validate = "resultados/resultados-0.txt"
 
 def main():
     file_diff_checker = FileDiffChecker(validated_results, results_to_validate)

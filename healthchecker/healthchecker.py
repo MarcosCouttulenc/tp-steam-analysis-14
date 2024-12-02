@@ -140,13 +140,21 @@ class HealthChecker:
         with open(self.file_name_connected_containers, "w") as file:
             file.write(container_name)
 
+        
+        if (container_name == "worker_windows_1"):
+            print("Empezando a monitorear worker_windows_1")
+
         while True:
             try:
-                if (not healthchecker_protocol.health_check_ask()):
+                if (not healthchecker_protocol.health_check_ask(container_name)):
+                    print(f"Error en nodo {container_name}")
+                    print(f"Reiniciando nodo {container_name}")
                     self.restart_node(container_name)
                     break
 
-                if (not healthchecker_protocol.wait_for_node_ack()):
+                if (not healthchecker_protocol.wait_for_node_ack(container_name)):
+                    print(f"Error en nodo {container_name}")
+                    print(f"Reiniciando nodo {container_name}")
                     self.restart_node(container_name)
                     break
 

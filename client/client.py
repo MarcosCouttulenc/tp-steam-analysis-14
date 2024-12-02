@@ -59,6 +59,7 @@ class Client:
         batch_list = []
         numero_mensaje_enivado = 0
         total_sent_games = 0
+        time.sleep(3)
 
         try: 
             with open(self.games_file_path, 'r') as file:
