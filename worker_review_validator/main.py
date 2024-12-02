@@ -26,6 +26,7 @@ def initialize_config():
         config_params["port_healthchecker"] = os.getenv('PORT_HEALTHCHECKER')
         config_params["ip_healthchecker"] = os.getenv('IP_HEALTHCHECKER')
         config_params["id"] = os.getenv('ID')
+        config_params["path_status_info"] = os.getenv('PATH_STATUS_INFO', config["DEFAULT"]["PATH_STATUS_INFO"])
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -50,6 +51,7 @@ def main():
     port_healthchecker = config_params["port_healthchecker"]
     ip_healthchecker = config_params["ip_healthchecker"]
     id = config_params["id"]
+    path_status_info = config_params["path_status_info"]
 
     initialize_log(logging_level)
     
@@ -58,7 +60,7 @@ def main():
 
     worker_review_validator = WorkerReviewValidator(
         queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
-        port_master, db_games_ip, int(db_games_port), ip_healthchecker, int(port_healthchecker), id)
+        port_master, db_games_ip, int(db_games_port), ip_healthchecker, int(port_healthchecker), id, path_status_info)
     worker_review_validator.start()
 
 def initialize_log(logging_level):

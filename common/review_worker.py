@@ -19,7 +19,7 @@ LISTEN_BACKLOG = 100
 
 class ReviewWorker:
     def __init__(self, queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, 
-                 is_master, ip_master, port_master, ip_healthchecker, port_healthchecker, id):
+                 is_master, ip_master, port_master, ip_healthchecker, port_healthchecker, id, path_status_info):
         self.queue_name_origin = queue_name_origin
         self.running = True
         self.service_queue_filter = ServiceQueues(CHANNEL_NAME)

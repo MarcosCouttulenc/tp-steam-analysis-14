@@ -4,6 +4,7 @@ import errno
 import socket
 import time
 import threading
+import os
 
 from common.sharding import Sharding
 from middleware.queue import ServiceQueues
@@ -21,7 +22,7 @@ PATH_FILE_STATE = "worker-state.txt"
 
 class GameWorker:
     def __init__(self, queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, 
-            is_master, ip_master, port_master, ip_healthchecker, port_healthchecker, id):
+            is_master, ip_master, port_master, ip_healthchecker, port_healthchecker, id, path_status_info):
         
         self.running = True
         self.cant_slaves = int(cant_slaves)-1
@@ -42,6 +43,7 @@ class GameWorker:
         self.id = id
         self.actual_seq_number = 0
         self.last_seq_number_by_filter = {}
+        self.path_status_info = self.init_file_state()
     
 
     def init_queues_destiny(self, queues_name_destiny, cant_next):
@@ -51,6 +53,13 @@ class GameWorker:
         for i in range(len(queues_name_destiny_list)):
             rta[queues_name_destiny_list[i]] = int(cant_next_list[i])
         return rta
+    
+    def init_file_state(self):
+        file_path = f"{self.path_status_info}/state{str(self.id)}.txt"
+        if not os.path.exists(file_path):
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            
+        return file_path
 
 
     def start(self):
