@@ -30,7 +30,9 @@ class WorkerReviewValidator(ReviewWorker):
     
     def forward_message(self, message):
         messageRI = MessageReviewInfo.from_message(message)
+        print("Envio consulta a la bdd")
         game = self.get_game_from_db(message.get_client_id(), messageRI.review.game_id)
+        print(f"Me devolvio la bdd: {game.name}")
 
         if game.id == "-1":
             print(f"No encontre el juego")

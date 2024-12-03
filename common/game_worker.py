@@ -5,21 +5,25 @@ import socket
 import time
 import threading
 import os
-import signal
+import multiprocessing
 
 from common.sharding import Sharding
 from middleware.queue import ServiceQueues
 from common.message import MessageGameInfo
 from common.message import MessageEndOfDataset
+from common.message import MessageInvalidClient, MESSAGE_MASTER_INVALID_CLIENT
 from common.message import Message, string_to_boolean
 from common.protocol import Protocol
 from common.protocol_healthchecker import ProtocolHealthChecker, get_container_name
+from common.message import Message
 
 
 CHANNEL_NAME =  "rabbitmq"
 LISTEN_BACKLOG = 100
 
 PATH_FILE_STATE = "worker-state.txt"
+
+AVAILABLE_CLIENT_ID = -1
 
 class GameWorker:
     def __init__(self, queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, 
@@ -40,6 +44,8 @@ class GameWorker:
 
         self.ip_healthchecker = ip_healthchecker
         self.port_healthchecker = int(port_healthchecker)
+        self.current_client_id_processing = multiprocessing.Value('i', AVAILABLE_CLIENT_ID)
+        self.current_client_id_processing_lock = multiprocessing.Lock()
 
         self.id = id
         self.actual_seq_number = 0
@@ -156,15 +162,37 @@ class GameWorker:
     ## --------------------------------------------------------------------------------      
     def process_control_master_eof_handler(self, socket_master_slave, socket_master_slave_addr, barrier):
         protocol = Protocol(socket_master_slave)
-        
+
         try:
             while self.running:
                 msg = protocol.receive()
+                
 
                 if (msg == None):
+                    print(f"[MASTER] None recibido desde {str(socket_master_slave_addr)}")
                     break
+                
+                with self.current_client_id_processing_lock:
 
+                    # si no se estaba procesando el eof de ningun cliente, se comienza a procesar el de ese cliente y se setea la variable
+                    if int(self.current_client_id_processing.value) == AVAILABLE_CLIENT_ID:
+                        print(f"[MASTER] empezamos a recibir del cliente: {msg.get_client_id()}")
+                        self.current_client_id_processing.value = int(msg.get_client_id())
+
+                    #si el eof no es del cliente que estamos procesando ahora, lo devolvemos
+                    if int(msg.get_client_id()) != int(self.current_client_id_processing.value):
+                        print(f"[MASTER] recibi eof de cliente que no corresponde: {msg.get_client_id()}")
+                        msg_invalid_client = MessageInvalidClient(msg.get_client_id())
+                        protocol.send(msg_invalid_client)
+                        continue
+                
+                print(f"[MASTER] eof recibido: {msg} desde {str(socket_master_slave_addr)} clientId actual: {str(self.current_client_id_processing.value)}")
                 barrier.wait()
+
+                # de nuevo no se esta procesando el eof de ningun cliente, se resetea la variable
+                with self.current_client_id_processing_lock:
+                    self.current_client_id_processing.value = AVAILABLE_CLIENT_ID
+
                 protocol.send(msg)
         except OSError as e:
             if e.errno == errno.EBADF:  # Bad file descriptor, server socket closed
@@ -183,7 +211,12 @@ class GameWorker:
         self.socket_slave.connect((self.ip_master, self.port_master))
 
         while self.running:
-            self.service_queues_eof.pop_non_blocking(self.queue_name_origin_eof, self.process_message_slave_eof)
+            try:
+                self.service_queues_eof.pop_non_blocking(self.queue_name_origin_eof, self.process_message_slave_eof)
+            except:
+                #print("Cerrando worker")
+                raise
+
 
     def process_message_slave_eof(self, ch, method, properties, message: Message):
         if message == None:
@@ -197,8 +230,15 @@ class GameWorker:
         self.service_queues_eof.ack(ch, method)
 
         # Nos quedamos esperando que el master nos notifique que se termino de procesar.
-        _ = protocol.receive()
+        msg_master = protocol.receive()
 
+        # Si el master nos indica que el cliente que esta procesando el EOF es otro, devolvemos el mensaje.
+        if (msg_master.message_type == MESSAGE_MASTER_INVALID_CLIENT):
+            print(f"[SLAVE] devolvemos el mensaje: {message}")
+            self.service_queues_eof.push(self.queue_name_origin_eof, message)
+            return
+
+        # Sino, reenviamos el EOF si corresponde.
         msg_eof = MessageEndOfDataset.from_message(message)
         
         if (msg_eof.is_last_eof()):
@@ -259,20 +299,45 @@ class GameWorker:
         self.save_state_in_disk()
 
 
-        # print(f"Voy procesando {self.cant_mensajes_procesados}")
+        #print(f"Voy procesando {self.cant_mensajes_procesados}")
         if (self.cant_mensajes_procesados == 1000 and int(self.id) == 1):
             print("Me caigo")
             print(f"Seq Number {self.actual_seq_number} \n")
             print(f"Dict: {self.last_seq_number_by_filter} \n")
-            os.kill(os.getpid(), signal.SIGKILL)
-            os.kill(os.getpid(), signal.SIGTERM)
+            # os.kill(os.getpid(), signal.SIGKILL)
+            # os.kill(os.getpid(), signal.SIGTERM)
             self.running = False
+            
+            # return
+            print("Simulando caída del contenedor...")
+            #sys.stdout.flush()  # Asegúrate de vaciar el buffer
+            self.service_queues_eof.close_connection()
+            self.service_queues_filter.close_connection()
+
+            print("cerre las colas de rabbit")
+
             os._exit(1)
-            return
+
+            #simulate_failure()
+            print("No debería llegar acá porque estoy muerto")
         self.cant_mensajes_procesados += 1
 
 
         self.service_queues_filter.ack(ch, method)
+
+    # def simulate_failure(self):
+    #     print("Simulando caída del contenedor...")
+    #     self.running = False
+    #     time.sleep(1)  # Espera para liberar recursos
+
+    #     # Detener el contenedor actual usando Docker CLI
+    #     subprocess.run(["docker", "stop", self.container_name], check=True)
+        
+    #     # Si necesitas matarlo de inmediato
+    #     # subprocess.run(["docker", "kill", self.container_name], check=True)
+
+    #     # Este print no debería ejecutarse
+    #     print("No debería llegar acá porque estoy muerto")
     
     def handle_eof(self, message, ch, method):
         self.service_queues_filter.push(self.queue_name_origin_eof, message)

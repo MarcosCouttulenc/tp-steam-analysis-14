@@ -34,7 +34,7 @@ class Server:
         self.port_healthchecker = int(port_healthchecker)
 
         self.actual_seq_number = multiprocessing.Value('i', 0)
-        self.lock = multiprocessing.Lock()
+        self.lock_msg_id = multiprocessing.Lock()
 
     def initialize_signals(self):
         signal.signal(signal.SIGTERM, self.stop)
@@ -65,26 +65,29 @@ class Server:
             client_sock = self.__accept_new_connection()
 
             if client_sock:
-                new_service_queue = ServiceQueues(CHANNEL_NAME)
                 client_process = multiprocessing.Process(
                     target = self.handle_client, 
-                    args = (client_sock, client_id, new_service_queue)
+                    args = (client_sock, client_id)
                 ) 
                 client_process.start()
                 self._server_connected_clients.append(client_process)
 
             client_id += 1
 
-    def handle_client(self, client_sock, client_id, service_queue):
+    def handle_client(self, client_sock, client_id):
 
         protocol = Protocol(client_sock)
 
         msg_welcome_client = MessageWelcomeClient(client_id, self.listen_result_query_port)
         protocol.send(msg_welcome_client)
 
-        self.process_client_messages(protocol, service_queue)
+        self.process_client_messages(protocol)
 
-    def process_client_messages(self, protocol, service_queue):
+    def process_client_messages(self, protocol):
+
+        service_queue_games = ServiceQueues(CHANNEL_NAME)
+        service_queue_review = ServiceQueues(CHANNEL_NAME)
+
         end_of_data = False
         numero_menasje_recibido = 0
 
@@ -102,17 +105,17 @@ class Server:
                  
                 if message.is_game():
                     msg_game_info = MessageGameInfo.from_message(message)
-                    self.forward_message(message, QUEUE_GAMES, self.cant_game_validators, service_queue, msg_game_info.game.id)
+                    self.forward_message(message, QUEUE_GAMES, self.cant_game_validators, service_queue_games, msg_game_info.game.id)
                 elif message.is_review():
                     msg_review_info = MessageReviewInfo.from_message(message)
-                    self.forward_message(message, QUEUE_REVIEWS, self.cant_review_validators, service_queue, msg_review_info.review.game_id)
+                    self.forward_message(message, QUEUE_REVIEWS, self.cant_review_validators, service_queue_review, msg_review_info.review.game_id)
                 elif message.is_eof():
                     msg_end_of_dataset = MessageEndOfDataset.from_message(message)
 
                     if msg_end_of_dataset.type == "Game":
-                        self.send_eofs_to_queue(msg_end_of_dataset, QUEUE_GAMES, self.cant_game_validators, service_queue)
+                        self.send_eofs_to_queue(msg_end_of_dataset, QUEUE_GAMES, self.cant_game_validators, service_queue_games)
                     else:
-                        self.send_eofs_to_queue(msg_end_of_dataset, QUEUE_REVIEWS, self.cant_review_validators, service_queue)
+                        self.send_eofs_to_queue(msg_end_of_dataset, QUEUE_REVIEWS, self.cant_review_validators, service_queue_review)
                         end_of_data = True
     
     def send_eofs_to_queue(self, msg_end_of_dataset, destiny_queue, cant_workers, service_queue):
@@ -133,6 +136,6 @@ class Server:
         service_queue.push(queue_name_destiny, message)
 
     def get_new_message_id(self):
-        with self.lock:
+        with self.lock_msg_id:
             self.actual_seq_number.value += 1
             return f"S1_M{str(self.actual_seq_number.value)}"

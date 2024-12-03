@@ -141,8 +141,10 @@ class HealthChecker:
             file.write(container_name)
 
         
-        if (container_name == "worker_windows_1"):
-            print("Empezando a monitorear worker_windows_1")
+        #if (container_name == "worker_windows_1"):
+        #    print("Empezando a monitorear worker_windows_1")
+        
+        print(f"empezando a monitorear: {container_name}")
 
         while True:
             try:

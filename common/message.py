@@ -27,6 +27,8 @@ MESSAGE_HEALTH_CHECK_ASK = 'health-check-ask'
 MESSAGE_HEALTH_CHECK_ACK = 'health-check-ack'
 MESSAGE_CONTAINER_NAME = 'container-name'
 
+MESSAGE_MASTER_INVALID_CLIENT = 'invalid-client'
+
 FALSE_STRING = "False"
 TRUE_STRING = "True"
 
@@ -562,3 +564,16 @@ class MessageResultContent(Message):
 
         data = message.message_payload.split(DATA_DELIMITER)
         return cls(message.client_id, str(data[0]))
+    
+
+class MessageInvalidClient(Message):
+    def __init__(self, client_id):
+        message_payload = "master-invalid-client"
+        super().__init__(USELESS_ID, client_id, MESSAGE_MASTER_INVALID_CLIENT, message_payload)
+    
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageInvalidClient':
+        if message.message_type != MESSAGE_MASTER_INVALID_CLIENT:
+            return None
+        
+        return cls(message.client_id)

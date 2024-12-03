@@ -35,6 +35,8 @@ class Client:
         self.get_welcome_message()
 
         self.send_games()
+
+        time.sleep(20)
         
         self.send_reviews()
 

@@ -4,6 +4,7 @@ import errno
 import socket
 import time
 import threading
+import os
 
 from common.sharding import Sharding
 from middleware.queue import ServiceQueues
@@ -34,6 +35,9 @@ class ReviewWorker:
 
         self.ip_healthchecker = ip_healthchecker
         self.port_healthchecker = int(port_healthchecker)
+
+        # self.actual_seq_number = 0
+        # self.last_seq_number_by_filter = {}
         
         self.id = id
         self.path_status_info = path_status_info
@@ -201,6 +205,11 @@ class ReviewWorker:
             self.service_queue_filter.pop(queue_name_origin_id, self.process_message)
 
     def process_message(self, ch, method, properties, message: Message):
+        
+        # if self.message_was_prococessed(message):
+        #     self.service_queue_filter.ack(ch, method)
+        #     return
+        
         if message.is_eof():
             self.handle_eof(message, ch, method)
             return
@@ -210,7 +219,19 @@ class ReviewWorker:
         if self.validate_review(msg_review_info.review):
             self.forward_message(message)
 
+
+        # Actualizamos el diccionario
+        #self.last_seq_number_by_filter[msg_review_info.get_filterid_from_message_id()] = msg_game_info.get_seqnum_from_message_id()
+
+        
+        # Bajamos la informacion a disco
+        #self.save_state_in_disk()
+
         self.service_queue_filter.ack(ch, method)
+
+
+
+
     
     def handle_eof(self, message, ch, method):
         self.service_queue_filter.push(self.queue_name_origin_eof, message)
@@ -231,3 +252,23 @@ class ReviewWorker:
     def get_message_to_send(self, message):
         return message
 
+
+    def save_state_in_disk(self):
+        last_seq_number_by_filter_data = "|".join(f"{key},{value}" for key, value in self.last_seq_number_by_filter.items())
+        data = f"{str(self.actual_seq_number)}|{last_seq_number_by_filter_data}"
+        temp_path = self.path_status_info + '.tmp'
+        
+        with open(temp_path, 'w') as temp_file:
+            temp_file.write(data)
+            temp_file.flush() # Forzar escritura al sistema operativo
+            os.fsync(temp_file.fileno()) # Asegurar que se escriba físicamente en disco
+
+        os.replace(temp_path, self.path_status_info)
+
+    def message_was_prococessed(self, message: Message):
+    
+        filter = message.get_filterid_from_message_id()
+        seq_num = message.get_seqnum_from_message_id()
+
+
+        return (filter,seq_num) in self.last_seq_number_by_filter.items()

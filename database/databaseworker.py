@@ -71,6 +71,7 @@ class DataBaseWorker():
             print(f"Recibi un eof {message}")
             self.curr_cant_eofs += 1
             if  self.curr_cant_eofs == self.cant_clients:
+                print("llegaron todos los eof, por lo que arranco con consultas")
                 self.running_queue = False
                 self.service_queues.ack(ch, method)
                 self.service_queues.close_connection()

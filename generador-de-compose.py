@@ -22,11 +22,11 @@ cantidad_clientes = 1
 cantidad_game_validator = 3 * cantidad_clientes
 '''
 
-cantidad_windows = 5
-cantidad_linux = 5
-cantidad_mac = 5
-cantidad_juego_indie = 3
-cantidad_decada = 3
+cantidad_windows = 8
+cantidad_linux =8
+cantidad_mac = 8
+cantidad_juego_indie = 5
+cantidad_decada = 5
 cantidad_review_indie = 5
 cantidad_positiva = 8
 cantidad_action = 5
@@ -37,8 +37,8 @@ cantidad_ingles = 15
 #cantidad_reducer_four = 2
 #cantidad_reducer_five = 2
 cantidad_clientes = 2
-cantidad_review_validator = 5 * cantidad_clientes
-cantidad_game_validator = 5 * cantidad_clientes
+cantidad_review_validator = 7 * cantidad_clientes
+cantidad_game_validator = 7 * cantidad_clientes
 cantidad_health_checkers = 3
 
 
