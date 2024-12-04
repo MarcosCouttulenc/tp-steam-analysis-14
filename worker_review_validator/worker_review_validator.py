@@ -1,6 +1,8 @@
 import logging
 logging.basicConfig(level=logging.CRITICAL)
 import socket
+import time
+import os
 
 from middleware.queue import ServiceQueues
 from common.protocol import Protocol
@@ -30,16 +32,19 @@ class WorkerReviewValidator(ReviewWorker):
     
     def forward_message(self, message):
         messageRI = MessageReviewInfo.from_message(message)
-        print("Envio consulta a la bdd")
+        #print("Envio consulta a la bdd")
         game = self.get_game_from_db(message.get_client_id(), messageRI.review.game_id)
-        print(f"Me devolvio la bdd: {game.name}")
+        #print(f"Me devolvio la bdd: {game.name}")
 
         if game.id == "-1":
             print(f"No encontre el juego")
             return
 
         messageRI.review.set_genre(game.genre)
+
         message_to_push = MessageReviewInfo(message.message_id, message.get_client_id(), messageRI.review)
+
+        message_to_push.set_message_id(self.get_new_message_id())
 
         for queue_name_next, cant_queue_next in self.queues_destiny.items():
             queue_next_id = Sharding.calculate_shard(messageRI.review.game_id, cant_queue_next)
@@ -64,3 +69,22 @@ class WorkerReviewValidator(ReviewWorker):
         return msg_game_info.game
 
 
+    def simulate_failure(self):
+        #para asegurarme que ya me conecte al healthchecker
+        time.sleep(8)
+        print("Me caigo")
+        print(f"Seq Number {self.actual_seq_number} \n")
+        print(f"Dict: {self.last_seq_number_by_filter} \n")
+        
+        self.running = False
+        
+        # return
+        print("Simulando caída del contenedor...")
+        self.service_queues_eof.close_connection()
+        self.service_queue_filter.close_connection()
+        self.service_queues.close_connection()
+
+        print("cerre las colas de rabbit")
+
+        os._exit(1)
+        print("No debería llegar acá porque estoy muerto")

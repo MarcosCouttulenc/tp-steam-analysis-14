@@ -46,6 +46,8 @@ class ReducerWorker:
         self.ip_healthchecker = ip_healthchecker
         self.port_healthchecker = int(port_healthchecker)
 
+        
+
 
     def start(self):
         if (not self.is_master):

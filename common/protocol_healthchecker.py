@@ -73,37 +73,29 @@ class ProtocolHealthChecker:
         return msg_ask != None
 
     def wait_for_node_ack(self, container_name):
-        verbose_v2 = False
-        if (container_name == "worker_windows_1"):
-            verbose_v2 = True
-
-        if verbose_v2: print(f"[wait_for_node_ack] Esperando al nodo..")
+        if VERBOSE: print(f"[wait_for_node_ack] Esperando al nodo {container_name}...")
         message = self.protocol.receive()
         
         if message == None:
-            if verbose_v2: print(f"[wait_for_node_ack] Recibi un None")
+            if VERBOSE: print(f"[wait_for_node_ack] Recibi un None {container_name}.")
             return False
 
-        if verbose_v2: print(f"[wait_for_node_ack] Me llego algo del nodo {message}")
+        if VERBOSE: print(f"[wait_for_node_ack] Me llego algo del nodo {container_name}. {message}")
         
         msg_ack = MessageHealthCheckerAck.from_message(message)
 
-        if verbose_v2: print(f"[wait_for_node_ack] Es un ACK? {str(msg_ack != None)}")
+        if VERBOSE: print(f"[wait_for_node_ack] Es un ACK? {str(msg_ack != None)}")
 
         return msg_ack != None
 
     def health_check_ask(self, container_name):
-        verbose_v2 = False
-        if (container_name == "worker_windows_1"):
-            verbose_v2 = True
-
         msg_ask = MessageHealthCheckerAsk()
 
-        if verbose_v2: print(f"[health_check_ask] Enviando ASK al nodo.. {msg_ask}")
+        if VERBOSE: print(f"[health_check_ask] Enviando ASK al nodo {container_name}.. {msg_ask}")
 
         bytes_sent = self.protocol.send(msg_ask)
 
-        if verbose_v2: print(f"[health_check_ask] Envie {str(bytes_sent)} bytes")
+        if VERBOSE: print(f"[health_check_ask] Envie {str(bytes_sent)} bytes")
 
         return not(bytes_sent == None or bytes_sent <= 0)
 

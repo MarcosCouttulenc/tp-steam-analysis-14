@@ -1,6 +1,8 @@
 import difflib
 from colorama import init, Fore
 
+CANTIDAD_CLIENTES = 2
+
 class FileDiffChecker:
     def __init__(self, file1, file2):
         self.file1 = file1
@@ -23,11 +25,15 @@ class FileDiffChecker:
 
 init(autoreset=True)
 
-validated_results = "resultados/resultados-buenos.txt"
-results_to_validate = "resultados/resultados-1.txt"
-
 def main():
-    file_diff_checker = FileDiffChecker(validated_results, results_to_validate)
-    file_diff_checker.compare_files()
+    validated_results = "resultados/resultados-buenos.txt"
+    for i in range(CANTIDAD_CLIENTES):
+        results_to_validate = f"resultados/resultados-{i}.txt"
+        try:
+            file_diff_checker = FileDiffChecker(validated_results, results_to_validate)
+            file_diff_checker.compare_files()
+        except:
+            pass
+        
 
 main()

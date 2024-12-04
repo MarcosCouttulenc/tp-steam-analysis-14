@@ -28,6 +28,7 @@ MESSAGE_HEALTH_CHECK_ACK = 'health-check-ack'
 MESSAGE_CONTAINER_NAME = 'container-name'
 
 MESSAGE_MASTER_INVALID_CLIENT = 'invalid-client'
+MESSAGE_MASTER_FINISHED_CLIENT = 'finished-client'
 
 FALSE_STRING = "False"
 TRUE_STRING = "True"
@@ -574,6 +575,19 @@ class MessageInvalidClient(Message):
     @classmethod
     def from_message(cls, message: Message) -> 'MessageInvalidClient':
         if message.message_type != MESSAGE_MASTER_INVALID_CLIENT:
+            return None
+        
+        return cls(message.client_id)
+    
+
+class MessageFinishedClient(Message):
+    def __init__(self, client_id):
+        message_payload = "finished_client"
+        super().__init__(USELESS_ID, client_id, MESSAGE_MASTER_FINISHED_CLIENT, message_payload)
+    
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageFinishedClient':
+        if message.message_type != MESSAGE_MASTER_FINISHED_CLIENT:
             return None
         
         return cls(message.client_id)

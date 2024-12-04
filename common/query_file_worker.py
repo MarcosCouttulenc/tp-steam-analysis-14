@@ -120,6 +120,7 @@ class QueryFile:
 
     def handle_new_update(self, ch, method, properties, message: Message):
         if message.is_eof():
+            print(f"Me llego un EOF del cliente {str(message.get_client_id())}")
             self.service_queues.ack(ch, method)
             self.eof_dict[(str(message.get_client_id()))] = True
             return

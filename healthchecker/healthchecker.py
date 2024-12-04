@@ -4,6 +4,7 @@ from time import sleep
 from common.protocol_healthchecker import ProtocolHealthChecker, get_container_name
 import docker
 import os
+import time
 
 LISTEN_BACKLOG = 100
 TIME_BETWEEN_HEALTH_CHECKS = 5
@@ -23,10 +24,19 @@ class HealthChecker:
         try:
             print(f"Reiniciando contenedor {container_name}")
             container_name = self.docker_client.containers.get(container_name)
+
             container_name.restart()
-            print(f"Contenedor {container_name} reiniciado")
+
+            #time.sleep(5)  # Tiempo de espera para darle al contenedor oportunidad de levantarse
+            #container_name.reload()  # Actualizamos el estado del contenedor
+            
+            # if container_name.status == "running":
+            #     print(f"Contenedor {container_name} está en estado 'running'")
+            #     return True  # Salimos del bucle si el contenedor está en "running"
+            
+            print(f"Contenedor {container_name} reiniciado \n")
         except Exception as e:
-            print(f"Error reiniciando contenedor {container_name}: {e}")
+            print(f"Error reiniciando contenedor {container_name}: {e} \n")
 
     def is_node_running(self, container_name):
         try:
@@ -83,7 +93,7 @@ class HealthChecker:
     def process_accept_new_connection(self):
         print(f"[process_accept_new_connection] Iniciando...")
 
-        # Apenas me levanto, lo primero que hago es revivir todos los nodos que dependian de mi (si es que alguno muri).
+        # Apenas me levanto, lo primero que hago es revivir todos los nodos que dependian de mi (si es que alguno murio).
         my_containers_name = []
         if (os.path.isfile(self.file_name_connected_containers)):
             print("[process_accept_new_connection] encontro el archivo")
@@ -94,6 +104,7 @@ class HealthChecker:
         print(f"[process_accept_new_connection] se van a levantar {len(my_containers_name)} containers")
         for container_name in my_containers_name:
             if (not self.is_node_running(container_name)):
+                print(f"el contenedor {container_name} no esta corriendo")
                 self.restart_node(container_name)
 
         if (os.path.isfile(self.file_name_connected_containers)):
@@ -137,8 +148,8 @@ class HealthChecker:
 
         container_name = container.name
 
-        with open(self.file_name_connected_containers, "w") as file:
-            file.write(container_name)
+        with open(self.file_name_connected_containers, "a") as file:
+            file.write(container_name + '\n')
 
         
         #if (container_name == "worker_windows_1"):
