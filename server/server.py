@@ -36,6 +36,9 @@ class Server:
         self.actual_seq_number = multiprocessing.Value('i', 0)
         self.lock_msg_id = multiprocessing.Lock()
 
+        # Initialize signals
+        self.initialize_signals()
+
     def initialize_signals(self):
         signal.signal(signal.SIGTERM, self.stop)
 
@@ -48,6 +51,7 @@ class Server:
 
         self.new_connection_socket.close()
         logging.info("action: server_stop | result: success")
+        
     
     def __accept_new_connection(self):
         try:

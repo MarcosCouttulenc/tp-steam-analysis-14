@@ -4,7 +4,7 @@ from time import sleep
 from common.protocol_healthchecker import ProtocolHealthChecker, get_container_name
 import docker
 import os
-import time
+import signal
 
 LISTEN_BACKLOG = 100
 TIME_BETWEEN_HEALTH_CHECKS = 5
@@ -17,6 +17,17 @@ class HealthChecker:
         self.running = True
         self.docker_client = docker.DockerClient(base_url="unix://var/run/docker.sock")
         self.file_name_connected_containers = "connected_containers.txt"
+        self.init_signals()
+
+    def init_signals(self):
+        signal.signal(signal.SIGTERM, self.stop)
+
+    def stop(self, signum, frame):
+        print("action: stop | result: in_progress")
+        
+        self.running = False
+
+        print("action: stop | result: success")
 
 
     def restart_node(self, container_name):

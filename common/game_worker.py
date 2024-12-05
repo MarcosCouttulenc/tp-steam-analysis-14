@@ -6,6 +6,7 @@ import time
 import threading
 import os
 import multiprocessing
+import signal
 
 from common.sharding import Sharding
 from middleware.queue import ServiceQueues
@@ -57,8 +58,24 @@ class GameWorker:
 
         manager = multiprocessing.Manager()
         self.finished_clients = manager.dict()
+
+        self.clients_pushed_eofs = {}
         
         self.init_worker_state()
+        self.init_signals()
+
+    def init_signals(self):
+        signal.signal(signal.SIGTERM, self.stop)
+
+    def stop(self, signum, frame):
+        logging.info("action: stop | result: in_progress")
+        
+        self.running = False
+        self.service_queues_eof.close_connection()
+        self.service_queues_filter.close_connection()
+
+        logging.info("action: stop | result: success")
+
     
 
     def init_queues_destiny(self, queues_name_destiny, cant_next):
@@ -83,6 +100,17 @@ class GameWorker:
                 for filter_data in data[1:]:
                     filter_info = filter_data.split(",")
                     self.last_seq_number_by_filter[filter_info[0]] = filter_info[1]
+
+                # La segunda linea tiene la informacion de los EOFs por cliente
+                line = file.readline().strip()
+                if line:
+                    print(f"Linea de EOFs: {line}")
+                    data = line.split("|")
+                    print(f"Data de EOFs: {data}")
+                    
+                    for clients_pushed_eofs_data in data:
+                        clients_pushed_eofs_info = clients_pushed_eofs_data.split(",")
+                        self.clients_pushed_eofs[clients_pushed_eofs_info[0]] = clients_pushed_eofs_info[1]
 
         print("Me levanto")
         print(f"Seq Number {self.actual_seq_number} \n")
@@ -233,10 +261,7 @@ class GameWorker:
         self.socket_slave.connect((self.ip_master, self.port_master))
 
         while self.running:
-            try:
-                self.service_queues_eof.pop_non_blocking(self.queue_name_origin_eof, self.process_message_slave_eof)
-            except:
-                print("Cerrando worker")
+            self.service_queues_eof.pop_non_blocking(self.queue_name_origin_eof, self.process_message_slave_eof)
 
 
     def process_message_slave_eof(self, ch, method, properties, message: Message):
@@ -271,9 +296,9 @@ class GameWorker:
         print(f"[SLAVE] me devolvio el eof: {message}")
         msg_eof = MessageEndOfDataset.from_message(message)
         
-        if (msg_eof.is_last_eof()):
-            print(f"[SLAVE] y lo reenvio")
-            self.send_eofs(msg_eof)
+        #if (msg_eof.is_last_eof()):
+        print(f"[SLAVE] y lo reenvio")
+        self.send_eofs(msg_eof)
         
 
         self.service_queues_eof.ack(ch, method)
@@ -294,6 +319,8 @@ class GameWorker:
             if (id == queue_cant):
                 msg_eof.set_last_eof()
             
+            msg_eof.set_message_id(self.get_new_message_id())
+            
             self.service_queues_eof.push(queue_name_destiny, msg_eof)
 
 
@@ -313,7 +340,7 @@ class GameWorker:
 
         # Chequeamos si el mensaje ya fue procesado.
         if self.message_was_processed(message):
-            print(f"El mensaje {message.get_message_id()} ya fue procesado\n")
+            print(f"El mensaje {message.get_message_id()} ya fue procesado \n")
             print(f"Dict: {self.last_seq_number_by_filter} \n")
             self.service_queues_filter.ack(ch, method)
             return
@@ -337,8 +364,8 @@ class GameWorker:
 
 
         #print(f"Voy procesando {self.cant_mensajes_procesados}")
-        if (self.cant_mensajes_procesados == 1000 and int(self.id) == 1):
-            self.simulate_failure()
+        #if (self.cant_mensajes_procesados == 1000 and int(self.id) == 1):
+        #    self.simulate_failure()
 
         self.cant_mensajes_procesados += 1
 
@@ -364,8 +391,20 @@ class GameWorker:
         os._exit(1)
         print("No debería llegar acá porque estoy muerto")
     
-    def handle_eof(self, message, ch, method):
+    def handle_eof(self, message: Message, ch, method):
+
+        # Si ya proceso un eof de ese cliente lo descartamos
+        client_id = str(message.get_client_id())
+        if client_id in self.clients_pushed_eofs.keys():
+            self.service_queues_filter.ack(ch, method)
+            return
+        
         self.service_queues_filter.push(self.queue_name_origin_eof, message)
+        self.last_seq_number_by_filter[message.get_filterid_from_message_id()] = message.get_seqnum_from_message_id()
+        self.clients_pushed_eofs[client_id] = True
+
+        self.save_state_in_disk()
+        
         self.service_queues_filter.ack(ch, method)
 
     def validate_game(self, game):
@@ -400,17 +439,13 @@ class GameWorker:
         filter = message.get_filterid_from_message_id()
         seq_num = message.get_seqnum_from_message_id()
 
-        #print((filter,seq_num))
-        #print(self.last_seq_number_by_filter.items())
-        
-        #print(f"El diccionario es {self.last_seq_number_by_filter}")
-
         return (filter,seq_num) in self.last_seq_number_by_filter.items()
 
 
     def save_state_in_disk(self):
         last_seq_number_by_filter_data = "|".join(f"{key},{value}" for key, value in self.last_seq_number_by_filter.items())
-        data = f"{str(self.actual_seq_number)}|{last_seq_number_by_filter_data}"
+        clients_pushed_eofs_data = "|".join(f"{key},{value}" for key, value in self.clients_pushed_eofs.items())
+        data = f"{str(self.actual_seq_number)}|{last_seq_number_by_filter_data}\n{clients_pushed_eofs_data}"
         temp_path = self.path_status_info + '.tmp'
         
         with open(temp_path, 'w') as temp_file:
@@ -419,10 +454,3 @@ class GameWorker:
             os.fsync(temp_file.fileno()) # Asegurar que se escriba físicamente en disco
 
         os.replace(temp_path, self.path_status_info)
-        
-        # with open(self.path_status_info, 'r+') as file:
-        #     line = file.readline().strip()
-        #     # La linea tiene esta forma -> seq_number_actual|F1,M1|F2,M3|F3,M6..
-        #     line.replace(f"{filter},{self.actual_seq_number}", f"{filter},{seq_num}")
-        #     file.seek(0)
-        #     file.write(line)

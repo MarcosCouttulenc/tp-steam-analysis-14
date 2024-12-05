@@ -16,6 +16,8 @@ class QueryFileMain():
         listen_backlog = config_params["listen_backlog"]
         port_healthchecker = config_params["port_healthchecker"]
         ip_healthchecker = config_params["ip_healthchecker"]
+        path_status_info = config_params["path_status_info"]
+        
 
         self.initialize_log(logging_level)
     
@@ -25,7 +27,7 @@ class QueryFileMain():
 
 
         worker = self.ClassToInitialize(
-            queue_name_origin, file_path, int(result_query_port), int(listen_backlog), ip_healthchecker, port_healthchecker
+            queue_name_origin, file_path, int(result_query_port), int(listen_backlog), ip_healthchecker, port_healthchecker, path_status_info
         )
         worker.start()
 
@@ -44,6 +46,7 @@ class QueryFileMain():
             config_params["listen_backlog"] = os.getenv('LISTEN_BACKLOG', config["DEFAULT"]["LISTEN_BACKLOG"])
             config_params["port_healthchecker"] = os.getenv('PORT_HEALTHCHECKER')
             config_params["ip_healthchecker"] = os.getenv('IP_HEALTHCHECKER')
+            config_params["path_status_info"] = os.getenv('PATH_STATUS_INFO', config["DEFAULT"]["PATH_STATUS_INFO"])
             
         except KeyError as e:
             raise KeyError("Key was not found. Error: {} .Aborting server".format(e))

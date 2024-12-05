@@ -2,12 +2,13 @@ import csv
 import logging
 logging.basicConfig(level=logging.CRITICAL)
 
+from common.message import Message
 from common.message import MessageQueryOneUpdate
 from common.message import MessageQueryOneResult
 from common.protocol import *
-
-
 from common.query_file_worker import QueryFile
+
+CANTIDAD_TIPOS_DE_WORKERS_PREVIOS = 3
 
 class QueryOneFile(QueryFile):
     def get_message_result_from_file_snapshot(self, client_id, file_snapshot):
@@ -76,7 +77,7 @@ class QueryOneFile(QueryFile):
 
         #Log aux (nuevo estado)
 
-        logging.critical(f"---NUEVOS VALORES EN FILE---\nCLIENT: {client_id} LINUX: {current_total_linux} MAC: {current_total_mac} WINDOWS: {current_total_windows}")
+        #logging.critical(f"---NUEVOS VALORES EN FILE---\nCLIENT: {client_id} LINUX: {current_total_linux} MAC: {current_total_mac} WINDOWS: {current_total_windows}")
         
         with open(self.file_path, mode='w', newline='') as file:
             fieldnames = ['client_id', 'total_linux', 'total_mac', 'total_windows']
@@ -90,3 +91,38 @@ class QueryOneFile(QueryFile):
                     'total_mac': aux[client_id][1],
                     'total_windows': aux[client_id][2]
                 })
+    
+    '''
+    def set_client_as_finished(self, message):
+        if not str(message.get_client_id()) in self.eof_dict.keys():
+            self.eof_dict[str(message.get_client_id())] = 0
+        self.eof_dict[str(message.get_client_id())] += 1
+        print(f"llego EOF. actual: {self.eof_dict}")
+    
+
+
+    def client_finished(self, client_id):
+        if not str(client_id) in self.eof_dict.keys():
+            return False
+        return self.eof_dict[str(client_id)] >= CANTIDAD_TIPOS_DE_WORKERS_PREVIOS
+    '''
+
+    def set_client_as_finished(self, message: Message):
+        if not str(message.get_client_id()) in self.eof_dict.keys():
+            self.eof_dict[str(message.get_client_id())] = {}
+        aux = self.eof_dict[str(message.get_client_id())]
+
+        if "Windows" in message.get_message_id():
+            aux["Windows"] = True
+        if "Linux" in message.get_message_id():
+            aux["Linux"] = True
+        if "Mac" in message.get_message_id():
+            aux["Mac"] = True
+        self.eof_dict[str(message.get_client_id())] = aux
+        print(f"llego EOF. actual: {self.eof_dict}")
+    
+    def client_finished(self, client_id):
+        if not str(client_id) in self.eof_dict.keys():
+            return False
+        
+        return len(self.eof_dict[str(client_id)].keys()) == 3

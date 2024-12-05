@@ -7,6 +7,8 @@ from common.protocol import *
 import socket
 import errno
 import logging
+import time
+
 logging.basicConfig(level=logging.CRITICAL)
 
 
@@ -33,6 +35,9 @@ class DataBaseWorker():
         while self.running_queue:
             self.service_queues.pop(self.queue_name_origin, self.process_message)
 
+        time.sleep(3)
+        self.service_queues.purge(self.queue_name_origin)
+        
         # Cuando la bd esta llena, solo atiendo consultas.
         self.running_socket = True
         while self.running_socket:
@@ -42,6 +47,7 @@ class DataBaseWorker():
             msg = protocol.receive()
 
             if msg.is_eof():
+                print("EOF DE REVIEWS")
                 self.running_socket = False
                 client_sock.close()
                 return

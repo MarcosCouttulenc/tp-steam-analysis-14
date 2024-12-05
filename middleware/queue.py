@@ -6,8 +6,7 @@ from common.message_serializer import MessageSerializer
 class ServiceQueues:
     def __init__(self, connection_name):
         credentials = pika.PlainCredentials('admin', 'admin')
-        #connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', 5672, '/', credentials))
-
+        
         for _ in range(5):  # Intentar varias veces
             try:
                 self.connection = pika.BlockingConnection(pika.ConnectionParameters(
@@ -48,8 +47,10 @@ class ServiceQueues:
             )
 
             self.channel.start_consuming()
-        except:
-            print("Error al pop")
+        except pika.exceptions.AMQPConnectionError:
+            print("[pop] Desconectado de rabbit")
+        except Exception as e:
+            raise e
 
     def pop_non_blocking(self, queue_name: str, callback):
         try:
@@ -66,8 +67,10 @@ class ServiceQueues:
                 else:
                     # Si no hay mensajes, esperar un momento
                     time.sleep(1)
-        except:
-            print("Error al pop_non_blocking")
+        except pika.exceptions.AMQPConnectionError:
+            print("[pop_non_blocking] Desconectado de rabbit")
+        except Exception as e:
+            raise e
 
     def ack(self, ch, method):
         ch.basic_ack(delivery_tag = method.delivery_tag)
@@ -76,5 +79,17 @@ class ServiceQueues:
         try:
             if self.connection and not self.connection.is_closed:
                 self.connection.close()
-        except:
-            print("Error al close_connection")
+        except pika.exceptions.AMQPConnectionError:
+            print("[close_connection] Desconectado de rabbit")
+        except Exception as e:
+            raise e
+
+    def purge(self, queue_name):
+        try:
+            if self.connection and not self.connection.is_closed:
+                channel = self.connection.channel()
+                channel.queue_purge(queue=queue_name)
+        except pika.exceptions.AMQPConnectionError:
+            print("[purge] Desconectado de rabbit")
+        except Exception as e:
+            raise e

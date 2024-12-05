@@ -6,6 +6,7 @@ import time
 import threading
 import os
 import multiprocessing
+import signal
 
 from common.sharding import Sharding
 from middleware.queue import ServiceQueues
@@ -48,7 +49,7 @@ class ReviewWorker:
 
         self.actual_seq_number = 0
         self.last_seq_number_by_filter = {}
-        
+        self.clients_pushed_eofs = {}
         
         self.path_status_info = path_status_info
 
@@ -58,6 +59,19 @@ class ReviewWorker:
         self.finished_clients = manager.dict()
 
         self.init_worker_state()
+        self.init_signals()
+
+    def init_signals(self):
+        signal.signal(signal.SIGTERM, self.stop)
+
+    def stop(self, signum, frame):
+        logging.info("action: stop | result: in_progress")
+        
+        self.running = False
+        self.service_queues_eof.close_connection()
+        self.service_queue_filter.close_connection()
+
+        logging.info("action: stop | result: success")
     
     def init_queues_destiny(self, queues_name_destiny, cant_next):
         queues_name_destiny_list = queues_name_destiny.split(',')
@@ -81,6 +95,14 @@ class ReviewWorker:
                 for filter_data in data[1:]:
                     filter_info = filter_data.split(",")
                     self.last_seq_number_by_filter[filter_info[0]] = filter_info[1]
+
+                # La segunda linea tiene la informacion de los EOFs por cliente
+                line = file.readline().strip()
+                if line:
+                    data = line.split("|")
+                    for clients_pushed_eofs_data in data:
+                        clients_pushed_eofs_info = clients_pushed_eofs_data.split(",")
+                        self.clients_pushed_eofs[clients_pushed_eofs_info[0]] = clients_pushed_eofs_info[1]
 
         print("Me levanto")
         print(f"Seq Number {self.actual_seq_number} \n")
@@ -225,15 +247,18 @@ class ReviewWorker:
     ## --------------------------------------------------------------------------------
     def process_control_slave_eof_handler(self):
         time.sleep(5)
-
-        self.socket_slave = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket_slave.connect((self.ip_master, self.port_master))
+        while True:
+            try:    
+                self.socket_slave = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.socket_slave.connect((self.ip_master, self.port_master))
+                break
+            except (ConnectionRefusedError, ConnectionError):
+                print("[SLAVE] no me pude conectar al master, retry.")
+                time.sleep(4)
+                continue
 
         while self.running:
-            try:
-                self.service_queues_eof.pop_non_blocking(self.queue_name_origin_eof, self.process_message_slave_eof)
-            except:
-                print("Cerrando worker")
+            self.service_queues_eof.pop_non_blocking(self.queue_name_origin_eof, self.process_message_slave_eof)
 
     def process_message_slave_eof(self, ch, method, properties, message: Message):
         if message == None:
@@ -262,11 +287,13 @@ class ReviewWorker:
             return
 
         # Sino, reenviamos el EOF si corresponde.
+        print(f"[SLAVE] me devolvio el eof: {message}")
         msg_eof = MessageEndOfDataset.from_message(message)
         
-        if (msg_eof.is_last_eof()):
-            print(f"ENVIO PARA ADELANTE EL EOF DEL CLIENTE {msg_eof.get_client_id()}")
-            self.send_eofs(msg_eof)
+        #if (msg_eof.is_last_eof()):
+        #    print(f"ENVIO PARA ADELANTE EL EOF DEL CLIENTE {msg_eof.get_client_id()}")
+        print(f"[SLAVE] y lo reenvio")
+        self.send_eofs(msg_eof)
 
         self.service_queues_eof.ack(ch, method)
 
@@ -281,10 +308,11 @@ class ReviewWorker:
 
         for id in range(1, queue_cant + 1):
             queue_name_destiny = f"{queue_name}-{id}"
-            print(f"Voy a enviar eof a la cola {queue_name_destiny}")
 
             if (id == queue_cant):
                 msg_eof.set_last_eof()
+
+            msg_eof.set_message_id(self.get_new_message_id())
             
             self.service_queues_eof.push(queue_name_destiny, msg_eof)
 
@@ -326,8 +354,8 @@ class ReviewWorker:
 
         print(f"Voy procesando {self.cant_mensajes_procesados}")
         #tirar abajo el container si queremos testear
-        if (self.cant_mensajes_procesados == 300 and int(self.id) == 1):
-            self.simulate_failure()
+        #if (self.cant_mensajes_procesados == 300 and int(self.id) == 1):
+        #    self.simulate_failure()
 
         self.cant_mensajes_procesados += 1
         self.service_queue_filter.ack(ch, method)
@@ -352,7 +380,16 @@ class ReviewWorker:
         print("No debería llegar acá porque estoy muerto")
     
     def handle_eof(self, message, ch, method):
+        # Si ya proceso un eof de ese cliente lo descartamos
+        client_id = str(message.get_client_id())
+        if client_id in self.clients_pushed_eofs.keys():
+            self.service_queue_filter.ack(ch, method)
+            return
+
         self.service_queue_filter.push(self.queue_name_origin_eof, message)
+        self.last_seq_number_by_filter[message.get_filterid_from_message_id()] = message.get_seqnum_from_message_id()
+        self.save_state_in_disk()
+        self.clients_pushed_eofs[client_id] = True
         self.service_queue_filter.ack(ch, method)
 
     def validate_review(self, review):
@@ -378,9 +415,11 @@ class ReviewWorker:
         return f"F{str(self.id)}_M{str(self.actual_seq_number)}"
 
 
+
     def save_state_in_disk(self):
         last_seq_number_by_filter_data = "|".join(f"{key},{value}" for key, value in self.last_seq_number_by_filter.items())
-        data = f"{str(self.actual_seq_number)}|{last_seq_number_by_filter_data}"
+        clients_pushed_eofs_data = "|".join(f"{key},{value}" for key, value in self.clients_pushed_eofs.items())
+        data = f"{str(self.actual_seq_number)}|{last_seq_number_by_filter_data}\n{clients_pushed_eofs_data}"
         temp_path = self.path_status_info + '.tmp'
         
         with open(temp_path, 'w') as temp_file:
@@ -389,6 +428,8 @@ class ReviewWorker:
             os.fsync(temp_file.fileno()) # Asegurar que se escriba físicamente en disco
 
         os.replace(temp_path, self.path_status_info)
+
+
 
     def message_was_processed(self, message: Message):
     
