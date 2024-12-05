@@ -165,20 +165,7 @@ class QueryOneFile(QueryFile):
     
     ## Transaction Log
     ## --------------------------------------------------------------------------------
-    def log_transaction(self, message):
-        transaction_log = self.get_transaction_log(message)
-        temp_path = self.path_logging + '.tmp'
-        with open(temp_path, 'w') as temp_file:
-            temp_file.write(transaction_log)
-            temp_file.flush() # Forzar escritura al sistema operativo
-            os.fsync(temp_file.fileno()) # Asegurar que se escriba físicamente en disco
-        os.replace(temp_path, self.path_logging)
-        self.last_msg_id_log_transaction = message.get_message_id()
 
-
-        
-
-    
     def get_transaction_log(self, message: Message):
         msg_query_one_file_update = MessageQueryOneUpdate.from_message(message)
         client_id = str(message.get_client_id())
@@ -188,8 +175,8 @@ class QueryOneFile(QueryFile):
         file_info = defaultdict(lambda: {"linux": 0, "mac": 0, "windows": 0}, file_info)
         previous_state = file_info[client_id][os_supported]
 
-        transaction = f"msg:{message.get_message_id()}|client:{client_id}|os:{os_supported}|prev:{previous_state}|actual:{previous_state + 1}"
-        return transaction
+        transaction_log = f"msg::{message.get_message_id()}|client::{client_id}|os::{os_supported}|prev::{previous_state}|actual::{previous_state + 1}"
+        return transaction_log
     
     def recover_from_transaction_log(self):
         if not os.path.exists(self.path_logging):
@@ -204,11 +191,11 @@ class QueryOneFile(QueryFile):
 
             data = line.split("|")
 
-            msg_id = data[0].split(":")[1]
-            client_id = data[1].split(":")[1]
-            os_supported = data[2].split(":")[1]
+            msg_id = data[0].split("::")[1]
+            client_id = data[1].split("::")[1]
+            os_supported = data[2].split("::")[1]
             #previous_state = data[3].split(":")[1]
-            actual_state = data[4].split(":")[1]
+            actual_state = data[4].split("::")[1]
 
         file_info = self.get_file_info()
 

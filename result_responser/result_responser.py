@@ -149,15 +149,25 @@ class ResultResponser:
 
         #Recibe el primer mensaje con el status de la operacion.
         msg_status = self.protocol.receive()
-        msg_query1_status = MessageResultStatus.from_message(msg_status)
-        status = msg_query1_status.message_payload
+        if not msg_status:
+            print("No se obtuvo resultado, queryFile2 caido en primer receive.")
+            return False
+        
+        msg_query2_status = MessageResultStatus.from_message(msg_status)
+        status = msg_query2_status.message_payload
 
         #Recibe el segundo mensaje con los resultados de la query.
         msg = self.protocol.receive()
+        if msg == None:
+            print("No se obtuvo resultado, queryFile2 caido en segundo receive.")
+            return False
 
+        try:
+            client_q2_sock.close()
+        except:
+            print("Se quiso cerrar el socket y ya estaba cerrado")
+        
         msg_query2_two_result = MessageQueryTwoResult.from_message(msg)
-        if msg_query2_two_result == None:
-            return
         
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query2 Resultados: <br/>")
@@ -167,7 +177,6 @@ class ResultResponser:
                 file.write(f"{game_name}: {playtime} <br/>")
             file.write(f"---------------------------------------------------------- <br/>")
         
-        client_q2_sock.close()
         return status == ResultStatus.FINISHED.value
 
     def get_query3_results(self, client_id: int):
@@ -190,8 +199,8 @@ class ResultResponser:
 
         #Recibe el primer mensaje con el status de la operacion.
         msg_status = self.protocol.receive()
-        msg_query1_status = MessageResultStatus.from_message(msg_status)
-        status = msg_query1_status.message_payload
+        msg_query3_status = MessageResultStatus.from_message(msg_status)
+        status = msg_query3_status.message_payload
 
         #Recibe el segundo mensaje con los resultados de la query.
         msg = self.protocol.receive()

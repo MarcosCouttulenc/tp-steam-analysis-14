@@ -72,9 +72,11 @@ class QueryFile:
                     self.last_seq_number_by_filter[filter_info[0]] = filter_info[1]
 
                 # La segunda linea tiene la informacion de los EOFs por cliente
+                
+                line = file.readline().strip()
                 if line:
-                    line = file.readline().strip()
                     data = line.split("|")
+                    print(f"Data: {data}")
                     for eofs_clients in data:
                         eof_info = eofs_clients.split(",")
                         self.eof_dict[eof_info[0]] = eof_info[1]
@@ -83,6 +85,8 @@ class QueryFile:
         print(f"Seq Number {self.actual_seq_number} \n")
         print(f"Dict: {self.last_seq_number_by_filter} \n")
         print(f"Eof: {self.eof_dict} \n")
+
+        self.recover_from_transaction_log()
     
     def start(self):
         # Lanzamos proceso para conectarnos al health checker
@@ -214,9 +218,6 @@ class QueryFile:
         self.set_client_as_finished(message)
         self.service_queues.ack(ch, method)
     
-    def log_transaction(self, message):
-        #la implementa cada queryfile
-        pass
 
     def set_client_as_finished(self, message):
         self.eof_dict[str(message.get_client_id())] = True
@@ -255,6 +256,22 @@ class QueryFile:
 
         os.replace(temp_path, self.path_status_info)
     
+
+    def log_transaction(self, message):
+        transaction_log = self.get_transaction_log(message)
+        temp_path = self.path_logging + '.tmp'
+        with open(temp_path, 'w') as temp_file:
+            temp_file.write(transaction_log)
+            temp_file.flush() # Forzar escritura al sistema operativo
+            os.fsync(temp_file.fileno()) # Asegurar que se escriba físicamente en disco
+        os.replace(temp_path, self.path_logging)
+        self.last_msg_id_log_transaction = message.get_message_id()
+    
+    def get_transaction_log(self, message):
+        #implementar en cada queryFile
+        pass
+
+
     def simulate_failure(self):
         #para asegurarme que ya me conecte al healthchecker
         time.sleep(8)
@@ -272,3 +289,7 @@ class QueryFile:
 
         os._exit(1)
         print("No debería llegar acá porque estoy muerto")
+    
+    def recover_from_transaction_log(self):
+        #print("Debe implementarla los query files")
+        pass
