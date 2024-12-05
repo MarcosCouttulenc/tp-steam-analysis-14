@@ -1,8 +1,1 @@
-docker kill query3_file
-docker kill worker_windows_2
-docker kill worker_linux_1
-docker kill worker_mac_3
-docker kill worker_review_indie_3
-docker kill worker_game_validator_4
-docker kill worker_review_validator_5
-docker kill query1_file
+docker kill database

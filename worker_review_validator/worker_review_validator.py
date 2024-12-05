@@ -53,8 +53,15 @@ class WorkerReviewValidator(ReviewWorker):
             
 
     def get_game_from_db(self, client_id, game_id) -> Game:
-        db_games = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        db_games.connect((self.db_games_ip, self.db_games_port))
+        while True:
+            try:
+                db_games = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                db_games.connect((self.db_games_ip, self.db_games_port))
+                break
+            except:
+                print("BDD caida, retry")
+                time.sleep(5)
+                continue
 
         protocol_db_games = Protocol(db_games)
         message_id = f"C_{str(client_id)}_QUERY_{str(game_id)}"

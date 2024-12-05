@@ -202,8 +202,6 @@ class QueryFile:
 
         with self.file_lock:
             self.log_transaction(message)
-
-
             self.update_results(message)
 
         self.last_seq_number_by_filter[message.get_filterid_from_message_id()] = message.get_seqnum_from_message_id()
