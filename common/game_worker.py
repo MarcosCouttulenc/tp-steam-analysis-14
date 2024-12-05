@@ -215,7 +215,7 @@ class GameWorker:
                 msg = protocol.receive()
 
                 if (msg == None):
-                    print(f"[MASTER] None recibido desde {str(socket_master_slave_addr)}")
+                    #print(f"[MASTER] None recibido desde {str(socket_master_slave_addr)}")
                     break
 
                 if (msg.get_client_id() in self.finished_clients.keys()):
@@ -227,7 +227,7 @@ class GameWorker:
 
                     # si no se estaba procesando el eof de ningun cliente, se comienza a procesar el de ese cliente y se setea la variable
                     if int(self.current_client_id_processing.value) == AVAILABLE_CLIENT_ID:
-                        print(f"[MASTER] empezamos a recibir del cliente: {msg.get_client_id()}")
+                        #print(f"[MASTER] empezamos a recibir del cliente: {msg.get_client_id()}")
                         self.current_client_id_processing.value = int(msg.get_client_id())
 
                     #si el eof no es del cliente que estamos procesando ahora, lo devolvemos
@@ -236,7 +236,7 @@ class GameWorker:
                         protocol.send(msg_invalid_client)
                         continue
                 
-                print(f"[MASTER] eof recibido: {msg} desde {str(socket_master_slave_addr)} clientId actual: {str(self.current_client_id_processing.value)}")
+                #print(f"[MASTER] eof recibido: {msg} desde {str(socket_master_slave_addr)} clientId actual: {str(self.current_client_id_processing.value)}")
 
                 barrier.wait()
 
@@ -252,7 +252,7 @@ class GameWorker:
                         self.current_client_id_processing.value = AVAILABLE_CLIENT_ID
 
             except (ConnectionResetError, ConnectionError):
-                print(f"[MASTER] Slave caido, vuelvo a intentar esperar un msj")
+                #print(f"[MASTER] Slave caido, vuelvo a intentar esperar un msj")
                 time.sleep(5)
                 continue
                 
@@ -276,7 +276,7 @@ class GameWorker:
                     for client_data in data:
                         client_info = client_data.split(",")
                         self.finished_clients[client_info[0]] = int(client_info[1])
-        print(f"[MASTER] Finished Clients: {self.finished_clients}")
+        #print(f"[MASTER] Finished Clients: {self.finished_clients}")
 
     def master_save_state_in_disk(self):
         data = "|".join(f"{key},{value}" for key, value in self.finished_clients.items())
@@ -300,7 +300,7 @@ class GameWorker:
                 self.socket_slave.connect((self.ip_master, self.port_master))
                 break
             except (ConnectionRefusedError, ConnectionError):
-                print("[SLAVE] no me pude conectar al master, retry.")
+                #print("[SLAVE] no me pude conectar al master, retry.")
                 time.sleep(4)
                 continue
 
@@ -311,18 +311,18 @@ class GameWorker:
     def process_message_slave_eof(self, ch, method, properties, message: Message):
         
         while True:
-            print(f"[SLAVE] comienza ciclo para enviar eof: {message}")
+            #print(f"[SLAVE] comienza ciclo para enviar eof: {message}")
 
             if message == None:
                 return
             
             # checkear si el cliente ya fue procesado
             if str(message.get_client_id()) in self.finished_clients.keys():
-                print(f"[SLAVE] cliente {message.get_client_id()} procesado, lo filtro")
+                #print(f"[SLAVE] cliente {message.get_client_id()} procesado, lo filtro")
                 self.service_queues_eof.ack(ch, method)
                 return
         
-            print(f"[SLAVE] por enviar el eof: {message}, soy el id {self.id}")
+            #print(f"[SLAVE] por enviar el eof: {message}, soy el id {self.id}")
         
             # Le notificamos al master el eof
             protocol = Protocol(self.socket_slave)
@@ -336,7 +336,7 @@ class GameWorker:
             
             try:
 
-                print(f"[SLAVE] por recibir del master")
+                #print(f"[SLAVE] por recibir del master")
                 # Nos quedamos esperando que el master nos notifique que se termino de procesar.
                 msg_master = protocol.receive()
 
@@ -345,7 +345,7 @@ class GameWorker:
                     self.connection_to_master_retry()
                     continue
                 
-                print(f"[SLAVE] recibi el msg: {message}, soy el id {self.id}")
+                #print(f"[SLAVE] recibi el msg: {message}, soy el id {self.id}")
             except (ConnectionError, ConnectionRefusedError) as e:
                 # Si el MASTER se cayo en el momento que el master hace send.
                 self.connection_to_master_retry()
@@ -376,11 +376,11 @@ class GameWorker:
             self.slave_save_state_in_disk()
 
         # Sino, reenviamos el EOF si corresponde.
-        print(f"[SLAVE] me devolvio el eof: {message}")
+        #print(f"[SLAVE] me devolvio el eof: {message}")
         msg_eof = MessageEndOfDataset.from_message(message)
         
         #if (msg_eof.is_last_eof()):
-        print(f"[SLAVE] y lo reenvio")
+        #print(f"[SLAVE] y lo reenvio")
         self.send_eofs(msg_eof)
         
         self.service_queues_eof.ack(ch, method)

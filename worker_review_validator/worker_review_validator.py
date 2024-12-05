@@ -30,6 +30,47 @@ class WorkerReviewValidator(ReviewWorker):
     def validate_review(self, _review):
         return True
     
+    def process_filter(self):
+        while self.running:
+            queue_name_origin_id = f"{self.queue_name_origin}-{self.id}"
+
+            try:
+                self.service_queues.pop(queue_name_origin_id, self.process_message)
+            except Exception as e:
+                if "Channel is closed" in str(e):
+                    time.sleep(5)  # Espera 5 segundos antes de reintentar
+                    self.service_queues = ServiceQueues(CHANNEL_NAME)
+                    self.service_queue_filter = ServiceQueues(CHANNEL_NAME)
+                    continue
+                else:
+                    break
+
+    def process_control_slave_eof_handler(self):
+        time.sleep(5)
+        self.slave_init()
+
+        while True:
+            try:    
+                self.socket_slave = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.socket_slave.connect((self.ip_master, self.port_master))
+                break
+            except (ConnectionRefusedError, ConnectionError):
+                print("[SLAVE] no me pude conectar al master, retry.")
+                time.sleep(5)
+                continue
+
+        while self.running:
+            try:
+                self.service_queues_eof.pop_non_blocking(self.queue_name_origin_eof, self.process_message_slave_eof)
+            except Exception as e:
+                if "Channel is closed" in str(e):
+                    time.sleep(5)  # Espera 5 segundos antes de reintentar
+                    self.service_queues_eof = ServiceQueues(CHANNEL_NAME)
+                    continue
+                else:
+                    break
+            
+
     def forward_message(self, message):
         messageRI = MessageReviewInfo.from_message(message)
         #print("Envio consulta a la bdd")
@@ -37,7 +78,7 @@ class WorkerReviewValidator(ReviewWorker):
         #print(f"Me devolvio la bdd: {game.name}")
 
         if game.id == "-1":
-            print(f"No encontre el juego")
+            #print(f"No encontre el juego")
             return
 
         messageRI.review.set_genre(game.genre)
@@ -57,25 +98,38 @@ class WorkerReviewValidator(ReviewWorker):
             try:
                 db_games = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 db_games.connect((self.db_games_ip, self.db_games_port))
-                break
+    
             except:
-                print("BDD caida, retry")
+                print(f"Bdd se cayo, retry de conexion")
                 time.sleep(5)
                 continue
 
-        protocol_db_games = Protocol(db_games)
-        message_id = f"C_{str(client_id)}_QUERY_{str(game_id)}"
-        msg_query_game = MessageQueryGameDatabase(message_id, client_id, game_id)
-        protocol_db_games.send(msg_query_game)
+            protocol_db_games = Protocol(db_games)
+            message_id = f"C_{str(client_id)}_QUERY_{str(game_id)}"
+            msg_query_game = MessageQueryGameDatabase(message_id, client_id, game_id)
+            sended = protocol_db_games.send(msg_query_game)
 
-        msg = protocol_db_games.receive()
-        msg_game_info = MessageGameInfo.from_message(msg)
+            if sended == None:
+                print(f"Bdd se cayo, retry de conexion")
+                time.sleep(5)
+                continue
 
-        db_games.close()
+            try:
+                msg = protocol_db_games.receive()
+            except (ConnectionRefusedError, ConnectionError) as e:
+                print(f"Bdd se cayo, retry de conexion")
+                time.sleep(5)
+                continue
+
+            msg_game_info = MessageGameInfo.from_message(msg)
+
+            try:
+                db_games.close()
+            except:
+                pass
+            
+            return msg_game_info.game
         
-        return msg_game_info.game
-
-
     def simulate_failure(self):
         #para asegurarme que ya me conecte al healthchecker
         time.sleep(8)

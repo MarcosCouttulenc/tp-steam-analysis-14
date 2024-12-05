@@ -20,6 +20,8 @@ def initialize_config():
         config_params["result_query_port"] = os.getenv('RESULT_QUERY_PORT', config["DEFAULT"]["RESULT_QUERY_PORT"])
         config_params["listen_backlog"] = os.getenv('LISTEN_BACKLOG', config["DEFAULT"]["LISTEN_BACKLOG"])
         config_params["cant_clients"] = os.getenv('CANT_CLIENTS')
+        config_params["port_healthchecker"] = os.getenv('PORT_HEALTHCHECKER')
+        config_params["ip_healthchecker"] = os.getenv('IP_HEALTHCHECKER')
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -34,13 +36,15 @@ def main():
     result_query_port = config_params["result_query_port"]
     listen_backlog = config_params["listen_backlog"]
     cant_clients = config_params["cant_clients"]
+    port_healthchecker = config_params["port_healthchecker"]
+    ip_healthchecker = config_params["ip_healthchecker"]
     
     initialize_log(logging_level)
     
     logging.debug(f"action: config | result: success ")
 
     data_base =  DataBase()
-    data_base_worker = DataBaseWorker(queue_name_origin, data_base,int(result_query_port), int(listen_backlog), int(cant_clients))
+    data_base_worker = DataBaseWorker(queue_name_origin, data_base,int(result_query_port), int(listen_backlog), int(cant_clients), ip_healthchecker, port_healthchecker)
     data_base_worker.start()
 
 

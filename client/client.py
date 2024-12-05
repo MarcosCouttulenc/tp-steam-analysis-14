@@ -36,7 +36,7 @@ class Client:
 
         self.send_games()
 
-        time.sleep(30)
+        time.sleep(90)
         
         self.send_reviews()
 
