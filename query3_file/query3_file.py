@@ -127,18 +127,5 @@ class QueryThreeFile(QueryFile):
 
         self.last_msg_id_log_transaction = msg_id
         self.update_results_in_disk(client_id, file_info)
-    
-    def save_state_in_disk(self):
-        last_seq_number_by_filter_data = "|".join(f"{key},{value}" for key, value in self.last_seq_number_by_filter.items())
-        eof_clients_data = "|".join(f"{key},{value}" for key, value in self.eof_dict.items())
-        data = f"{str(self.actual_seq_number)}|{last_seq_number_by_filter_data}\n{eof_clients_data}"
-        temp_path = self.path_status_info + '.tmp'
-        
-        with open(temp_path, 'w') as temp_file:
-            temp_file.write(data)
-            temp_file.flush() # Forzar escritura al sistema operativo
-            os.fsync(temp_file.fileno()) # Asegurar que se escriba físicamente en disco
-
-        os.replace(temp_path, self.path_status_info)
 
         
