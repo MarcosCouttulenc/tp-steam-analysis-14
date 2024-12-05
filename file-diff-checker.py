@@ -13,7 +13,10 @@ class FileDiffChecker:
             lines1 = f1.readlines()
             lines2 = f2.readlines()
 
-        diffs = list(difflib.unified_diff(lines1, lines2, fromfile=self.file1, tofile=self.file2))
+        lines1_sorted = sorted(lines1)
+        lines2_sorted = sorted(lines2)
+
+        diffs = list(difflib.unified_diff(lines1_sorted, lines2_sorted, fromfile=self.file1, tofile=self.file2))
         
         if not diffs:  # Si no hay diferencias
             print(Fore.GREEN + "OK: Los archivos son idénticos.")

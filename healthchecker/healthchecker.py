@@ -87,8 +87,16 @@ class HealthChecker:
         # Conectamos al socket del mi healthchecker, si algo sale mal me
         # vuelvo a intentar conectar
         while self.running:
-            skt_next_healthchecker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            skt_next_healthchecker.connect((self.connect_ip, self.connect_port))
+            while True:
+                try:
+                    skt_next_healthchecker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    skt_next_healthchecker.connect((self.connect_ip, self.connect_port))
+                    break   
+                except:
+                    print("Healthchecker anterior cauido, retry")
+                    sleep(5)
+                    continue
+
             
             # comienza la comunicacion
             healthchecker_protocol = ProtocolHealthChecker(skt_next_healthchecker)

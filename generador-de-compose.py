@@ -22,15 +22,15 @@ cantidad_clientes = 1
 cantidad_game_validator = 3 * cantidad_clientes
 '''
 
-cantidad_windows = 8
+cantidad_windows = 7
 cantidad_linux =8
 cantidad_mac = 8
-cantidad_juego_indie = 5
+cantidad_juego_indie = 6
 cantidad_decada = 5
 cantidad_review_indie = 5
 cantidad_positiva = 8
-cantidad_action = 5
-cantidad_ingles = 15
+cantidad_action = 6
+cantidad_ingles = 14
 #cantidad_reducer_one = 1
 #cantidad_reducer_two = 2
 #cantidad_reducer_three = 2
@@ -43,13 +43,13 @@ cantidad_health_checkers = 3
 
 
 '''
-game_files = {"1": "100games.csv", "2": "100games.csv"}
+game_files = {"1": "100games.csv", "2": "1game.csv"}
 review_files = {"1": "10reviews.csv", "2": "10reviews.csv"}
 '''
 
 
-game_files = {"1": "10000games.csv", "2": "10000games.csv", "3": "10000games.csv"}
-review_files = {"1": "data0.1porcent.csv", "2": "data0.1porcent.csv", "3": "data0.1porcent.csv"}
+game_files = {"1": "10000games.csv", "2": "1game.csv"}
+review_files = {"1": "data0.1porcent.csv", "2": "10reviews.csv"}
 
 
 

@@ -23,6 +23,7 @@ class DataBaseWorker():
     def __init__ (self,queue_name_origin,data_base, result_query_port, listen_backlog, cant_clients, ip_healthchecker, port_healthchecker):
         self.queue_name_origin = queue_name_origin
         self.service_queues = ServiceQueues(CHANNEL_NAME)
+        self.servive_queue_purge = ServiceQueues(CHANNEL_NAME)
         self.data_base =  data_base
         self.running_queue = True
         self.running_socket = False
@@ -75,6 +76,14 @@ class DataBaseWorker():
         while self.running_queue:
             self.service_queues.pop(self.queue_name_origin, self.process_message)
         
+
+        purge_eofs = threading.Thread(
+            target = self.process_purge_eofs 
+        )
+        purge_eofs.start()
+        self.running_threads.append(purge_eofs)
+
+        
         # Cuando la bd esta llena, solo atiendo consultas.
         self.running_socket = True
         while self.running_socket:
@@ -113,6 +122,15 @@ class DataBaseWorker():
                 return None
             else:
                 raise
+    
+
+    def process_purge_eofs(self):
+        while True:
+            self.servive_queue_purge.pop(self.queue_name_origin, self.ignore_msg)
+    
+    def ignore_msg(self, ch, method, properties, message: Message):
+        self.servive_queue_purge.ack(ch, method)
+        time.sleep(5)
     
     ## Proceso de conexion con health checker
     ## --------------------------------------------------------------------------------      

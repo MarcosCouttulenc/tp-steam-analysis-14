@@ -185,9 +185,6 @@ class QueryFile:
         self.cant_mensajes_procesados += 1
 
         if self.message_was_processed(message):
-            print(f"El mensaje {message.get_message_id()} ya fue procesado\n")
-            print(f"Dict: {self.last_seq_number_by_filter} \n")
-            print(f"Eof: {self.eof_dict} \n")
             self.service_queues.ack(ch, method)
             return
         
@@ -196,7 +193,6 @@ class QueryFile:
             return
 
         if self.last_msg_id_log_transaction == message.get_message_id():
-            print(f"msg filtrado por log: {message}")
             self.service_queues.ack(ch, method)
             return
 
