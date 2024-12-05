@@ -23,20 +23,17 @@ class DataBaseWorker():
         self.running_queue = True
         self.running_socket = False
         self.cant_clients = cant_clients
-        self.curr_cant_eofs = 0
         
         self.new_connection_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.new_connection_socket.bind(('', result_query_port))
         self.new_connection_socket.listen(listen_backlog)
+        self.clients_eof = {}
     
     
     def start(self):
         # Procesamos todos los juegos.
         while self.running_queue:
             self.service_queues.pop(self.queue_name_origin, self.process_message)
-
-        time.sleep(3)
-        self.service_queues.purge(self.queue_name_origin)
         
         # Cuando la bd esta llena, solo atiendo consultas.
         self.running_socket = True
@@ -46,7 +43,7 @@ class DataBaseWorker():
             protocol = Protocol(client_sock)
             msg = protocol.receive()
 
-            if msg.is_eof():
+            if msg.is_eof(): 
                 print("EOF DE REVIEWS")
                 self.running_socket = False
                 client_sock.close()
@@ -75,15 +72,21 @@ class DataBaseWorker():
     def process_message(self, ch, method, properties, message: Message):
         if message.is_eof():
             print(f"Recibi un eof {message}")
-            self.curr_cant_eofs += 1
-            if  self.curr_cant_eofs == self.cant_clients:
+            id = str(message.get_client_id())
+
+            if not id in self.clients_eof:
+                self.clients_eof[id] = True
+
+            if  len(self.clients_eof.keys()) == self.cant_clients:
                 print("llegaron todos los eof, por lo que arranco con consultas")
                 self.running_queue = False
                 self.service_queues.ack(ch, method)
+                time.sleep(10)
+                self.service_queues.purge(self.queue_name_origin)
                 self.service_queues.close_connection()
-            else:
-                self.service_queues.ack(ch, method)
+                return
         else:
             msg_game_info = MessageGameInfo.from_message(message)
             self.data_base.store_game(msg_game_info.get_client_id(),msg_game_info.game)
-            self.service_queues.ack(ch, method)
+        
+        self.service_queues.ack(ch, method)

@@ -87,8 +87,7 @@ class ServiceQueues:
     def purge(self, queue_name):
         try:
             if self.connection and not self.connection.is_closed:
-                channel = self.connection.channel()
-                channel.queue_purge(queue=queue_name)
+                self.channel.queue_purge(queue=queue_name)
         except pika.exceptions.AMQPConnectionError:
             print("[purge] Desconectado de rabbit")
         except Exception as e:
