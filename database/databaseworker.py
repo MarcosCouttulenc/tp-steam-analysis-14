@@ -81,8 +81,6 @@ class DataBaseWorker():
                 print("llegaron todos los eof, por lo que arranco con consultas")
                 self.running_queue = False
                 self.service_queues.ack(ch, method)
-                time.sleep(10)
-                self.service_queues.purge(self.queue_name_origin)
                 self.service_queues.close_connection()
                 return
         else:
