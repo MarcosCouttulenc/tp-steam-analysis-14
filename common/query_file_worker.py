@@ -36,7 +36,11 @@ class QueryFile:
 
         self.actual_seq_number = 0
         self.last_seq_number_by_filter = {}
+        self.last_msg_id_log_transaction = ""
         self.path_status_info = f"{path_status_info}/state_last_messages.txt"
+        self.path_logging = f"{path_status_info}/transaction_logging.txt"
+
+        self.cant_mensajes_procesados = 0
 
         self.init_file_state()
         self.init_signals()
@@ -68,11 +72,12 @@ class QueryFile:
                     self.last_seq_number_by_filter[filter_info[0]] = filter_info[1]
 
                 # La segunda linea tiene la informacion de los EOFs por cliente
-                #line = file.readline().strip()
-                #data = line.split("|")
-                #for eofs_clients in data:
-                #    eof_info = eofs_clients.split(",")
-                #    self.eof_dict[eof_info[0]] = eof_info[1]
+                if line:
+                    line = file.readline().strip()
+                    data = line.split("|")
+                    for eofs_clients in data:
+                        eof_info = eofs_clients.split(",")
+                        self.eof_dict[eof_info[0]] = eof_info[1]
 
         print("Me levanto")
         print(f"Seq Number {self.actual_seq_number} \n")
@@ -100,22 +105,30 @@ class QueryFile:
     ## Proceso de conexion con health checker
     ## --------------------------------------------------------------------------------      
     def process_connect_health_checker(self):
-        time.sleep(10)
+        time.sleep(5)
 
         while self.running:
-            skt_next_healthchecker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            skt_next_healthchecker.connect((self.ip_healthchecker, self.port_healthchecker))
-            
-            # comienza la comunicacion
-            healthchecker_protocol = ProtocolHealthChecker(skt_next_healthchecker)
+            try:
+                # Crear y conectar el socket
+                skt_next_healthchecker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                skt_next_healthchecker.connect((self.ip_healthchecker, self.port_healthchecker))
 
-            # le envio el nombre de mi container
-            if (not healthchecker_protocol.send_container_name(get_container_name())):
-                continue
+                print("Conectado al healthchecker")
+                
+                # Iniciar protocolo de comunicación
+                healthchecker_protocol = ProtocolHealthChecker(skt_next_healthchecker)
 
-            # ciclo de checkeo de health
-            while healthchecker_protocol.wait_for_health_check():
-                healthchecker_protocol.health_check_ack()
+                # Enviar nombre del contenedor
+                if not healthchecker_protocol.send_container_name(get_container_name()):
+                    raise ConnectionError("Fallo al enviar el nombre del contenedor.")
+
+                print("Comienzo ciclo de healthcheck")
+                # Ciclo de health check
+                while healthchecker_protocol.wait_for_health_check():
+                    healthchecker_protocol.health_check_ack()
+            except (socket.error, ConnectionError) as e:
+                print(f"Error en la conexión con el healthchecker: {e}")
+                time.sleep(5)
     
 
     ## Proceso para devolver informacion de la query
@@ -165,6 +178,7 @@ class QueryFile:
             self.service_queues.pop(self.queue_name_origin, self.handle_new_update)
 
     def handle_new_update(self, ch, method, properties, message: Message):
+        self.cant_mensajes_procesados += 1
 
         if self.message_was_processed(message):
             print(f"El mensaje {message.get_message_id()} ya fue procesado\n")
@@ -177,21 +191,32 @@ class QueryFile:
             self.handle_eof(message, ch, method)
             return
 
-        with self.file_lock:
-            self.update_results(message)
-        
-        self.last_seq_number_by_filter[message.get_filterid_from_message_id()] = message.get_seqnum_from_message_id()
+        if self.last_msg_id_log_transaction == message.get_message_id():
+            print(f"msg filtrado por log: {message}")
+            self.service_queues.ack(ch, method)
+            return
 
+        with self.file_lock:
+            self.log_transaction(message)
+
+
+            self.update_results(message)
+
+        self.last_seq_number_by_filter[message.get_filterid_from_message_id()] = message.get_seqnum_from_message_id()
+        
         self.save_state_in_disk()
 
         self.service_queues.ack(ch, method)
 
     def handle_eof(self, message, ch, method):
-        print(f"[handle_eof] Llego un EOF : {message} \n")
         self.last_seq_number_by_filter[message.get_filterid_from_message_id()] = message.get_seqnum_from_message_id()
         self.save_state_in_disk()
         self.set_client_as_finished(message)
         self.service_queues.ack(ch, method)
+    
+    def log_transaction(self, message):
+        #la implementa cada queryfile
+        pass
 
     def set_client_as_finished(self, message):
         self.eof_dict[str(message.get_client_id())] = True
@@ -219,8 +244,8 @@ class QueryFile:
     
     def save_state_in_disk(self):
         last_seq_number_by_filter_data = "|".join(f"{key},{value}" for key, value in self.last_seq_number_by_filter.items())
-        #eof_clients_data = "|".join(f"{key},{value}" for key, value in self.eof_dict.items())
-        data = f"{str(self.actual_seq_number)}|{last_seq_number_by_filter_data}"#\n{eof_clients_data}"
+        eof_clients_data = "|".join(f"{key},{value}" for key, value in self.eof_dict.items())
+        data = f"{str(self.actual_seq_number)}|{last_seq_number_by_filter_data}\n{eof_clients_data}"
         temp_path = self.path_status_info + '.tmp'
         
         with open(temp_path, 'w') as temp_file:
@@ -229,3 +254,21 @@ class QueryFile:
             os.fsync(temp_file.fileno()) # Asegurar que se escriba físicamente en disco
 
         os.replace(temp_path, self.path_status_info)
+    
+    def simulate_failure(self):
+        #para asegurarme que ya me conecte al healthchecker
+        time.sleep(8)
+        print("Me caigo")
+        print(f"Seq Number {self.actual_seq_number} \n")
+        print(f"Dict: {self.last_seq_number_by_filter} \n")
+        self.running = False
+        
+        # return
+        print("Simulando caída del contenedor...")
+        #sys.stdout.flush()  # Asegúrate de vaciar el buffer
+        self.service_queues.close_connection()
+
+        print("cerre las colas de rabbit")
+
+        os._exit(1)
+        print("No debería llegar acá porque estoy muerto")

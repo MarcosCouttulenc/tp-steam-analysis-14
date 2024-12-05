@@ -5,6 +5,7 @@ import errno
 import os
 import io
 import socket
+import time
 
 from common.message import MessageClientAskResults
 from common.message import MessageQueryOneResult
@@ -82,22 +83,41 @@ class ResultResponser:
     def get_query1_results(self, client_id: int):
         query1_file_connection_data = self.query1_file_ip_port.split(',')
 
-        client_q1_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_q1_sock.connect((query1_file_connection_data[0], int(query1_file_connection_data[1])))
+        
+        while True:
+            try:
+                client_q1_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                client_q1_sock.connect((query1_file_connection_data[0], int(query1_file_connection_data[1])))
+                break
+            except:
+                print("Query1File caido al hacer connect, retry")
+                time.sleep(5)
+                continue
 
         self.protocol = Protocol(client_q1_sock)
         self.protocol.send(MessageClientAskResults(client_id))
 
         #Recibe el primer mensaje con el status de la operacion.
         msg_status = self.protocol.receive()
+        if not msg_status:
+            print("No se obtuvo resultado, queryFile1 caido en primer receive.")
+            return False
+
         msg_query1_status = MessageResultStatus.from_message(msg_status)
         status = msg_query1_status.message_payload
 
         #Recibe el segundo mensaje con los resultados de la query.
         msg = self.protocol.receive()
+        if msg == None:
+            print("No se obtuvo resultado, queryFile1 caido en segundo receive.")
+            return False
+        
+        try:
+            client_q1_sock.close()
+        except:
+            print("Se quiso cerrar el socket y ya estaba cerrado")
+            
         msg_query1_one_result = MessageQueryOneResult.from_message(msg)
-        if msg_query1_one_result == None:
-            return
         
         with open(self.tmp_file_path, "w") as file:
             file.write(f"Query1 Resultados: <br/>")
@@ -107,15 +127,22 @@ class ResultResponser:
             file.write(f"Total Mac: {msg_query1_one_result.total_mac} <br/>")
             file.write(f"Total Windows: {msg_query1_one_result.total_windows} <br/>")
             file.write(f"---------------------------------------------------------- <br/>")
-
-        client_q1_sock.close()
+        
         return status == ResultStatus.FINISHED.value
 
     def get_query2_results(self, client_id: int):
         query2_file_connection_data = self.query2_file_ip_port.split(',')
 
-        client_q2_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_q2_sock.connect((query2_file_connection_data[0], int(query2_file_connection_data[1])))
+
+        while True:
+            try:
+                client_q2_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                client_q2_sock.connect((query2_file_connection_data[0], int(query2_file_connection_data[1])))
+                break
+            except:
+                print("Query2File caido, retry")
+                time.sleep(5)
+                continue
 
         self.protocol = Protocol(client_q2_sock)
         self.protocol.send(MessageClientAskResults(client_id))
@@ -145,8 +172,18 @@ class ResultResponser:
 
     def get_query3_results(self, client_id: int):
         query3_file_connection_data = self.query3_file_ip_port.split(',')
-        client_q3_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_q3_sock.connect((query3_file_connection_data[0], int(query3_file_connection_data[1])))
+
+
+        while True:
+            try:
+                client_q3_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                client_q3_sock.connect((query3_file_connection_data[0], int(query3_file_connection_data[1])))
+        
+                break
+            except:
+                print("Query3File caido, retry")
+                time.sleep(5)
+                continue
         
         self.protocol = Protocol(client_q3_sock)
         self.protocol.send(MessageClientAskResults(client_id))
@@ -176,8 +213,17 @@ class ResultResponser:
 
     def get_query4_results(self, client_id: int):
         query4_file_connection_data = self.query4_file_ip_port.split(',')
-        client_q4_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_q4_sock.connect((query4_file_connection_data[0], int(query4_file_connection_data[1])))
+
+
+        while True:
+            try:
+                client_q4_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                client_q4_sock.connect((query4_file_connection_data[0], int(query4_file_connection_data[1])))
+                break
+            except:
+                print("Query4File caido, retry")
+                time.sleep(5)
+                continue
         
         self.protocol = Protocol(client_q4_sock)
         self.protocol.send(MessageClientAskResults(client_id))
@@ -207,19 +253,36 @@ class ResultResponser:
 
     def get_query5_results(self, client_id: int):
         query5_file_connection_data = self.query5_file_ip_port.split(',')
-        client_q5_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_q5_sock.connect((query5_file_connection_data[0], int(query5_file_connection_data[1])))
+
+
+        while True:
+            try:
+                client_q5_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                client_q5_sock.connect((query5_file_connection_data[0], int(query5_file_connection_data[1])))
+                break
+            except:
+                print("Query5File caido, retry")
+                time.sleep(5)
+                continue
         
         self.protocol = Protocol(client_q5_sock)
         self.protocol.send(MessageClientAskResults(client_id))
 
         #Recibe el primer mensaje con el status de la operacion.
         msg_status = self.protocol.receive()
+        if not msg_status:
+            print("No se obtuvo resultado, queryFile5 caido en el primer receive.")
+            return False
+        
         msg_query1_status = MessageResultStatus.from_message(msg_status)
         status = msg_query1_status.message_payload
 
         #Recibe el segundo mensaje con los resultados de la query.
         msg = self.protocol.receive()
+        
+        if not msg:
+            print("No se obtuvo resultado, queryFile5 caido en el segundo receive.")
+            return False
 
         msg_query5_five_result = MessageQueryFiveResult.from_message(msg)
         if msg_query5_five_result == None:
