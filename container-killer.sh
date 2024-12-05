@@ -1,4 +1,4 @@
-docker kill query2_file
+docker kill query3_file
 docker kill worker_windows_2
 docker kill worker_linux_1
 docker kill worker_mac_3

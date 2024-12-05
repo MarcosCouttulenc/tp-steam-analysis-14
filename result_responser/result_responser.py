@@ -199,15 +199,26 @@ class ResultResponser:
 
         #Recibe el primer mensaje con el status de la operacion.
         msg_status = self.protocol.receive()
+
+        if msg_status == None:
+            print("No se obtuvo resultado, queryFile3 caido en primer receive.")
+            return False
+        
         msg_query3_status = MessageResultStatus.from_message(msg_status)
         status = msg_query3_status.message_payload
 
         #Recibe el segundo mensaje con los resultados de la query.
         msg = self.protocol.receive()
+        if msg == None:
+            print("No se obtuvo resultado, queryFile3 caido en segundo receive.")
+            return False
+        
+        try:
+            client_q3_sock.close()
+        except:
+            print("Se quiso cerrar el socket y ya estaba cerrado")
 
         msg_query3_three_result = MessageQueryThreeResult.from_message(msg)
-        if msg_query3_three_result == None:
-            return
 
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query3 Resultados: <br/>")
@@ -216,8 +227,7 @@ class ResultResponser:
             for game_name, total_pos_reviews in msg_query3_three_result.top_five_buffer:
                 file.write(f"{game_name}: {total_pos_reviews} <br/>")
             file.write(f"---------------------------------------------------------- <br/>")
-        
-        client_q3_sock.close()
+
         return status == ResultStatus.FINISHED.value
 
     def get_query4_results(self, client_id: int):
@@ -239,15 +249,26 @@ class ResultResponser:
 
         #Recibe el primer mensaje con el status de la operacion.
         msg_status = self.protocol.receive()
-        msg_query1_status = MessageResultStatus.from_message(msg_status)
-        status = msg_query1_status.message_payload
+
+        if msg_status == None:
+            print("No se obtuvo resultado, queryFile4 caido en primer receive.")
+            return False
+        
+        msg_query4_status = MessageResultStatus.from_message(msg_status)
+        status = msg_query4_status.message_payload
 
         #Recibe el segundo mensaje con los resultados de la query.
         msg = self.protocol.receive()
+        if msg == None:
+            print("No se obtuvo resultado, queryFile4 caido en segundo receive.")
+            return False
+        
+        try:
+            client_q4_sock.close()
+        except:
+            print("Se quiso cerrar el socket y ya estaba cerrado")
 
         msg_query4_four_result = MessageQueryFourResult.from_message(msg)
-        if msg_query4_four_result == None:
-            return
         
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query4 Resultados: <br/>")
@@ -257,7 +278,6 @@ class ResultResponser:
                 file.write(f"{name} <br/>")
             file.write(f"---------------------------------------------------------- <br/>")
 
-        client_q4_sock.close()
         return status == ResultStatus.FINISHED.value
 
     def get_query5_results(self, client_id: int):
@@ -283,19 +303,21 @@ class ResultResponser:
             print("No se obtuvo resultado, queryFile5 caido en el primer receive.")
             return False
         
-        msg_query1_status = MessageResultStatus.from_message(msg_status)
-        status = msg_query1_status.message_payload
+        msg_query5_status = MessageResultStatus.from_message(msg_status)
+        status = msg_query5_status.message_payload
 
         #Recibe el segundo mensaje con los resultados de la query.
         msg = self.protocol.receive()
-        
         if not msg:
             print("No se obtuvo resultado, queryFile5 caido en el segundo receive.")
             return False
 
+        try:
+            client_q5_sock.close()
+        except:
+            print("Se quiso cerrar el socket y ya estaba cerrado")
+
         msg_query5_five_result = MessageQueryFiveResult.from_message(msg)
-        if msg_query5_five_result == None:
-            return
         
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query5 Resultados: <br/>")
@@ -304,8 +326,7 @@ class ResultResponser:
             for id, name in msg_query5_five_result.totals:
                 file.write(f"{id},{name} <br/>")
             file.write(f"---------------------------------------------------------- <br/>")
-
-        client_q5_sock.close()
+            
         return status == ResultStatus.FINISHED.value
 
     def send_queries_results_in_batch(self, client_sock, is_finished, client_id):
