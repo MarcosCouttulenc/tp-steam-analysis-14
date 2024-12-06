@@ -36,10 +36,40 @@ cantidad_ingles = 14
 #cantidad_reducer_three = 2
 #cantidad_reducer_four = 2
 #cantidad_reducer_five = 2
-cantidad_clientes = 2
+cantidad_clientes = 1
 cantidad_review_validator = 7* cantidad_clientes
 cantidad_game_validator = 7 * cantidad_clientes
 cantidad_health_checkers = 3
+cantidad_query1_file = 2
+cantidad_query2_file = 1
+cantidad_query3_file = 1
+cantidad_query4_file = 1
+cantidad_query5_file = 1
+
+listen_to_result_responser_port = 11999
+puertos_para_result_responser = {"query1_file": [], "query2_file": [], "query3_file": [], "query4_file": [], "query5_file": []}
+
+for i in range(cantidad_query1_file):
+    puertos_para_result_responser["query1_file"].append(str(listen_to_result_responser_port))
+    listen_to_result_responser_port += 1
+
+for i in range(cantidad_query2_file):
+    puertos_para_result_responser["query2_file"].append(str(listen_to_result_responser_port))
+    listen_to_result_responser_port += 1
+
+for i in range(cantidad_query3_file):
+    puertos_para_result_responser["query3_file"].append(str(listen_to_result_responser_port))
+    listen_to_result_responser_port += 1
+
+for i in range(cantidad_query4_file):
+    puertos_para_result_responser["query4_file"].append(str(listen_to_result_responser_port))
+    listen_to_result_responser_port += 1
+
+for i in range(cantidad_query5_file):
+    puertos_para_result_responser["query5_file"].append(str(listen_to_result_responser_port))
+    listen_to_result_responser_port += 1
+
+
 
 
 '''
@@ -106,6 +136,22 @@ def generar_compose():
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
     texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
     texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+
+    puertos1 = ",".join(puertos_para_result_responser["query1_file"])
+    texto_a_escribir += f"      - QUERY1_FILE_IP_PORT=query1_file,{puertos1}\n"
+
+    puertos2 = ",".join(puertos_para_result_responser["query2_file"])
+    texto_a_escribir += f"      - QUERY2_FILE_IP_PORT=query2_file,{puertos2}\n"
+
+    puertos3 = ",".join(puertos_para_result_responser["query3_file"])
+    texto_a_escribir += f"      - QUERY3_FILE_IP_PORT=query3_file,{puertos3}\n"
+
+    puertos4 = ",".join(puertos_para_result_responser["query4_file"])
+    texto_a_escribir += f"      - QUERY4_FILE_IP_PORT=query4_file,{puertos4}\n"
+
+    puertos5 = ",".join(puertos_para_result_responser["query5_file"])
+    texto_a_escribir += f"      - QUERY5_FILE_IP_PORT=query5_file,{puertos5}\n"
+
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
@@ -510,20 +556,28 @@ def generar_compose():
     '''
     
     # generar contenedores para cada query_file
-    to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
-    texto_a_escribir += "  query1_file:\n"
-    texto_a_escribir += "    container_name: query1_file\n"
-    texto_a_escribir += "    image: query1_file:latest\n"
-    texto_a_escribir += "    environment:\n"
-    texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
-    texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-    texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
-    texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
-    texto_a_escribir += "    networks:\n"
-    texto_a_escribir += "      - testing_net\n"
-    texto_a_escribir += "    depends_on:\n"
-    texto_a_escribir += "      - rabbitmq\n"
-    texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+    
+    listen_to_result_responser_port = 11999
+
+    # generar para query1_file
+    for i in range(1, cantidad_query1_file + 1):
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
+        texto_a_escribir += f"  query1_file_{i}:\n"
+        texto_a_escribir += f"    container_name: query1_file_{i}\n"
+        texto_a_escribir += "    image: query1_file:latest\n"
+        texto_a_escribir += "    environment:\n"
+        texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
+        texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - ID={i}\n"
+        texto_a_escribir += f"      - LISTEN_TO_RESULT_RESPONSER_PORT={listen_to_result_responser_port}\n"
+        texto_a_escribir += "    networks:\n"
+        texto_a_escribir += "      - testing_net\n"
+        texto_a_escribir += "    depends_on:\n"
+        texto_a_escribir += "      - rabbitmq\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        listen_to_result_responser_port += 1
     to_healt_checker_number += 1
 
     to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
@@ -535,12 +589,14 @@ def generar_compose():
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
     texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
     texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+    texto_a_escribir += f"      - LISTEN_TO_RESULT_RESPONSER_PORT={listen_to_result_responser_port}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
     texto_a_escribir += "      - rabbitmq\n"
     texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
     to_healt_checker_number += 1
+    listen_to_result_responser_port += 1
 
     to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
     texto_a_escribir += "  query3_file:\n"
@@ -551,12 +607,14 @@ def generar_compose():
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
     texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
     texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+    texto_a_escribir += f"      - LISTEN_TO_RESULT_RESPONSER_PORT={listen_to_result_responser_port}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
     texto_a_escribir += "      - rabbitmq\n"
     texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
     to_healt_checker_number += 1
+    listen_to_result_responser_port += 1
 
     to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
     texto_a_escribir += "  query4_file:\n"
@@ -567,12 +625,14 @@ def generar_compose():
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
     texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
     texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+    texto_a_escribir += f"      - LISTEN_TO_RESULT_RESPONSER_PORT={listen_to_result_responser_port}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
     texto_a_escribir += "      - rabbitmq\n"
     texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
     to_healt_checker_number += 1
+    listen_to_result_responser_port += 1
 
     to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
     texto_a_escribir += "  query5_file:\n"
@@ -583,12 +643,14 @@ def generar_compose():
     texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
     texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
     texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+    texto_a_escribir += f"      - LISTEN_TO_RESULT_RESPONSER_PORT={listen_to_result_responser_port}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
     texto_a_escribir += "      - rabbitmq\n"
     texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
     to_healt_checker_number += 1
+    listen_to_result_responser_port += 1
 
     # Generar contenedor de BDD
     to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers

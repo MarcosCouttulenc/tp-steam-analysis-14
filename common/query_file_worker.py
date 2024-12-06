@@ -19,11 +19,24 @@ import signal
 CHANNEL_NAME = "rabbitmq"
 
 class QueryFile:
-    def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog,ip_healthchecker, port_healthchecker, path_status_info):
+    def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog,ip_healthchecker, port_healthchecker, path_status_info, listen_to_result_responser_port):
+        print(f"queue_name_origin: {queue_name_origin}")
+        print(f"file_path: {file_path}")
+        print(f"result_query_port: {result_query_port}")
+        print(f"listen_backlog: {listen_backlog}")
+        print(f"ip_healthchecker: {ip_healthchecker}")
+        print(f"port_healthchecker: {port_healthchecker}")
+        print(f"path_status_info: {path_status_info}")
+        print(f"listen_to_result_responser_port: {listen_to_result_responser_port}")
+        
+
+
+
         self.queue_name_origin = queue_name_origin
         self.file_path = file_path
+        
         self.new_connection_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.new_connection_socket.bind(('', result_query_port))
+        self.new_connection_socket.bind(('', int(listen_to_result_responser_port)))
         self.new_connection_socket.listen(listen_backlog)
         self.file_lock = multiprocessing.Lock()
         self.running = True
@@ -44,6 +57,8 @@ class QueryFile:
 
         self.init_file_state()
         self.init_signals()
+
+        self.listen_to_result_responser_port = listen_to_result_responser_port
 
     def init_signals(self):
         signal.signal(signal.SIGTERM, self.stop)

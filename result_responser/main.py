@@ -15,11 +15,20 @@ def initialize_config():
         config_params["logging_level"] = os.getenv('LOGGING_LEVEL', config["DEFAULT"]["LOGGING_LEVEL"])
         config_params["tmp_file_path"] = os.getenv('TMP_FILE_PATH', config["DEFAULT"]["TMP_FILE_PATH"])
         config_params["listen_backlog"] = os.getenv('LISTEN_BACKLOG', config["DEFAULT"]["LISTEN_BACKLOG"])
+        '''
         config_params["query1_file_ip_port"] = os.getenv('QUERY1_FILE_PORT', config["DEFAULT"]["QUERY1_FILE_IP_PORT"])
         config_params["query2_file_ip_port"] = os.getenv('QUERY1_FILE_PORT', config["DEFAULT"]["QUERY2_FILE_IP_PORT"])
         config_params["query3_file_ip_port"] = os.getenv('QUERY1_FILE_PORT', config["DEFAULT"]["QUERY3_FILE_IP_PORT"])
         config_params["query4_file_ip_port"] = os.getenv('QUERY1_FILE_PORT', config["DEFAULT"]["QUERY4_FILE_IP_PORT"])
         config_params["query5_file_ip_port"] = os.getenv('QUERY1_FILE_PORT', config["DEFAULT"]["QUERY5_FILE_IP_PORT"])
+        '''
+
+        config_params["query1_file_ip_port"] = os.getenv('QUERY1_FILE_IP_PORT', config["DEFAULT"]["QUERY1_FILE_IP_PORT"])
+        config_params["query2_file_ip_port"] = os.getenv('QUERY2_FILE_IP_PORT', config["DEFAULT"]["QUERY2_FILE_IP_PORT"])
+        config_params["query3_file_ip_port"] = os.getenv('QUERY3_FILE_IP_PORT', config["DEFAULT"]["QUERY3_FILE_IP_PORT"])
+        config_params["query4_file_ip_port"] = os.getenv('QUERY4_FILE_IP_PORT', config["DEFAULT"]["QUERY4_FILE_IP_PORT"])
+        config_params["query5_file_ip_port"] = os.getenv('QUERY5_FILE_IP_PORT', config["DEFAULT"]["QUERY5_FILE_IP_PORT"])
+
         config_params["port_healthchecker"] = os.getenv('PORT_HEALTHCHECKER')
         config_params["ip_healthchecker"] = os.getenv('IP_HEALTHCHECKER')
     except KeyError as e:

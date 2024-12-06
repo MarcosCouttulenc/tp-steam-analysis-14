@@ -36,9 +36,13 @@ class Client:
 
         self.send_games()
 
+        print("Comienzo sleep")
         time.sleep(90)
+        print("Termino sleep")
         
         self.send_reviews()
+
+        print("Termine con las reviews")
 
         self.ask_for_results()
 
@@ -153,6 +157,7 @@ class Client:
             logging.critical(f'Client_{self.client_id} action: send_reviews | result: error | msg: {e}')
             
     def ask_for_results(self):
+        print("Comienzo a pedirle resultados al result responser")
         logging.info(f'Client_{self.client_id} action: ask_for_results | result: start')
 
         while True:

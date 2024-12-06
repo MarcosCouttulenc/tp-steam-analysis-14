@@ -36,18 +36,44 @@ class ResultResponser:
         self.query4_file_ip_port = query4_file_ip_port
         self.query5_file_ip_port = query5_file_ip_port
 
+        self.query_ports_dict = self.init_query_ports_dict(query1_file_ip_port, query2_file_ip_port, query3_file_ip_port, query4_file_ip_port, query5_file_ip_port)
+
         self.final_results = {}
 
         self.ip_healthchecker = ip_healthchecker
         self.port_healthchecker = int(port_healthchecker)
 
+    def init_query_ports_dict(self, query1_file_ip_port, query2_file_ip_port, query3_file_ip_port, query4_file_ip_port, query5_file_ip_port):
+        rta = {}
+        query1_data = query1_file_ip_port.split(",")
+        rta[query1_data[0]] = query1_data[1:]
+
+        query2_data = query2_file_ip_port.split(",")
+        rta[query2_data[0]] = query2_data[1:]
+
+        query3_data = query3_file_ip_port.split(",")
+        rta[query3_data[0]] = query3_data[1:]
+
+        query4_data = query4_file_ip_port.split(",")
+        rta[query4_data[0]] = query4_data[1:]
+
+        query5_data = query5_file_ip_port.split(",")
+        rta[query5_data[0]] = query5_data[1:]
+
+        return rta
+
+
+
     def start(self):
         logging.critical("result responser corriendo")
         while self.running:
             client_sock = self.__accept_new_connection()
+            print("Cliente conectado")
             protocol = Protocol(client_sock)
 
             message = protocol.receive()
+
+            print(f"Comienzo respuesta de cliente: {message.get_client_id()}")
             
             is_finished = self.get_queries_results_and_create_tmp_file(message.get_client_id())
 
@@ -78,8 +104,81 @@ class ResultResponser:
         is_finished = self.get_query5_results(client_id) and is_finished
         return is_finished
         
+    
+    def get_query1_results(self, client_id: int):
+        print("Comienzo a formar el resultado de la query1")
+        cant_windows = 0
+        cant_linux = 0
+        cant_mac = 0
+        is_finished = True
+
+
+        query1_file_ip_base = "query1_file"
+        cant_query1_files = len(self.query_ports_dict[query1_file_ip_base])
+        for i in range(cant_query1_files):
+            file_ip = f"{query1_file_ip_base}_{i}"
+            file_port = self.query_ports_dict[query1_file_ip_base][i]
+
+            print(f"Voy a consultar a: {file_ip}, {file_port}")
+
+            while True:
+                try:
+                    client_q1_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    client_q1_sock.connect((file_ip, int(file_port)))
+                    break
+                except:
+                    print("Query1File caido al hacer connect, retry")
+                    time.sleep(5)
+                    continue
+            self.protocol = Protocol(client_q1_sock)
+            self.protocol.send(MessageClientAskResults(client_id))
+            #Recibe el primer mensaje con el status de la operacion.
+            msg_status = self.protocol.receive()
+            if not msg_status:
+                print("No se obtuvo resultado, queryFile1 caido en primer receive.")
+                return False
+
+            msg_query1_status = MessageResultStatus.from_message(msg_status)
+            status = msg_query1_status.message_payload
+
+            #Recibe el segundo mensaje con los resultados de la query.
+            msg = self.protocol.receive()
+            if msg == None:
+                print("No se obtuvo resultado, queryFile1 caido en segundo receive.")
+                return False
+            
+            try:
+                client_q1_sock.close()
+            except:
+                print("Se quiso cerrar el socket y ya estaba cerrado")
+                
+            msg_query1_one_result = MessageQueryOneResult.from_message(msg)
+            cant_windows += msg_query1_one_result.total_windows
+            cant_linux += msg_query1_one_result.total_linux
+            cant_mac += msg_query1_one_result.total_mac
+
+            is_finished = is_finished and (status == ResultStatus.FINISHED.value)
+        # Recolecte la info de cada query1_file
+        
+        if is_finished:
+            status = ResultStatus.FINISHED.value
+        else:
+            status = ResultStatus.PENDING.value
+        
+        with open(self.tmp_file_path, "w") as file:
+            file.write(f"Query1 Resultados: <br/>")
+            file.write(f"Status: {status} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
+            file.write(f"Total Linux: {cant_linux} <br/>")
+            file.write(f"Total Mac: {cant_mac} <br/>")
+            file.write(f"Total Windows: {cant_windows} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
+        
+        return is_finished
         
 
+
+    '''
     def get_query1_results(self, client_id: int):
         query1_file_connection_data = self.query1_file_ip_port.split(',')
 
@@ -130,6 +229,7 @@ class ResultResponser:
         
         return status == ResultStatus.FINISHED.value
 
+        '''
     def get_query2_results(self, client_id: int):
         query2_file_connection_data = self.query2_file_ip_port.split(',')
 
