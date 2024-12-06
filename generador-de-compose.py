@@ -45,8 +45,10 @@ cantidad_query2_file = 1
 cantidad_query3_file = 1
 cantidad_query4_file = 1
 cantidad_query5_file = 1
+cantidad_bdds = 2
 
 RESULT_RESPONSER_PORT_START = 11996
+PUERTO_BDD_BASE = 13000
 
 listen_to_result_responser_port = RESULT_RESPONSER_PORT_START
 puertos_para_result_responser = {"query1_file": [], "query2_file": [], "query3_file": [], "query4_file": [], "query5_file": []}
@@ -657,23 +659,30 @@ def generar_compose():
     to_healt_checker_number += 1
     listen_to_result_responser_port += 1
 
+
+    puerto_bdd = PUERTO_BDD_BASE
     # Generar contenedor de BDD
-    to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
-    texto_a_escribir += "  database:\n"
-    texto_a_escribir += "    container_name: database\n"
-    texto_a_escribir += "    image: database:latest\n"
-    texto_a_escribir += "    environment:\n"
-    texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
-    texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-    texto_a_escribir += f"      - CANT_CLIENTS={cantidad_clientes}\n"
-    texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
-    texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
-    texto_a_escribir += "    networks:\n"
-    texto_a_escribir += "      - testing_net\n"
-    texto_a_escribir += "    depends_on:\n"
-    texto_a_escribir += "      - rabbitmq\n"
-    texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
-    to_healt_checker_number += 1
+    for i in range(1, cantidad_bdds + 1):
+
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
+        texto_a_escribir += f"  database_{i}:\n"
+        texto_a_escribir += f"    container_name: database_{i}\n"
+        texto_a_escribir += "    image: database:latest\n"
+        texto_a_escribir += "    environment:\n"
+        texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
+        texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - CANT_CLIENTS={cantidad_clientes}\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - ID={i}\n"
+        texto_a_escribir += f"      - PORT_REVIEWS={puerto_bdd}\n"
+        texto_a_escribir += "    networks:\n"
+        texto_a_escribir += "      - testing_net\n"
+        texto_a_escribir += "    depends_on:\n"
+        texto_a_escribir += "      - rabbitmq\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
+        puerto_bdd += 1
 
 
     port_master += 1
@@ -688,7 +697,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        texto_a_escribir += f"      - CANT_NEXT={cantidad_mac - 1},{cantidad_windows - 1},{cantidad_linux - 1},{cantidad_juego_indie - 1},1\n"
+        texto_a_escribir += f"      - CANT_NEXT={cantidad_mac - 1},{cantidad_windows - 1},{cantidad_linux - 1},{cantidad_juego_indie - 1},{cantidad_bdds}\n"
         texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_game_validator_{cantidad_game_validator}\n"
@@ -702,6 +711,12 @@ def generar_compose():
         texto_a_escribir += f"      - {'database' if is_master else f'worker_game_validator_{cantidad_game_validator}'}\n"
         texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
         to_healt_checker_number += 1
+
+    puertos_bdd_totales = []
+    for i in range(PUERTO_BDD_BASE, PUERTO_BDD_BASE + cantidad_bdds):
+        puertos_bdd_totales.append(str(i))
+    puertos_bdd_totales_str = ",".join(puertos_bdd_totales)
+
 
     # Generar contenedores para worker_review_validator
     port_master += 1
@@ -722,6 +737,7 @@ def generar_compose():
         texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
         texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
         texto_a_escribir += f"      - ID={i}\n"
+        texto_a_escribir += f"      - BDD_PORTS={puertos_bdd_totales_str}\n"
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"

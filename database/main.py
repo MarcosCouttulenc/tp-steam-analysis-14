@@ -22,6 +22,9 @@ def initialize_config():
         config_params["cant_clients"] = os.getenv('CANT_CLIENTS')
         config_params["port_healthchecker"] = os.getenv('PORT_HEALTHCHECKER')
         config_params["ip_healthchecker"] = os.getenv('IP_HEALTHCHECKER')
+        config_params["id"] = os.getenv('ID', config["DEFAULT"]["ID"])
+        config_params["port_reviews"] = os.getenv('PORT_REVIEWS', config["DEFAULT"]["PORT_REVIEWS"])
+        
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -38,13 +41,15 @@ def main():
     cant_clients = config_params["cant_clients"]
     port_healthchecker = config_params["port_healthchecker"]
     ip_healthchecker = config_params["ip_healthchecker"]
+    id = config_params["id"]
+    port_reviews = config_params["port_reviews"]
     
     initialize_log(logging_level)
     
     logging.debug(f"action: config | result: success ")
 
     data_base =  DataBase()
-    data_base_worker = DataBaseWorker(queue_name_origin, data_base,int(result_query_port), int(listen_backlog), int(cant_clients), ip_healthchecker, port_healthchecker)
+    data_base_worker = DataBaseWorker(queue_name_origin, data_base,int(result_query_port), int(listen_backlog), int(cant_clients), ip_healthchecker, port_healthchecker,id, port_reviews)
     data_base_worker.start()
 
 

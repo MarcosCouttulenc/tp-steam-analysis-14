@@ -20,19 +20,20 @@ CHANNEL_NAME =  "rabbitmq"
 
 class DataBaseWorker():
     
-    def __init__ (self,queue_name_origin,data_base, result_query_port, listen_backlog, cant_clients, ip_healthchecker, port_healthchecker):
-        self.queue_name_origin = queue_name_origin
+    def __init__ (self,queue_name_origin,data_base, result_query_port, listen_backlog, cant_clients, ip_healthchecker, port_healthchecker, id, port_reviews):
         self.service_queues = ServiceQueues(CHANNEL_NAME)
         self.servive_queue_purge = ServiceQueues(CHANNEL_NAME)
         self.data_base =  data_base
         self.running_queue = True
         self.running_socket = False
         self.cant_clients = cant_clients
+        self.id = id
+        self.queue_name_origin = f"{queue_name_origin}_{self.id}"
         
         self.ip_healthchecker = ip_healthchecker
         self.port_healthchecker = int(port_healthchecker)
         self.new_connection_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.new_connection_socket.bind(('', result_query_port))
+        self.new_connection_socket.bind(('', port_reviews))
         self.new_connection_socket.listen(listen_backlog)
         self.clients_eof = {}
         self.last_msg_id_log_transaction = ""

@@ -19,13 +19,25 @@ CHANNEL_NAME =  "rabbitmq"
 
 class WorkerReviewValidator(ReviewWorker):
     def __init__(self, queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
-                 port_master, db_games_ip, db_games_port, ip_healthchecker, port_healthchecker, id, path_status_info):
+                 port_master, db_games_ip, db_games_port, ip_healthchecker, port_healthchecker, id, path_status_info, bdd_ports):
         
         super().__init__(queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
                          port_master, ip_healthchecker, port_healthchecker, id, path_status_info)
         self.db_games_ip = db_games_ip
         self.db_games_port = db_games_port
         self.service_queues = ServiceQueues(CHANNEL_NAME)
+        self.bdd_ip_ports = self.bdd_ip_ports_dict(bdd_ports)
+        self.cant_bdd = len(self.bdd_ip_ports.keys())
+        # {"database_1": <puerto1>, "database_2": <puerto2>}
+    
+    def bdd_ip_ports_dict(self, bdd_ports):
+        rta = {}
+        bdd_ports_list = bdd_ports.split(",")
+        cant_ports = len(bdd_ports_list)
+        for i in range(cant_ports):
+            actual_ip = f"{self.db_games_ip}_{i+1}"
+            rta[actual_ip] = int(bdd_ports_list[i])
+        return rta
 
     def validate_review(self, _review):
         return True
@@ -94,10 +106,14 @@ class WorkerReviewValidator(ReviewWorker):
             
 
     def get_game_from_db(self, client_id, game_id) -> Game:
+        bdd_ident = Sharding.calculate_shard(game_id, self.cant_bdd)
+        bdd_ip = f"{self.db_games_ip}_{bdd_ident}"
+        bdd_port = self.bdd_ip_ports_dict[bdd_ip]
+
         while True:
             try:
                 db_games = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                db_games.connect((self.db_games_ip, self.db_games_port))
+                db_games.connect((bdd_ip, bdd_port))
     
             except:
                 print(f"Bdd se cayo, retry de conexion")
