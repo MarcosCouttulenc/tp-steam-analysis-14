@@ -40,13 +40,15 @@ cantidad_clientes = 1
 cantidad_review_validator = 7* cantidad_clientes
 cantidad_game_validator = 7 * cantidad_clientes
 cantidad_health_checkers = 3
-cantidad_query1_file = 2
+cantidad_query1_file = 5
 cantidad_query2_file = 1
 cantidad_query3_file = 1
 cantidad_query4_file = 1
 cantidad_query5_file = 1
 
-listen_to_result_responser_port = 11999
+RESULT_RESPONSER_PORT_START = 11996
+
+listen_to_result_responser_port = RESULT_RESPONSER_PORT_START
 puertos_para_result_responser = {"query1_file": [], "query2_file": [], "query3_file": [], "query4_file": [], "query5_file": []}
 
 for i in range(cantidad_query1_file):
@@ -212,7 +214,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        texto_a_escribir += f"      - CANT_NEXT={1}\n"
+        texto_a_escribir += f"      - CANT_NEXT={cantidad_query1_file}\n"
         texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_windows_{cantidad_windows}\n"
@@ -238,7 +240,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        texto_a_escribir += f"      - CANT_NEXT={1}\n"
+        texto_a_escribir += f"      - CANT_NEXT={cantidad_query1_file}\n"
         texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_linux_{cantidad_linux}\n"
@@ -265,7 +267,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        texto_a_escribir += f"      - CANT_NEXT={1}\n"
+        texto_a_escribir += f"      - CANT_NEXT={cantidad_query1_file}\n"
         texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_mac_{cantidad_mac}\n"
@@ -317,7 +319,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        texto_a_escribir += f"      - CANT_NEXT=1\n"
+        texto_a_escribir += f"      - CANT_NEXT={1}\n"
         texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_2010_{cantidad_decada}\n"
@@ -557,8 +559,7 @@ def generar_compose():
     
     # generar contenedores para cada query_file
     
-    listen_to_result_responser_port = 11999
-
+    listen_to_result_responser_port = RESULT_RESPONSER_PORT_START
     # generar para query1_file
     for i in range(1, cantidad_query1_file + 1):
         to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
@@ -590,6 +591,7 @@ def generar_compose():
     texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
     texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
     texto_a_escribir += f"      - LISTEN_TO_RESULT_RESPONSER_PORT={listen_to_result_responser_port}\n"
+    texto_a_escribir += f"      - ID={1}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
@@ -608,6 +610,7 @@ def generar_compose():
     texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
     texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
     texto_a_escribir += f"      - LISTEN_TO_RESULT_RESPONSER_PORT={listen_to_result_responser_port}\n"
+    texto_a_escribir += f"      - ID={1}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
@@ -626,6 +629,7 @@ def generar_compose():
     texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
     texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
     texto_a_escribir += f"      - LISTEN_TO_RESULT_RESPONSER_PORT={listen_to_result_responser_port}\n"
+    texto_a_escribir += f"      - ID={1}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"
@@ -644,6 +648,7 @@ def generar_compose():
     texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
     texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
     texto_a_escribir += f"      - LISTEN_TO_RESULT_RESPONSER_PORT={listen_to_result_responser_port}\n"
+    texto_a_escribir += f"      - ID={1}\n"
     texto_a_escribir += "    networks:\n"
     texto_a_escribir += "      - testing_net\n"
     texto_a_escribir += "    depends_on:\n"

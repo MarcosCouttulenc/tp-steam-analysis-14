@@ -19,7 +19,7 @@ import signal
 CHANNEL_NAME = "rabbitmq"
 
 class QueryFile:
-    def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog,ip_healthchecker, port_healthchecker, path_status_info, listen_to_result_responser_port):
+    def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog,ip_healthchecker, port_healthchecker, path_status_info, listen_to_result_responser_port, id):
         print(f"queue_name_origin: {queue_name_origin}")
         print(f"file_path: {file_path}")
         print(f"result_query_port: {result_query_port}")
@@ -29,10 +29,6 @@ class QueryFile:
         print(f"path_status_info: {path_status_info}")
         print(f"listen_to_result_responser_port: {listen_to_result_responser_port}")
         
-
-
-
-        self.queue_name_origin = queue_name_origin
         self.file_path = file_path
         
         self.new_connection_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -48,6 +44,7 @@ class QueryFile:
         self.port_healthchecker = int(port_healthchecker)
 
         self.actual_seq_number = 0
+        
         self.last_seq_number_by_filter = {}
         self.last_msg_id_log_transaction = ""
         self.path_status_info = f"{path_status_info}/state_last_messages.txt"
@@ -59,6 +56,11 @@ class QueryFile:
         self.init_signals()
 
         self.listen_to_result_responser_port = listen_to_result_responser_port
+        self.id = id
+        self.queue_name_origin = f"{queue_name_origin}-{self.id}"
+        print(f"queue_name_origin: {self.queue_name_origin}")
+
+
 
     def init_signals(self):
         signal.signal(signal.SIGTERM, self.stop)

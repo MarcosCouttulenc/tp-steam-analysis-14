@@ -115,8 +115,8 @@ class ResultResponser:
 
         query1_file_ip_base = "query1_file"
         cant_query1_files = len(self.query_ports_dict[query1_file_ip_base])
-        for i in range(cant_query1_files):
-            file_ip = f"{query1_file_ip_base}_{i}"
+        for i in range(0, cant_query1_files):
+            file_ip = f"{query1_file_ip_base}_{i+1}"
             file_port = self.query_ports_dict[query1_file_ip_base][i]
 
             print(f"Voy a consultar a: {file_ip}, {file_port}")
@@ -125,27 +125,31 @@ class ResultResponser:
                 try:
                     client_q1_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     client_q1_sock.connect((file_ip, int(file_port)))
+
+                    self.protocol = Protocol(client_q1_sock)
+                    self.protocol.send(MessageClientAskResults(client_id))
+                    #Recibe el primer mensaje con el status de la operacion.
+                    msg_status = self.protocol.receive()
+                    if not msg_status:
+                        print("No se obtuvo resultado, queryFile1 caido en primer receive.")
+                        continue
+
+                    msg_query1_status = MessageResultStatus.from_message(msg_status)
+                    status = msg_query1_status.message_payload
+
+                    #Recibe el segundo mensaje con los resultados de la query.
+                    msg = self.protocol.receive()
+                    if msg == None:
+                        print("No se obtuvo resultado, queryFile1 caido en segundo receive.")
+                        continue
+                        
                     break
+                    
                 except:
                     print("Query1File caido al hacer connect, retry")
                     time.sleep(5)
                     continue
-            self.protocol = Protocol(client_q1_sock)
-            self.protocol.send(MessageClientAskResults(client_id))
-            #Recibe el primer mensaje con el status de la operacion.
-            msg_status = self.protocol.receive()
-            if not msg_status:
-                print("No se obtuvo resultado, queryFile1 caido en primer receive.")
-                return False
 
-            msg_query1_status = MessageResultStatus.from_message(msg_status)
-            status = msg_query1_status.message_payload
-
-            #Recibe el segundo mensaje con los resultados de la query.
-            msg = self.protocol.receive()
-            if msg == None:
-                print("No se obtuvo resultado, queryFile1 caido en segundo receive.")
-                return False
             
             try:
                 client_q1_sock.close()

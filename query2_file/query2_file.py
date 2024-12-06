@@ -13,8 +13,8 @@ TOP_NUMBER = 10
 
 class QueryTwoFile(QueryFile):
 
-    def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog, ip_healthchecker, port_healthchecker, path_status_info, listen_to_result_responser_port):
-        super().__init__(queue_name_origin, file_path, result_query_port, listen_backlog, ip_healthchecker, port_healthchecker, path_status_info, listen_to_result_responser_port)
+    def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog, ip_healthchecker, port_healthchecker, path_status_info, listen_to_result_responser_port, id):
+        super().__init__(queue_name_origin, file_path, result_query_port, listen_backlog, ip_healthchecker, port_healthchecker, path_status_info, listen_to_result_responser_port, id)
         self.clients_file_paths = []
 
     def get_message_result_from_file_snapshot(self, client_id, file_snapshot):
