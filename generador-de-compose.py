@@ -22,15 +22,15 @@ cantidad_clientes = 1
 cantidad_game_validator = 3 * cantidad_clientes
 '''
 
-cantidad_windows = 7
-cantidad_linux =8
-cantidad_mac = 8
-cantidad_juego_indie = 6
+cantidad_windows = 5
+cantidad_linux =5
+cantidad_mac = 5
+cantidad_juego_indie = 5
 cantidad_decada = 5
 cantidad_review_indie = 5
-cantidad_positiva = 8
-cantidad_action = 6
-cantidad_ingles = 14
+cantidad_positiva = 5
+cantidad_action = 5
+cantidad_ingles = 10
 #cantidad_reducer_one = 1
 #cantidad_reducer_two = 2
 #cantidad_reducer_three = 2
@@ -44,8 +44,8 @@ cantidad_query1_file = 5
 cantidad_query2_file = 1
 cantidad_query3_file = 1
 cantidad_query4_file = 1
-cantidad_query5_file = 1
-cantidad_bdds = 2
+cantidad_query5_file = 5
+cantidad_bdds = 6
 
 RESULT_RESPONSER_PORT_START = 11996
 PUERTO_BDD_BASE = 13000
@@ -83,7 +83,7 @@ review_files = {"1": "10reviews.csv", "2": "10reviews.csv"}
 
 
 game_files = {"1": "fullgames.csv", "2": "1game.csv"}
-review_files = {"1": "data0.1porcent.csv", "2": "10reviews.csv"}
+review_files = {"1": "data1porcent.csv", "2": "10reviews.csv"}
 
 
 
@@ -399,7 +399,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        texto_a_escribir += f"      - CANT_NEXT={cantidad_positiva - 1},1\n"
+        texto_a_escribir += f"      - CANT_NEXT={cantidad_positiva - 1},{cantidad_query5_file}\n"
         texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_review_action_{cantidad_action}\n"
@@ -640,24 +640,27 @@ def generar_compose():
     to_healt_checker_number += 1
     listen_to_result_responser_port += 1
 
-    to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
-    texto_a_escribir += "  query5_file:\n"
-    texto_a_escribir += "    container_name: query5_file\n"
-    texto_a_escribir += "    image: query5_file:latest\n"
-    texto_a_escribir += "    environment:\n"
-    texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
-    texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-    texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
-    texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
-    texto_a_escribir += f"      - LISTEN_TO_RESULT_RESPONSER_PORT={listen_to_result_responser_port}\n"
-    texto_a_escribir += f"      - ID={1}\n"
-    texto_a_escribir += "    networks:\n"
-    texto_a_escribir += "      - testing_net\n"
-    texto_a_escribir += "    depends_on:\n"
-    texto_a_escribir += "      - rabbitmq\n"
-    texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
-    to_healt_checker_number += 1
-    listen_to_result_responser_port += 1
+    for i in range(1, cantidad_query5_file + 1):
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
+        texto_a_escribir += f"  query5_file_{i}:\n"
+        texto_a_escribir += f"    container_name: query5_file_{i}\n"
+        texto_a_escribir += "    image: query5_file:latest\n"
+        texto_a_escribir += "    environment:\n"
+        texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
+        texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - LISTEN_TO_RESULT_RESPONSER_PORT={listen_to_result_responser_port}\n"
+        texto_a_escribir += f"      - ID={i}\n"
+        #texto_a_escribir += "    volumes:\n"
+        #texto_a_escribir += "      - ./query5_file/status_worker:/status_worker\n"
+        texto_a_escribir += "    networks:\n"
+        texto_a_escribir += "      - testing_net\n"
+        texto_a_escribir += "    depends_on:\n"
+        texto_a_escribir += "      - rabbitmq\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
+        listen_to_result_responser_port += 1
 
 
     puerto_bdd = PUERTO_BDD_BASE

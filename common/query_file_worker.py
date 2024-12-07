@@ -285,14 +285,21 @@ class QueryFile:
             os.fsync(temp_file.fileno())
         os.replace(temp_path, path)
 
-    def atomic_append(self, data, path):
-        temp_path = path + '.tmp'
-        shutil.copy(path, temp_path)
+    def atomic_append(self, data, path_origin):
+        if not os.path.exists(path_origin):
+            os.makedirs(os.path.dirname(path_origin), exist_ok=True)
+
+            with open(path_origin, "w") as _:
+                pass
+
+        temp_path = path_origin + '.tmp'
+        shutil.copy(path_origin, temp_path)
+
         with open(temp_path, 'a') as temp_file:
             temp_file.write(data + "\n")
             temp_file.flush()
             os.fsync(temp_file.fileno())
-        os.replace(temp_path, path)
+        os.replace(temp_path, path_origin)
 
     
     def get_transaction_log(self, message):

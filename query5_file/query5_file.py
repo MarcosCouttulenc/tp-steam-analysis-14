@@ -42,13 +42,14 @@ class QueryFiveFile(QueryFile):
             self.clean_log_transaction(client_id)
             return
 
-        #data_client1.csv
-
         # traemos todos los logs
         # obtenemos datos del file del cliente
         # actualizamos datos con los logs en memoria.
         new_data = self.get_data_updated_with_transaction_log(client_id)
 
+        if (new_data == None):
+            return
+        
         # escribimos el tmp del file del cliente completo (atomic_write)
         # lo impactamos en el file posta del cliente (atomic_write)
         self.update_results_in_disk(client_id, new_data)
@@ -100,7 +101,8 @@ class QueryFiveFile(QueryFile):
         return f"{client_id}_{self.file_path}"
 
     def get_file_path_log_client(self, client_id):
-        return f"{self.path_logging}_{client_id}"
+        aux = self.path_logging
+        return aux.replace(".txt", f'_{client_id}.txt')
 
     def verify_modification_time(self, file_a, file_b):
         # Devuelve True si el archivo A fue modificado después que el archivo B.
@@ -129,62 +131,49 @@ class QueryFiveFile(QueryFile):
 
         if not client_id in self.log_transaction_len.keys():
             self.log_transaction_len[client_id] = 0
+
         self.log_transaction_len[client_id] += 1
 
     def get_transaction_log(self, message):
         msg_review_info = MessageReviewInfo.from_message(message)
         client_id = str(msg_review_info.get_client_id())
-        #file_info = self.get_file_info(client_id)
         game_name = msg_review_info.review.game_name
-
-        #if game_name in file_info.keys():
-        #    values = file_info[game_name] 
-        #else:
-        #    values = [0,0,0]
-        
-        #new_values = values
-
-        #if msg_review_info.review.is_positive():
-        #    new_values[0] += 1
-        #else:
-        #    new_values[1] += 1
-
         log_action = "positive" if msg_review_info.review.is_positive() else "negative"
-    
         transaction_log = f"msg::{message.get_message_id()}|client::{client_id}|game::{game_name}|game_id::{msg_review_info.review.game_id}|action::{log_action}"
+
         return transaction_log 
 
         
     def get_data_updated_with_transaction_log(self, client_id):
-        if not os.path.exists(self.path_logging):
-            os.makedirs(os.path.dirname(self.path_logging), exist_ok=True)
-            return
+        path_logging_client = self.get_file_path_log_client(client_id)
+
+        if not os.path.exists(path_logging_client):
+            os.makedirs(os.path.dirname(path_logging_client), exist_ok=True)
+            return None
         
         #Obtengo la data que tiene actualmente ese cliente.
         file_info = self.get_file_info(client_id)
         
         #Leo el archivo de log y le impacto a file_info cada uno de los logs
-        with open(self.get_file_path_log_client(client_id), "r") as file:
+        with open(path_logging_client, "r") as file:
             for line in file.readlines():
                 data = line.strip().split("|")
-
                 msg_id = data[0].split("::")[1]
                 client_id = data[1].split("::")[1]
                 game_name = data[2].split("::")[1]
                 game_id = data[3].split("::")[1]
-                previous_state = data[4].split("::")[1]
-                actual_state = data[5].split("::")[1]
+                log_action = data[4].split("::")[1]
         
                 aux = []
                 if not game_name in file_info.keys():
                     aux = [0, 0, game_id]
                 else:
                     aux = file_info[game_name]
-
-                pos_neg = actual_state.split("%!")
-
-                aux[0] = pos_neg[0]
-                aux[1] = pos_neg[1]
+                
+                if (log_action == "positive"):
+                    aux[0] += 1
+                else:
+                    aux[1] += 1
 
                 file_info[game_name] = aux
                 self.last_msg_id_log_transaction = msg_id
