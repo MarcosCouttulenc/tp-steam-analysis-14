@@ -45,7 +45,7 @@ cantidad_query2_file = 1
 cantidad_query3_file = 1
 cantidad_query4_file = 1
 cantidad_query5_file = 1
-cantidad_bdds = 5
+cantidad_bdds = 2
 
 RESULT_RESPONSER_PORT_START = 11996
 PUERTO_BDD_BASE = 13000
@@ -82,7 +82,7 @@ review_files = {"1": "10reviews.csv", "2": "10reviews.csv"}
 '''
 
 
-game_files = {"1": "10000games.csv", "2": "1game.csv"}
+game_files = {"1": "fullgames.csv", "2": "1game.csv"}
 review_files = {"1": "data0.1porcent.csv", "2": "10reviews.csv"}
 
 

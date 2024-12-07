@@ -6,8 +6,9 @@ logging.basicConfig(level=logging.CRITICAL)
 from common.message import MessageReviewInfo
 from common.message import MessageQueryFiveResult
 from common.protocol import *
+from common.message import Message
 
-from common.query_file_worker import QueryFile
+from common.query_file_worker import QueryFile, MAX_LOG_LEN
 
 class QueryFiveFile(QueryFile):
     def get_message_result_from_file_snapshot(self, client_id, file_snapshot):
@@ -28,20 +29,33 @@ class QueryFiveFile(QueryFile):
         return file_snapshot[:10]
     
     def update_results(self, message):
-        msg_review_info = MessageReviewInfo.from_message(message)
-        client_id = str(msg_review_info.get_client_id())
+        client_id = str(message.get_client_id())
+        if self.log_transaction_len[client_id] < MAX_LOG_LEN:
+            return
+            
+        # comparar archivo actual con el de logs para saber si ya fue aplicado y se cayo.
+        client_file_path = self.get_file_path_client(client_id)
+        client_log_path = self.get_file_path_log_client(client_id)
+        if self.verify_modification_time(client_log_path, client_file_path):
+            # borramos el log
+            # setear len de log en 0
+            self.clean_log_transaction(client_id)
+            return
 
-        data = self.get_file_info(client_id)
+        #data_client1.csv
 
-        if not msg_review_info.review.game_name in data:
-            data[msg_review_info.review.game_name] = [0, 0, msg_review_info.review.game_id]
+        # traemos todos los logs
+        # obtenemos datos del file del cliente
+        # actualizamos datos con los logs en memoria.
+        new_data = self.get_data_updated_with_transaction_log(client_id)
 
-        if msg_review_info.review.is_positive():
-            data[msg_review_info.review.game_name][0] += 1
-        else:
-            data[msg_review_info.review.game_name][1] += 1
+        # escribimos el tmp del file del cliente completo (atomic_write)
+        # lo impactamos en el file posta del cliente (atomic_write)
+        self.update_results_in_disk(client_id, new_data)
 
-        self.update_results_in_disk(client_id, data)
+        # borramos el log
+        # setear len de log en 0
+        self.clean_log_transaction(client_id)
     
 
     def get_percentil_90(self, data):
@@ -85,72 +99,95 @@ class QueryFiveFile(QueryFile):
     def get_file_path_client(self, client_id):
         return f"{client_id}_{self.file_path}"
 
+    def get_file_path_log_client(self, client_id):
+        return f"{self.path_logging}_{client_id}"
+
+    def verify_modification_time(self, file_a, file_b):
+        # Devuelve True si el archivo A fue modificado después que el archivo B.
+        try:
+            mtime_a = os.path.getmtime(file_a)
+            mtime_b = os.path.getmtime(file_b)
+            return mtime_a > mtime_b
+        except FileNotFoundError as e:
+            print(f"Error: {e}")
+            return False
+
 
 
     ## Transaction Log
     ## --------------------------------------------------------------------------------
+    def clean_log_transaction(self, client_id):
+        self.log_transaction_len[client_id] = 0
+        with open(self.get_file_path_log_client(client_id), "w") as _:
+            pass
+
+    def log_transaction(self, message: Message):
+        client_id = str(message.get_client_id())
+        transaction_log = self.get_transaction_log(message)
+        self.atomic_append(transaction_log, self.get_file_path_log_client(client_id))
+        self.last_msg_id_log_transaction = message.get_message_id()
+
+        if not client_id in self.log_transaction_len.keys():
+            self.log_transaction_len[client_id] = 0
+        self.log_transaction_len[client_id] += 1
+
     def get_transaction_log(self, message):
         msg_review_info = MessageReviewInfo.from_message(message)
         client_id = str(msg_review_info.get_client_id())
-        file_info = self.get_file_info(client_id)
+        #file_info = self.get_file_info(client_id)
         game_name = msg_review_info.review.game_name
 
-        if game_name in file_info.keys():
-            values = file_info[game_name] 
-        else:
-            values = [0,0,0]
+        #if game_name in file_info.keys():
+        #    values = file_info[game_name] 
+        #else:
+        #    values = [0,0,0]
         
-        new_values = values
+        #new_values = values
 
-        if msg_review_info.review.is_positive():
-            new_values[0] += 1
-        else:
-            new_values[1] += 1
+        #if msg_review_info.review.is_positive():
+        #    new_values[0] += 1
+        #else:
+        #    new_values[1] += 1
+
+        log_action = "positive" if msg_review_info.review.is_positive() else "negative"
     
-        transaction_log = f"msg::{message.get_message_id()}|client::{client_id}|game::{game_name}|game_id::{msg_review_info.review.game_id}|prev::{values[0]}%!{values[1]}|actual::{new_values[0]}%!{new_values[1]}"
+        transaction_log = f"msg::{message.get_message_id()}|client::{client_id}|game::{game_name}|game_id::{msg_review_info.review.game_id}|action::{log_action}"
         return transaction_log 
 
         
-    def recover_from_transaction_log(self):
+    def get_data_updated_with_transaction_log(self, client_id):
         if not os.path.exists(self.path_logging):
             os.makedirs(os.path.dirname(self.path_logging), exist_ok=True)
             return
         
-        print("Empieza recuperacion del log \n")
-        with open(self.path_logging, 'r') as file:
-            line = file.readline().strip()
-
-            print(f"Nos levantamos y el log tiene: {line}")
-
-            data = line.split("|")
-
-            msg_id = data[0].split("::")[1]
-            client_id = data[1].split("::")[1]
-            game_name = data[2].split("::")[1]
-            game_id = data[3].split("::")[1]
-            previous_state = data[4].split("::")[1]
-            actual_state = data[5].split("::")[1]
-
+        #Obtengo la data que tiene actualmente ese cliente.
         file_info = self.get_file_info(client_id)
-
-        to_print = "No estaba en el dict"
-        if game_name in file_info.keys():
-            to_print = file_info[game_name]
-        print(f"Antes de recuperar: {to_print}")
         
-        aux = []
-        if not game_name in file_info.keys():
-            aux = [0, 0, game_id]
-        else:
-            aux = file_info[game_name]
+        #Leo el archivo de log y le impacto a file_info cada uno de los logs
+        with open(self.get_file_path_log_client(client_id), "r") as file:
+            for line in file.readlines():
+                data = line.strip().split("|")
 
-        pos_neg = actual_state.split("%!")
+                msg_id = data[0].split("::")[1]
+                client_id = data[1].split("::")[1]
+                game_name = data[2].split("::")[1]
+                game_id = data[3].split("::")[1]
+                previous_state = data[4].split("::")[1]
+                actual_state = data[5].split("::")[1]
+        
+                aux = []
+                if not game_name in file_info.keys():
+                    aux = [0, 0, game_id]
+                else:
+                    aux = file_info[game_name]
 
-        aux[0] = pos_neg[0]
-        aux[1] = pos_neg[1]
+                pos_neg = actual_state.split("%!")
 
-        file_info[game_name] = aux
+                aux[0] = pos_neg[0]
+                aux[1] = pos_neg[1]
 
-        self.last_msg_id_log_transaction = msg_id
-        self.update_results_in_disk(client_id, file_info)
+                file_info[game_name] = aux
+                self.last_msg_id_log_transaction = msg_id
+
+        return file_info
         

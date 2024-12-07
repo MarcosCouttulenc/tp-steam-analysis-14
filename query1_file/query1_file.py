@@ -100,7 +100,6 @@ class QueryOneFile(QueryFile):
                     'total_windows': os_counts["windows"]
                 })
 
-
     def get_file_info(self):
         aux = {}
         
@@ -209,6 +208,8 @@ class QueryOneFile(QueryFile):
             file_info[client_id] = {}
 
         file_info[client_id][os_supported] = actual_state
+
+        ##
         
         self.last_msg_id_log_transaction = msg_id
         self.update_results_in_disk(file_info)

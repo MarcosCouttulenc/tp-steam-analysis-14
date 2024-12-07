@@ -3,8 +3,6 @@ import logging
 logging.basicConfig(level=logging.CRITICAL)
 from middleware.queue import ServiceQueues
 from common.message import Message
-from common.message import MessageQueryOneFileUpdate
-from common.message import MessageQueryOneResult
 from common.message import MessageResultStatus
 from common.message import ResultStatus
 from common.protocol import *
@@ -15,8 +13,11 @@ import errno
 import time
 import os
 import signal
+import shutil
+
 
 CHANNEL_NAME = "rabbitmq"
+MAX_LOG_LEN = 1000
 
 class QueryFile:
     def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog,ip_healthchecker, port_healthchecker, path_status_info, listen_to_result_responser_port, id):
@@ -59,6 +60,8 @@ class QueryFile:
         self.id = id
         self.queue_name_origin = f"{queue_name_origin}-{self.id}"
         print(f"queue_name_origin: {self.queue_name_origin}")
+
+        self.log_transaction_len = {}
 
 
 
@@ -262,21 +265,35 @@ class QueryFile:
         
         with open(temp_path, 'w') as temp_file:
             temp_file.write(data)
-            temp_file.flush() # Forzar escritura al sistema operativo
-            os.fsync(temp_file.fileno()) # Asegurar que se escriba físicamente en disco
+            temp_file.flush()
+            os.fsync(temp_file.fileno())
 
         os.replace(temp_path, self.path_status_info)
     
 
     def log_transaction(self, message):
         transaction_log = self.get_transaction_log(message)
-        temp_path = self.path_logging + '.tmp'
-        with open(temp_path, 'w') as temp_file:
-            temp_file.write(transaction_log)
-            temp_file.flush() # Forzar escritura al sistema operativo
-            os.fsync(temp_file.fileno()) # Asegurar que se escriba físicamente en disco
-        os.replace(temp_path, self.path_logging)
+        self.atomic_write(transaction_log, self.path_logging)
         self.last_msg_id_log_transaction = message.get_message_id()
+
+
+    def atomic_write(self, data, path):
+        temp_path = path + '.tmp'
+        with open(temp_path, 'w') as temp_file:
+            temp_file.write(data)
+            temp_file.flush()
+            os.fsync(temp_file.fileno())
+        os.replace(temp_path, path)
+
+    def atomic_append(self, data, path):
+        temp_path = path + '.tmp'
+        shutil.copy(path, temp_path)
+        with open(temp_path, 'a') as temp_file:
+            temp_file.write(data + "\n")
+            temp_file.flush()
+            os.fsync(temp_file.fileno())
+        os.replace(temp_path, path)
+
     
     def get_transaction_log(self, message):
         #implementar en cada queryFile
