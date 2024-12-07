@@ -571,6 +571,7 @@ class MessageClientAskResults(Message):
 class ResultStatus(Enum):
     PENDING = "Pending"
     FINISHED = "Finished"
+    ERROR = "Error"
 
 class MessageResultStatus(Message):
     def __init__(self, client_id, status: ResultStatus):

@@ -43,7 +43,7 @@ cantidad_health_checkers = 3
 cantidad_query1_file = 5
 cantidad_query2_file = 1
 cantidad_query3_file = 1
-cantidad_query4_file = 1
+cantidad_query4_file = 4
 cantidad_query5_file = 5
 cantidad_bdds = 6
 
@@ -425,7 +425,7 @@ def generar_compose():
         texto_a_escribir += "    environment:\n"
         texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
         texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-        texto_a_escribir += f"      - CANT_NEXT=1\n"
+        texto_a_escribir += f"      - CANT_NEXT={cantidad_query4_file}\n"
         texto_a_escribir += f"      - IS_MASTER={str(is_master)}\n"
         texto_a_escribir += f"      - PORT_MASTER={port_master}\n"
         texto_a_escribir += f"      - IP_MASTER=worker_review_english_{cantidad_ingles}\n"
@@ -621,24 +621,25 @@ def generar_compose():
     to_healt_checker_number += 1
     listen_to_result_responser_port += 1
 
-    to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
-    texto_a_escribir += "  query4_file:\n"
-    texto_a_escribir += "    container_name: query4_file\n"
-    texto_a_escribir += "    image: query4_file:latest\n"
-    texto_a_escribir += "    environment:\n"
-    texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
-    texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
-    texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
-    texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
-    texto_a_escribir += f"      - LISTEN_TO_RESULT_RESPONSER_PORT={listen_to_result_responser_port}\n"
-    texto_a_escribir += f"      - ID={1}\n"
-    texto_a_escribir += "    networks:\n"
-    texto_a_escribir += "      - testing_net\n"
-    texto_a_escribir += "    depends_on:\n"
-    texto_a_escribir += "      - rabbitmq\n"
-    texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
-    to_healt_checker_number += 1
-    listen_to_result_responser_port += 1
+    for i in range(1, cantidad_query4_file + 1):
+        to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers
+        texto_a_escribir += f"  query4_file_{i}:\n"
+        texto_a_escribir += f"    container_name: query4_file_{i}\n"
+        texto_a_escribir += "    image: query4_file:latest\n"
+        texto_a_escribir += "    environment:\n"
+        texto_a_escribir += "      - PYTHONUNBUFFERED=1\n"
+        texto_a_escribir += "      - LOGGING_LEVEL=DEBUG\n"
+        texto_a_escribir += f"      - IP_HEALTHCHECKER=health_checker_{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - PORT_HEALTHCHECKER=1200{to_healt_checker_number + 1}\n"
+        texto_a_escribir += f"      - LISTEN_TO_RESULT_RESPONSER_PORT={listen_to_result_responser_port}\n"
+        texto_a_escribir += f"      - ID={i}\n"
+        texto_a_escribir += "    networks:\n"
+        texto_a_escribir += "      - testing_net\n"
+        texto_a_escribir += "    depends_on:\n"
+        texto_a_escribir += "      - rabbitmq\n"
+        texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
+        to_healt_checker_number += 1
+        listen_to_result_responser_port += 1
 
     for i in range(1, cantidad_query5_file + 1):
         to_healt_checker_number = to_healt_checker_number % cantidad_health_checkers

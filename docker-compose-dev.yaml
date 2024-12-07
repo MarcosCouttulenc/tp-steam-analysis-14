@@ -71,8 +71,8 @@ services:
       - QUERY1_FILE_IP_PORT=query1_file,11996,11997,11998,11999,12000
       - QUERY2_FILE_IP_PORT=query2_file,12001
       - QUERY3_FILE_IP_PORT=query3_file,12002
-      - QUERY4_FILE_IP_PORT=query4_file,12003
-      - QUERY5_FILE_IP_PORT=query5_file,12004,12005,12006,12007,12008
+      - QUERY4_FILE_IP_PORT=query4_file,12003,12004,12005,12006
+      - QUERY5_FILE_IP_PORT=query5_file,12007,12008,12009,12010,12011
     networks:
       - testing_net
     depends_on:
@@ -921,7 +921,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=1
+      - CANT_NEXT=4
       - IS_MASTER=False
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_10
@@ -941,7 +941,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=1
+      - CANT_NEXT=4
       - IS_MASTER=False
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_10
@@ -961,7 +961,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=1
+      - CANT_NEXT=4
       - IS_MASTER=False
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_10
@@ -981,7 +981,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=1
+      - CANT_NEXT=4
       - IS_MASTER=False
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_10
@@ -1001,7 +1001,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=1
+      - CANT_NEXT=4
       - IS_MASTER=False
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_10
@@ -1021,7 +1021,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=1
+      - CANT_NEXT=4
       - IS_MASTER=False
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_10
@@ -1041,7 +1041,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=1
+      - CANT_NEXT=4
       - IS_MASTER=False
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_10
@@ -1061,7 +1061,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=1
+      - CANT_NEXT=4
       - IS_MASTER=False
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_10
@@ -1081,7 +1081,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=1
+      - CANT_NEXT=4
       - IS_MASTER=False
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_10
@@ -1101,7 +1101,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=1
+      - CANT_NEXT=4
       - IS_MASTER=True
       - PORT_MASTER=9009
       - IP_MASTER=worker_review_english_10
@@ -1227,8 +1227,8 @@ services:
       - rabbitmq
       - health_checker_2
 
-  query4_file:
-    container_name: query4_file
+  query4_file_1:
+    container_name: query4_file_1
     image: query4_file:latest
     environment:
       - PYTHONUNBUFFERED=1
@@ -1243,6 +1243,54 @@ services:
       - rabbitmq
       - health_checker_3
 
+  query4_file_2:
+    container_name: query4_file_2
+    image: query4_file:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
+      - LISTEN_TO_RESULT_RESPONSER_PORT=12004
+      - ID=2
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+      - health_checker_1
+
+  query4_file_3:
+    container_name: query4_file_3
+    image: query4_file:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
+      - LISTEN_TO_RESULT_RESPONSER_PORT=12005
+      - ID=3
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+      - health_checker_2
+
+  query4_file_4:
+    container_name: query4_file_4
+    image: query4_file:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
+      - LISTEN_TO_RESULT_RESPONSER_PORT=12006
+      - ID=4
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+      - health_checker_3
+
   query5_file_1:
     container_name: query5_file_1
     image: query5_file:latest
@@ -1251,7 +1299,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
-      - LISTEN_TO_RESULT_RESPONSER_PORT=12004
+      - LISTEN_TO_RESULT_RESPONSER_PORT=12007
       - ID=1
     networks:
       - testing_net
@@ -1267,7 +1315,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
-      - LISTEN_TO_RESULT_RESPONSER_PORT=12005
+      - LISTEN_TO_RESULT_RESPONSER_PORT=12008
       - ID=2
     networks:
       - testing_net
@@ -1283,7 +1331,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
-      - LISTEN_TO_RESULT_RESPONSER_PORT=12006
+      - LISTEN_TO_RESULT_RESPONSER_PORT=12009
       - ID=3
     networks:
       - testing_net
@@ -1299,7 +1347,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
-      - LISTEN_TO_RESULT_RESPONSER_PORT=12007
+      - LISTEN_TO_RESULT_RESPONSER_PORT=12010
       - ID=4
     networks:
       - testing_net
@@ -1315,7 +1363,7 @@ services:
       - LOGGING_LEVEL=DEBUG
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
-      - LISTEN_TO_RESULT_RESPONSER_PORT=12008
+      - LISTEN_TO_RESULT_RESPONSER_PORT=12011
       - ID=5
     networks:
       - testing_net
