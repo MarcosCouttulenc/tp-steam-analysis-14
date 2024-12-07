@@ -49,7 +49,7 @@ def main():
     logging.debug(f"action: config | result: success ")
 
     data_base =  DataBase()
-    data_base_worker = DataBaseWorker(queue_name_origin, data_base,int(result_query_port), int(listen_backlog), int(cant_clients), ip_healthchecker, port_healthchecker,id, port_reviews)
+    data_base_worker = DataBaseWorker(queue_name_origin, data_base,int(result_query_port), int(listen_backlog), int(cant_clients), ip_healthchecker, port_healthchecker,id, int(port_reviews))
     data_base_worker.start()
 
 

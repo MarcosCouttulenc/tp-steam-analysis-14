@@ -1633,13 +1633,64 @@ services:
       - rabbitmq
       - health_checker_2
 
+  database_3:
+    container_name: database_3
+    image: database:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_CLIENTS=1
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
+      - ID=3
+      - PORT_REVIEWS=13002
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+      - health_checker_3
+
+  database_4:
+    container_name: database_4
+    image: database:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_CLIENTS=1
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
+      - ID=4
+      - PORT_REVIEWS=13003
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+      - health_checker_1
+
+  database_5:
+    container_name: database_5
+    image: database:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_CLIENTS=1
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
+      - ID=5
+      - PORT_REVIEWS=13004
+    networks:
+      - testing_net
+    depends_on:
+      - rabbitmq
+      - health_checker_2
+
   worker_game_validator_1:
     container_name: worker_game_validator_1
     image: worker_game_validator:latest
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=7,6,7,5,2
+      - CANT_NEXT=7,6,7,5,5
       - IS_MASTER=False
       - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_7
@@ -1659,7 +1710,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=7,6,7,5,2
+      - CANT_NEXT=7,6,7,5,5
       - IS_MASTER=False
       - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_7
@@ -1679,7 +1730,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=7,6,7,5,2
+      - CANT_NEXT=7,6,7,5,5
       - IS_MASTER=False
       - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_7
@@ -1699,7 +1750,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=7,6,7,5,2
+      - CANT_NEXT=7,6,7,5,5
       - IS_MASTER=False
       - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_7
@@ -1719,7 +1770,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=7,6,7,5,2
+      - CANT_NEXT=7,6,7,5,5
       - IS_MASTER=False
       - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_7
@@ -1739,7 +1790,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=7,6,7,5,2
+      - CANT_NEXT=7,6,7,5,5
       - IS_MASTER=False
       - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_7
@@ -1759,7 +1810,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_NEXT=7,6,7,5,2
+      - CANT_NEXT=7,6,7,5,5
       - IS_MASTER=True
       - PORT_MASTER=9010
       - IP_MASTER=worker_game_validator_7
@@ -1770,7 +1821,11 @@ services:
     networks:
       - testing_net
     depends_on:
-      - database
+      - database_1
+      - database_2
+      - database_3
+      - database_4
+      - database_5
       - health_checker_3
 
   worker_review_validator_1:
@@ -1787,7 +1842,7 @@ services:
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
       - ID=1
-      - BDD_PORTS=13000,13001
+      - BDD_PORTS=13000,13001,13002,13003,13004
     networks:
       - testing_net
     depends_on:
@@ -1808,7 +1863,7 @@ services:
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
       - ID=2
-      - BDD_PORTS=13000,13001
+      - BDD_PORTS=13000,13001,13002,13003,13004
     networks:
       - testing_net
     depends_on:
@@ -1829,7 +1884,7 @@ services:
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
       - ID=3
-      - BDD_PORTS=13000,13001
+      - BDD_PORTS=13000,13001,13002,13003,13004
     networks:
       - testing_net
     depends_on:
@@ -1850,7 +1905,7 @@ services:
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
       - ID=4
-      - BDD_PORTS=13000,13001
+      - BDD_PORTS=13000,13001,13002,13003,13004
     networks:
       - testing_net
     depends_on:
@@ -1871,7 +1926,7 @@ services:
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
       - ID=5
-      - BDD_PORTS=13000,13001
+      - BDD_PORTS=13000,13001,13002,13003,13004
     networks:
       - testing_net
     depends_on:
@@ -1892,7 +1947,7 @@ services:
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
       - ID=6
-      - BDD_PORTS=13000,13001
+      - BDD_PORTS=13000,13001,13002,13003,13004
     networks:
       - testing_net
     depends_on:
@@ -1913,11 +1968,15 @@ services:
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
       - ID=7
-      - BDD_PORTS=13000,13001
+      - BDD_PORTS=13000,13001,13002,13003,13004
     networks:
       - testing_net
     depends_on:
-      - database
+      - database_1
+      - database_2
+      - database_3
+      - database_4
+      - database_5
       - health_checker_1
 
 networks:

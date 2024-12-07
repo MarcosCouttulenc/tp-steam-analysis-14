@@ -45,7 +45,7 @@ cantidad_query2_file = 1
 cantidad_query3_file = 1
 cantidad_query4_file = 1
 cantidad_query5_file = 1
-cantidad_bdds = 2
+cantidad_bdds = 5
 
 RESULT_RESPONSER_PORT_START = 11996
 PUERTO_BDD_BASE = 13000
@@ -708,7 +708,13 @@ def generar_compose():
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'database' if is_master else f'worker_game_validator_{cantidad_game_validator}'}\n"
+        
+        if is_master:
+            for j in range(1, cantidad_bdds + 1):
+                texto_a_escribir += f"      - database_{j}\n"
+        else:
+            texto_a_escribir += f"      - worker_game_validator_{cantidad_game_validator}\n"
+
         texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
         to_healt_checker_number += 1
 
@@ -716,6 +722,7 @@ def generar_compose():
     for i in range(PUERTO_BDD_BASE, PUERTO_BDD_BASE + cantidad_bdds):
         puertos_bdd_totales.append(str(i))
     puertos_bdd_totales_str = ",".join(puertos_bdd_totales)
+
 
 
     # Generar contenedores para worker_review_validator
@@ -741,7 +748,12 @@ def generar_compose():
         texto_a_escribir += "    networks:\n"
         texto_a_escribir += "      - testing_net\n"
         texto_a_escribir += "    depends_on:\n"
-        texto_a_escribir += f"      - {'database' if is_master else f'worker_review_validator_{cantidad_review_validator}'}\n"
+
+        if is_master:
+            for j in range(1, cantidad_bdds + 1):
+                texto_a_escribir += f"      - database_{j}\n"
+        else:
+            texto_a_escribir += f"      - worker_review_validator_{cantidad_review_validator}\n"
         texto_a_escribir += f"      - health_checker_{to_healt_checker_number + 1}\n\n"
         to_healt_checker_number += 1
 

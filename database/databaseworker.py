@@ -28,12 +28,12 @@ class DataBaseWorker():
         self.running_socket = False
         self.cant_clients = cant_clients
         self.id = id
-        self.queue_name_origin = f"{queue_name_origin}_{self.id}"
+        self.queue_name_origin = f"{queue_name_origin}-{self.id}"
         
         self.ip_healthchecker = ip_healthchecker
         self.port_healthchecker = int(port_healthchecker)
         self.new_connection_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.new_connection_socket.bind(('', port_reviews))
+        self.new_connection_socket.bind(('', int(port_reviews)))
         self.new_connection_socket.listen(listen_backlog)
         self.clients_eof = {}
         self.last_msg_id_log_transaction = ""
