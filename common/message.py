@@ -478,6 +478,9 @@ class MessageQueryFiveFileUpdate(Message):
 
 
 class MessageQueryFiveResult(Message):
+    # Ahora totals es un diccionario de la sig forma:
+    # {"name": [pos, neg, id]}
+    '''
     def __init__(self, client_id: int, totals):
         self.totals = totals
         
@@ -488,7 +491,18 @@ class MessageQueryFiveResult(Message):
         message_payload = message_payload[:-1*len(DATA_DELIMITER)]
 
         super().__init__(USELESS_ID,client_id, MESSAGE_QUERY_FIVE_RESULT, message_payload)
+    '''
+
+    def __init__(self, client_id: int, totals):
+        self.totals = totals
+        message_payload = ""
+        for game_name, game_data in totals.items():
+            message_payload += str(game_name) + FIELD_DELIMITER + str(game_data[0]) + FIELD_DELIMITER + str(game_data[1]) + FIELD_DELIMITER + str(game_data[2]) + DATA_DELIMITER
+        
+        message_payload = message_payload[:-1*len(DATA_DELIMITER)]
+        super().__init__(USELESS_ID,client_id, MESSAGE_QUERY_FIVE_RESULT, message_payload)
     
+    '''
     @classmethod
     def from_message(cls, message: Message) -> 'MessageQueryFiveResult':
         if message.message_type != MESSAGE_QUERY_FIVE_RESULT:
@@ -503,6 +517,24 @@ class MessageQueryFiveResult(Message):
         for elem in data:
             id, name = elem.split(FIELD_DELIMITER)
             buffer.append((id, name))
+
+        return cls(message.client_id,buffer)
+    '''
+
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageQueryFiveResult':
+        if message.message_type != MESSAGE_QUERY_FIVE_RESULT:
+            return None
+
+        data = message.message_payload.split(DATA_DELIMITER)
+        buffer = {}
+
+        if message.message_payload == "":
+            return cls(message.client_id, buffer)
+        
+        for elem in data:
+            name, pos, neg, id = elem.split(FIELD_DELIMITER)
+            buffer[name] = [int(pos), int(neg), int(id)]
 
         return cls(message.client_id,buffer)
 

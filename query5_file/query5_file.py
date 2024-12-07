@@ -15,7 +15,14 @@ class QueryFiveFile(QueryFile):
         message_result = MessageQueryFiveResult(client_id, file_snapshot)
         return message_result
 
+
     def get_file_snapshot(self, client_id):
+        return self.get_file_info(client_id)
+
+    '''
+    def get_file_snapshot(self, client_id):
+        # Ahora la file snapshot va a ser de la forma: [[id, name, pos, neg], [id, name, pos, neg]]
+        # y van a ser TODOS los juegos
         file_snapshot = []
         
         data = self.get_file_info(client_id)
@@ -27,12 +34,30 @@ class QueryFiveFile(QueryFile):
                 file_snapshot.append((game_info[2], name))
 
         return file_snapshot[:10]
+    '''
     
+    '''
+    def get_percentil_90(self, data):
+        if len(data) == 0:
+            return None
+
+        neg_reviews = [neg for pos, neg, id in data.values()]
+        neg_reviews_sorted = sorted(neg_reviews)
+        percentil_90_pos = int(0.90 * (len(neg_reviews_sorted) - 1))
+
+        percentil_90 = neg_reviews_sorted[percentil_90_pos]
+        return percentil_90
+    '''
+
     def update_results(self, message):
         client_id = str(message.get_client_id())
         if self.log_transaction_len[client_id] < MAX_LOG_LEN:
             return
             
+        self.update_results_from_log_transaction(client_id)
+        
+
+    def update_results_from_log_transaction(self, client_id):
         # comparar archivo actual con el de logs para saber si ya fue aplicado y se cayo.
         client_file_path = self.get_file_path_client(client_id)
         client_log_path = self.get_file_path_log_client(client_id)
@@ -57,19 +82,6 @@ class QueryFiveFile(QueryFile):
         # borramos el log
         # setear len de log en 0
         self.clean_log_transaction(client_id)
-    
-
-    def get_percentil_90(self, data):
-        if len(data) == 0:
-            return None
-
-        neg_reviews = [neg for pos, neg, id in data.values()]
-        neg_reviews_sorted = sorted(neg_reviews)
-        percentil_90_pos = int(0.90 * (len(neg_reviews_sorted) - 1))
-
-        percentil_90 = neg_reviews_sorted[percentil_90_pos]
-        return percentil_90
-
         
     def get_file_info(self, client_id):
         client_file_path = self.get_file_path_client(client_id)

@@ -38,7 +38,7 @@ cantidad_ingles = 10
 #cantidad_reducer_five = 2
 cantidad_clientes = 1
 cantidad_review_validator = 7* cantidad_clientes
-cantidad_game_validator = 7 * cantidad_clientes
+cantidad_game_validator = 13 * cantidad_clientes
 cantidad_health_checkers = 3
 cantidad_query1_file = 5
 cantidad_query2_file = 1
@@ -82,8 +82,8 @@ review_files = {"1": "10reviews.csv", "2": "10reviews.csv"}
 '''
 
 
-game_files = {"1": "fullgames.csv", "2": "1game.csv"}
-review_files = {"1": "data1porcent.csv", "2": "10reviews.csv"}
+game_files = {"1": "10000games.csv", "2": "1game.csv"}
+review_files = {"1": "data0.1porcent.csv", "2": "10reviews.csv"}
 
 
 

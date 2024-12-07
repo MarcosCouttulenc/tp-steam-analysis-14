@@ -228,6 +228,7 @@ class QueryFile:
 
     def handle_eof(self, message, ch, method):
         self.last_seq_number_by_filter[message.get_filterid_from_message_id()] = message.get_seqnum_from_message_id()
+        self.update_results_from_log_transaction(message.get_client_id())
         self.save_state_in_disk()
         self.set_client_as_finished(message)
         self.service_queues.ack(ch, method)
@@ -243,6 +244,9 @@ class QueryFile:
         return 0
 
     def update_results(self, message):
+        return 0
+
+    def update_results_from_log_transaction(self, client_id):
         return 0
     
     def message_was_processed(self, message : Message):

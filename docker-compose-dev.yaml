@@ -6,7 +6,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - CANT_GAME_VALIDATORS=6
+      - CANT_GAME_VALIDATORS=12
       - CANT_REVIEW_VALIDATORS=6
       - PORT_HEALTHCHECKER=12001
       - IP_HEALTHCHECKER=health_checker_1
@@ -86,8 +86,8 @@ services:
       - CLI_ID=1
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
-      - GAMES_FILE_PATH=fullgames.csv
-      - REVIEWS_FILE_PATH=data1porcent.csv
+      - GAMES_FILE_PATH=10000games.csv
+      - REVIEWS_FILE_PATH=data0.1porcent.csv
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
     volumes:
@@ -1434,15 +1434,15 @@ services:
       - CANT_NEXT=4,4,4,4,6
       - IS_MASTER=False
       - PORT_MASTER=9010
-      - IP_MASTER=worker_game_validator_7
-      - CANT_SLAVES=7
+      - IP_MASTER=worker_game_validator_13
+      - CANT_SLAVES=13
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
       - ID=1
     networks:
       - testing_net
     depends_on:
-      - worker_game_validator_7
+      - worker_game_validator_13
       - health_checker_3
 
   worker_game_validator_2:
@@ -1454,15 +1454,15 @@ services:
       - CANT_NEXT=4,4,4,4,6
       - IS_MASTER=False
       - PORT_MASTER=9010
-      - IP_MASTER=worker_game_validator_7
-      - CANT_SLAVES=7
+      - IP_MASTER=worker_game_validator_13
+      - CANT_SLAVES=13
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
       - ID=2
     networks:
       - testing_net
     depends_on:
-      - worker_game_validator_7
+      - worker_game_validator_13
       - health_checker_1
 
   worker_game_validator_3:
@@ -1474,15 +1474,15 @@ services:
       - CANT_NEXT=4,4,4,4,6
       - IS_MASTER=False
       - PORT_MASTER=9010
-      - IP_MASTER=worker_game_validator_7
-      - CANT_SLAVES=7
+      - IP_MASTER=worker_game_validator_13
+      - CANT_SLAVES=13
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
       - ID=3
     networks:
       - testing_net
     depends_on:
-      - worker_game_validator_7
+      - worker_game_validator_13
       - health_checker_2
 
   worker_game_validator_4:
@@ -1494,15 +1494,15 @@ services:
       - CANT_NEXT=4,4,4,4,6
       - IS_MASTER=False
       - PORT_MASTER=9010
-      - IP_MASTER=worker_game_validator_7
-      - CANT_SLAVES=7
+      - IP_MASTER=worker_game_validator_13
+      - CANT_SLAVES=13
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
       - ID=4
     networks:
       - testing_net
     depends_on:
-      - worker_game_validator_7
+      - worker_game_validator_13
       - health_checker_3
 
   worker_game_validator_5:
@@ -1514,15 +1514,15 @@ services:
       - CANT_NEXT=4,4,4,4,6
       - IS_MASTER=False
       - PORT_MASTER=9010
-      - IP_MASTER=worker_game_validator_7
-      - CANT_SLAVES=7
+      - IP_MASTER=worker_game_validator_13
+      - CANT_SLAVES=13
       - IP_HEALTHCHECKER=health_checker_1
       - PORT_HEALTHCHECKER=12001
       - ID=5
     networks:
       - testing_net
     depends_on:
-      - worker_game_validator_7
+      - worker_game_validator_13
       - health_checker_1
 
   worker_game_validator_6:
@@ -1534,15 +1534,15 @@ services:
       - CANT_NEXT=4,4,4,4,6
       - IS_MASTER=False
       - PORT_MASTER=9010
-      - IP_MASTER=worker_game_validator_7
-      - CANT_SLAVES=7
+      - IP_MASTER=worker_game_validator_13
+      - CANT_SLAVES=13
       - IP_HEALTHCHECKER=health_checker_2
       - PORT_HEALTHCHECKER=12002
       - ID=6
     networks:
       - testing_net
     depends_on:
-      - worker_game_validator_7
+      - worker_game_validator_13
       - health_checker_2
 
   worker_game_validator_7:
@@ -1552,13 +1552,133 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
       - CANT_NEXT=4,4,4,4,6
-      - IS_MASTER=True
+      - IS_MASTER=False
       - PORT_MASTER=9010
-      - IP_MASTER=worker_game_validator_7
-      - CANT_SLAVES=7
+      - IP_MASTER=worker_game_validator_13
+      - CANT_SLAVES=13
       - IP_HEALTHCHECKER=health_checker_3
       - PORT_HEALTHCHECKER=12003
       - ID=7
+    networks:
+      - testing_net
+    depends_on:
+      - worker_game_validator_13
+      - health_checker_3
+
+  worker_game_validator_8:
+    container_name: worker_game_validator_8
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=4,4,4,4,6
+      - IS_MASTER=False
+      - PORT_MASTER=9010
+      - IP_MASTER=worker_game_validator_13
+      - CANT_SLAVES=13
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
+      - ID=8
+    networks:
+      - testing_net
+    depends_on:
+      - worker_game_validator_13
+      - health_checker_1
+
+  worker_game_validator_9:
+    container_name: worker_game_validator_9
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=4,4,4,4,6
+      - IS_MASTER=False
+      - PORT_MASTER=9010
+      - IP_MASTER=worker_game_validator_13
+      - CANT_SLAVES=13
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
+      - ID=9
+    networks:
+      - testing_net
+    depends_on:
+      - worker_game_validator_13
+      - health_checker_2
+
+  worker_game_validator_10:
+    container_name: worker_game_validator_10
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=4,4,4,4,6
+      - IS_MASTER=False
+      - PORT_MASTER=9010
+      - IP_MASTER=worker_game_validator_13
+      - CANT_SLAVES=13
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
+      - ID=10
+    networks:
+      - testing_net
+    depends_on:
+      - worker_game_validator_13
+      - health_checker_3
+
+  worker_game_validator_11:
+    container_name: worker_game_validator_11
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=4,4,4,4,6
+      - IS_MASTER=False
+      - PORT_MASTER=9010
+      - IP_MASTER=worker_game_validator_13
+      - CANT_SLAVES=13
+      - IP_HEALTHCHECKER=health_checker_1
+      - PORT_HEALTHCHECKER=12001
+      - ID=11
+    networks:
+      - testing_net
+    depends_on:
+      - worker_game_validator_13
+      - health_checker_1
+
+  worker_game_validator_12:
+    container_name: worker_game_validator_12
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=4,4,4,4,6
+      - IS_MASTER=False
+      - PORT_MASTER=9010
+      - IP_MASTER=worker_game_validator_13
+      - CANT_SLAVES=13
+      - IP_HEALTHCHECKER=health_checker_2
+      - PORT_HEALTHCHECKER=12002
+      - ID=12
+    networks:
+      - testing_net
+    depends_on:
+      - worker_game_validator_13
+      - health_checker_2
+
+  worker_game_validator_13:
+    container_name: worker_game_validator_13
+    image: worker_game_validator:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+      - CANT_NEXT=4,4,4,4,6
+      - IS_MASTER=True
+      - PORT_MASTER=9010
+      - IP_MASTER=worker_game_validator_13
+      - CANT_SLAVES=13
+      - IP_HEALTHCHECKER=health_checker_3
+      - PORT_HEALTHCHECKER=12003
+      - ID=13
     networks:
       - testing_net
     depends_on:

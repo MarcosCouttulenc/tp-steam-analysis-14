@@ -106,7 +106,7 @@ class ResultResponser:
         
     
     def get_query1_results(self, client_id: int):
-        print("Comienzo a formar el resultado de la query1")
+        #print("Comienzo a formar el resultado de la query1")
         cant_windows = 0
         cant_linux = 0
         cant_mac = 0
@@ -119,7 +119,7 @@ class ResultResponser:
             file_ip = f"{query1_file_ip_base}_{i+1}"
             file_port = self.query_ports_dict[query1_file_ip_base][i]
 
-            print(f"Voy a consultar a: {file_ip}, {file_port}")
+            #print(f"Voy a consultar a: {file_ip}, {file_port}")
 
             while True:
                 try:
@@ -384,6 +384,102 @@ class ResultResponser:
 
         return status == ResultStatus.FINISHED.value
 
+
+    def get_query5_results(self, client_id: int):
+        print("Comienza get_query5_file")
+        is_finished = True
+        totals = {}
+        query5_file_ip_base = "query5_file"
+        cant_query5_files = len(self.query_ports_dict[query5_file_ip_base])
+        
+        for i in range(0, cant_query5_files):
+            file_ip = f"{query5_file_ip_base}_{i+1}"
+            file_port = self.query_ports_dict[query5_file_ip_base][i]
+
+            print(f"Voy a consultar a: {file_ip}, {file_port}")
+
+            while True:
+                try:
+                    client_q5_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    client_q5_sock.connect((file_ip, int(file_port)))
+                    break
+                except:
+                    print("Query5File caido, retry")
+                    time.sleep(5)
+                    continue
+
+            self.protocol = Protocol(client_q5_sock)
+            self.protocol.send(MessageClientAskResults(client_id))
+
+            #Recibe el primer mensaje con el status de la operacion.
+            msg_status = self.protocol.receive()
+            if not msg_status:
+                print("No se obtuvo resultado, queryFile5 caido en el primer receive.")
+                return False
+            
+            msg_query5_status = MessageResultStatus.from_message(msg_status)
+            status = msg_query5_status.message_payload
+
+            #Recibe el segundo mensaje con los resultados de la query.
+            msg = self.protocol.receive()
+            if not msg:
+                print("No se obtuvo resultado, queryFile5 caido en el segundo receive.")
+                return False
+
+            try:
+                client_q5_sock.close()
+            except:
+                print("Se quiso cerrar el socket y ya estaba cerrado")
+
+            msg_query5_five_result = MessageQueryFiveResult.from_message(msg)
+
+            #print(f"Mensaje que llega: {msg_query5_five_result}")
+
+            print(f"Totals antes de actualizar: {totals}\n")
+            totals.update(msg_query5_five_result.totals)
+
+            print(f"Totals despues de actualizar: {totals}\n\n")
+            
+            is_finished = is_finished and (status == ResultStatus.FINISHED.value)
+
+        if is_finished:
+            status = ResultStatus.FINISHED.value
+        else:
+            status = ResultStatus.PENDING.value
+        
+        result = []
+        percentil_90 = self.get_percentil_90(totals)
+
+        for name, game_info in sorted(totals.items(), key=lambda x: x[1][2], reverse=False):
+            if game_info[1] > percentil_90:
+                result.append((game_info[2], name))
+
+        final_result = result[:10]
+
+        with open(self.tmp_file_path, "a") as file:
+            file.write(f"Query5 Resultados: <br/>")
+            file.write(f"Status: {status} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
+            for id, name in final_result:
+                file.write(f"{id},{name} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
+        
+        return is_finished
+        
+    
+    def get_percentil_90(self, data):
+        if len(data) == 0:
+            return None
+
+        neg_reviews = [neg for pos, neg, id in data.values()]
+        neg_reviews_sorted = sorted(neg_reviews)
+        percentil_90_pos = int(0.90 * (len(neg_reviews_sorted) - 1))
+
+        percentil_90 = neg_reviews_sorted[percentil_90_pos]
+        return percentil_90
+
+
+    '''
     def get_query5_results(self, client_id: int):
         query5_file_connection_data = self.query5_file_ip_port.split(',')
 
@@ -432,6 +528,7 @@ class ResultResponser:
             file.write(f"---------------------------------------------------------- <br/>")
             
         return status == ResultStatus.FINISHED.value
+    '''
 
     def send_queries_results_in_batch(self, client_sock, is_finished, client_id):
         protocol = Protocol(client_sock)
