@@ -37,7 +37,7 @@ class Client:
         self.send_games()
 
         print("Comienzo sleep")
-        #time.sleep()
+        time.sleep(180)
         print("Termino sleep")
         
         self.send_reviews()

@@ -146,7 +146,50 @@ class ResultResponser:
         
         return is_finished
         
+    def get_query2_results(self, client_id: int):
+        print("Comienza get_query2_file")
+        is_finished = True
+        totals = []
+        query2_file_ip_base = "query2_file"
+        cant_query2_files = len(self.query_ports_dict[query2_file_ip_base])
 
+        for i in range(0, cant_query2_files):
+            file_ip = f"{query2_file_ip_base}_{i+1}"
+            file_port = self.query_ports_dict[query2_file_ip_base][i]
+
+            (status, msg_info) = self.get_info_from_query_file_node(query2_file_ip_base, file_ip, file_port, client_id)
+
+            if (status == ResultStatus.ERROR.value):
+                return False
+            
+            msg_query2_two_result = MessageQueryTwoResult.from_message(msg_info)
+            totals += msg_query2_two_result.top_ten_buffer
+            is_finished = is_finished and (status == ResultStatus.FINISHED.value)
+
+        if is_finished:
+            status = ResultStatus.FINISHED.value
+        else:
+            status = ResultStatus.PENDING.value
+
+        total_list_sorted = sorted(totals, key=lambda item: item[1], reverse=True)
+        top_ten = []
+
+        if (len(total_list_sorted) > 10):
+            top_ten = total_list_sorted[:10]
+        else:
+            top_ten = total_list_sorted
+
+        with open(self.tmp_file_path, "a") as file:
+            file.write(f"Query2 Resultados: <br/>")
+            file.write(f"Status: {status} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
+            for game_name, playtime in top_ten:
+                file.write(f"{game_name}: {playtime} <br/>")
+            file.write(f"---------------------------------------------------------- <br/>")
+
+        return is_finished
+
+    '''
     def get_query2_results(self, client_id: int):
         query2_file_connection_data = self.query2_file_ip_port.split(',')
 
@@ -195,57 +238,51 @@ class ResultResponser:
             file.write(f"---------------------------------------------------------- <br/>")
         
         return status == ResultStatus.FINISHED.value
+    '''
 
     def get_query3_results(self, client_id: int):
-        query3_file_connection_data = self.query3_file_ip_port.split(',')
-
-
-        while True:
-            try:
-                client_q3_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                client_q3_sock.connect((query3_file_connection_data[0], int(query3_file_connection_data[1])))
+        print("Comienza get_query3_file")
+        is_finished = True
+        totals = []
+        query3_file_ip_base = "query3_file"
+        cant_query3_files = len(self.query_ports_dict[query3_file_ip_base])
         
-                break
-            except:
-                print("Query3File caido, retry")
-                time.sleep(5)
-                continue
-        
-        self.protocol = Protocol(client_q3_sock)
-        self.protocol.send(MessageClientAskResults(client_id))
+        for i in range(0, cant_query3_files):
+            file_ip = f"{query3_file_ip_base}_{i+1}"
+            file_port = self.query_ports_dict[query3_file_ip_base][i]
 
-        #Recibe el primer mensaje con el status de la operacion.
-        msg_status = self.protocol.receive()
+            (status, msg_info) = self.get_info_from_query_file_node(query3_file_ip_base, file_ip, file_port, client_id)
 
-        if msg_status == None:
-            print("No se obtuvo resultado, queryFile3 caido en primer receive.")
-            return False
-        
-        msg_query3_status = MessageResultStatus.from_message(msg_status)
-        status = msg_query3_status.message_payload
+            if (status == ResultStatus.ERROR.value):
+                return False
+            
+            msg_query3_three_result = MessageQueryThreeResult.from_message(msg_info)
+            totals += msg_query3_three_result.top_five_buffer
+            is_finished = is_finished and (status == ResultStatus.FINISHED.value)
 
-        #Recibe el segundo mensaje con los resultados de la query.
-        msg = self.protocol.receive()
-        if msg == None:
-            print("No se obtuvo resultado, queryFile3 caido en segundo receive.")
-            return False
-        
-        try:
-            client_q3_sock.close()
-        except:
-            print("Se quiso cerrar el socket y ya estaba cerrado")
+        if is_finished:
+            status = ResultStatus.FINISHED.value
+        else:
+            status = ResultStatus.PENDING.value
 
-        msg_query3_three_result = MessageQueryThreeResult.from_message(msg)
+        total_list_sorted = sorted(totals, key=lambda item: item[1], reverse=True)
+        top_five = []
+
+        if (len(total_list_sorted) > 5):
+            top_five = total_list_sorted[:5]
+        else:
+            top_five = total_list_sorted
 
         with open(self.tmp_file_path, "a") as file:
             file.write(f"Query3 Resultados: <br/>")
             file.write(f"Status: {status} <br/>")
             file.write(f"---------------------------------------------------------- <br/>")
-            for game_name, total_pos_reviews in msg_query3_three_result.top_five_buffer:
+            for game_name, total_pos_reviews in top_five:
                 file.write(f"{game_name}: {total_pos_reviews} <br/>")
             file.write(f"---------------------------------------------------------- <br/>")
 
-        return status == ResultStatus.FINISHED.value
+        return is_finished
+
 
 
     def get_query4_results(self, client_id: int):

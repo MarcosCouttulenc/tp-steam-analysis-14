@@ -362,7 +362,7 @@ class MessageQueryThreeResult(Message):
         
         for review in data:
             review_data = review.split(FIELD_DELIMITER)
-            buffer.append((review_data[0], review_data[1]))
+            buffer.append((review_data[0], int(review_data[1])))
 
         return cls(message.client_id, buffer)
 

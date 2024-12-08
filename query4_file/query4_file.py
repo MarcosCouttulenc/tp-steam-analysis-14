@@ -8,7 +8,7 @@ from common.message import MessageQueryFourResult
 from common.protocol import *
 from common.query_file_worker import QueryFile
 
-MIN_REVIWS = 5
+MIN_REVIWS = 5000
 
 class QueryFourFile(QueryFile):
     def get_message_result_from_file_snapshot(self, client_id, file_snapshot):
