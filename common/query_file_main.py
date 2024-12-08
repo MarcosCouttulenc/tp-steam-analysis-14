@@ -17,6 +17,8 @@ class QueryFileMain():
         port_healthchecker = config_params["port_healthchecker"]
         ip_healthchecker = config_params["ip_healthchecker"]
         path_status_info = config_params["path_status_info"]
+        listen_to_result_responser_port = config_params["listen_to_result_responser_port"]
+        id = config_params["id"]
         
 
         self.initialize_log(logging_level)
@@ -27,7 +29,7 @@ class QueryFileMain():
 
 
         worker = self.ClassToInitialize(
-            queue_name_origin, file_path, int(result_query_port), int(listen_backlog), ip_healthchecker, port_healthchecker, path_status_info
+            queue_name_origin, file_path, int(result_query_port), int(listen_backlog), ip_healthchecker, port_healthchecker, path_status_info, listen_to_result_responser_port, id
         )
         worker.start()
 
@@ -47,7 +49,9 @@ class QueryFileMain():
             config_params["port_healthchecker"] = os.getenv('PORT_HEALTHCHECKER')
             config_params["ip_healthchecker"] = os.getenv('IP_HEALTHCHECKER')
             config_params["path_status_info"] = os.getenv('PATH_STATUS_INFO', config["DEFAULT"]["PATH_STATUS_INFO"])
-            
+            config_params["listen_to_result_responser_port"] = os.getenv('LISTEN_TO_RESULT_RESPONSER_PORT', config["DEFAULT"]["LISTEN_TO_RESULT_RESPONSER_PORT"])
+            config_params["id"] = os.getenv('ID', config["DEFAULT"]["ID"])
+
         except KeyError as e:
             raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
         except ValueError as e:

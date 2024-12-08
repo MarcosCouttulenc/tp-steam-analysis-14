@@ -3,8 +3,6 @@ import logging
 logging.basicConfig(level=logging.CRITICAL)
 from middleware.queue import ServiceQueues
 from common.message import Message
-from common.message import MessageQueryOneFileUpdate
-from common.message import MessageQueryOneResult
 from common.message import MessageResultStatus
 from common.message import ResultStatus
 from common.protocol import *
@@ -15,15 +13,27 @@ import errno
 import time
 import os
 import signal
+import shutil
+
 
 CHANNEL_NAME = "rabbitmq"
+MAX_LOG_LEN = 1000
 
 class QueryFile:
-    def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog,ip_healthchecker, port_healthchecker, path_status_info):
-        self.queue_name_origin = queue_name_origin
+    def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog,ip_healthchecker, port_healthchecker, path_status_info, listen_to_result_responser_port, id):
+        print(f"queue_name_origin: {queue_name_origin}")
+        print(f"file_path: {file_path}")
+        print(f"result_query_port: {result_query_port}")
+        print(f"listen_backlog: {listen_backlog}")
+        print(f"ip_healthchecker: {ip_healthchecker}")
+        print(f"port_healthchecker: {port_healthchecker}")
+        print(f"path_status_info: {path_status_info}")
+        print(f"listen_to_result_responser_port: {listen_to_result_responser_port}")
+        
         self.file_path = file_path
+        
         self.new_connection_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.new_connection_socket.bind(('', result_query_port))
+        self.new_connection_socket.bind(('', int(listen_to_result_responser_port)))
         self.new_connection_socket.listen(listen_backlog)
         self.file_lock = multiprocessing.Lock()
         self.running = True
@@ -35,6 +45,7 @@ class QueryFile:
         self.port_healthchecker = int(port_healthchecker)
 
         self.actual_seq_number = 0
+        
         self.last_seq_number_by_filter = {}
         self.last_msg_id_log_transaction = ""
         self.path_status_info = f"{path_status_info}/state_last_messages.txt"
@@ -44,6 +55,15 @@ class QueryFile:
 
         self.init_file_state()
         self.init_signals()
+
+        self.listen_to_result_responser_port = listen_to_result_responser_port
+        self.id = id
+        self.queue_name_origin = f"{queue_name_origin}-{self.id}"
+        print(f"queue_name_origin: {self.queue_name_origin}")
+
+        self.log_transaction_len = {}
+
+
 
     def init_signals(self):
         signal.signal(signal.SIGTERM, self.stop)
@@ -208,6 +228,7 @@ class QueryFile:
 
     def handle_eof(self, message, ch, method):
         self.last_seq_number_by_filter[message.get_filterid_from_message_id()] = message.get_seqnum_from_message_id()
+        self.update_results_from_log_transaction(message.get_client_id())
         self.save_state_in_disk()
         self.set_client_as_finished(message)
         self.service_queues.ack(ch, method)
@@ -223,6 +244,9 @@ class QueryFile:
         return 0
 
     def update_results(self, message):
+        return 0
+
+    def update_results_from_log_transaction(self, client_id):
         return 0
     
     def message_was_processed(self, message : Message):
@@ -245,21 +269,42 @@ class QueryFile:
         
         with open(temp_path, 'w') as temp_file:
             temp_file.write(data)
-            temp_file.flush() # Forzar escritura al sistema operativo
-            os.fsync(temp_file.fileno()) # Asegurar que se escriba físicamente en disco
+            temp_file.flush()
+            os.fsync(temp_file.fileno())
 
         os.replace(temp_path, self.path_status_info)
     
 
     def log_transaction(self, message):
         transaction_log = self.get_transaction_log(message)
-        temp_path = self.path_logging + '.tmp'
-        with open(temp_path, 'w') as temp_file:
-            temp_file.write(transaction_log)
-            temp_file.flush() # Forzar escritura al sistema operativo
-            os.fsync(temp_file.fileno()) # Asegurar que se escriba físicamente en disco
-        os.replace(temp_path, self.path_logging)
+        self.atomic_write(transaction_log, self.path_logging)
         self.last_msg_id_log_transaction = message.get_message_id()
+
+
+    def atomic_write(self, data, path):
+        temp_path = path + '.tmp'
+        with open(temp_path, 'w') as temp_file:
+            temp_file.write(data)
+            temp_file.flush()
+            os.fsync(temp_file.fileno())
+        os.replace(temp_path, path)
+
+    def atomic_append(self, data, path_origin):
+        if not os.path.exists(path_origin):
+            os.makedirs(os.path.dirname(path_origin), exist_ok=True)
+
+            with open(path_origin, "w") as _:
+                pass
+
+        temp_path = path_origin + '.tmp'
+        shutil.copy(path_origin, temp_path)
+
+        with open(temp_path, 'a') as temp_file:
+            temp_file.write(data + "\n")
+            temp_file.flush()
+            os.fsync(temp_file.fileno())
+        os.replace(temp_path, path_origin)
+
     
     def get_transaction_log(self, message):
         #implementar en cada queryFile

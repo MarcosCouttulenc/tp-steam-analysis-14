@@ -19,13 +19,29 @@ CHANNEL_NAME =  "rabbitmq"
 
 class WorkerReviewValidator(ReviewWorker):
     def __init__(self, queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
-                 port_master, db_games_ip, db_games_port, ip_healthchecker, port_healthchecker, id, path_status_info):
+                 port_master, db_games_ip, db_games_port, ip_healthchecker, port_healthchecker, id, path_status_info, bdd_ports):
         
         super().__init__(queue_name_origin_eof, queue_name_origin, queues_name_destiny, cant_next, cant_slaves, is_master, ip_master, 
                          port_master, ip_healthchecker, port_healthchecker, id, path_status_info)
         self.db_games_ip = db_games_ip
         self.db_games_port = db_games_port
         self.service_queues = ServiceQueues(CHANNEL_NAME)
+        self.bdd_ip_ports = self.get_bdd_ip_ports_dict(bdd_ports)
+        self.cant_bdd = len(self.bdd_ip_ports.keys())
+
+        print(f"bdd ip ports: {self.bdd_ip_ports}")
+        print(f"cantidad bdds: {self.cant_bdd}")
+
+        # {"database_1": <puerto1>, "database_2": <puerto2>}
+    
+    def get_bdd_ip_ports_dict(self, bdd_ports):
+        rta = {}
+        bdd_ports_list = bdd_ports.split(",")
+        cant_ports = len(bdd_ports_list)
+        for i in range(cant_ports):
+            actual_ip = f"{self.db_games_ip}_{i+1}"
+            rta[actual_ip] = int(bdd_ports_list[i])
+        return rta
 
     def validate_review(self, _review):
         return True
@@ -73,12 +89,12 @@ class WorkerReviewValidator(ReviewWorker):
 
     def forward_message(self, message):
         messageRI = MessageReviewInfo.from_message(message)
-        #print("Envio consulta a la bdd")
+        print("Envio consulta a la bdd")
         game = self.get_game_from_db(message.get_client_id(), messageRI.review.game_id)
-        #print(f"Me devolvio la bdd: {game.name}")
+        print(f"Me devolvio la bdd: {game.name}")
 
         if game.id == "-1":
-            #print(f"No encontre el juego")
+            print(f"No encontre el juego")
             return
 
         messageRI.review.set_genre(game.genre)
@@ -94,10 +110,16 @@ class WorkerReviewValidator(ReviewWorker):
             
 
     def get_game_from_db(self, client_id, game_id) -> Game:
+        bdd_ident = Sharding.calculate_shard(game_id, self.cant_bdd)
+
+        bdd_ip = f"{self.db_games_ip}_{bdd_ident}"
+        bdd_port = self.bdd_ip_ports[bdd_ip]
+        print(f"Por consultar a ip:{bdd_ip}, puerto: {bdd_port}")
+
         while True:
             try:
                 db_games = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                db_games.connect((self.db_games_ip, self.db_games_port))
+                db_games.connect((bdd_ip, bdd_port))
     
             except:
                 print(f"Bdd se cayo, retry de conexion")

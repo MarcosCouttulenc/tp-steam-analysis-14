@@ -71,6 +71,7 @@ class QueryOneFile(QueryFile):
         return (file_info[client_id]["linux"], file_info[client_id]["mac"], file_info[client_id]["windows"])
 
     def update_results(self, message):
+        print(f"Por actualiar la query1_File: {message}")
         msg_query_one_file_update = MessageQueryOneUpdate.from_message(message)
         client_id = str(msg_query_one_file_update.get_client_id())
 
@@ -99,9 +100,11 @@ class QueryOneFile(QueryFile):
                     'total_windows': os_counts["windows"]
                 })
 
-
     def get_file_info(self):
         aux = {}
+        
+        if not os.path.exists(self.file_path):
+            print("Archivo no encontrado:", self.file_path)
         
         try:
             with open(self.file_path, mode='r') as file:
@@ -205,6 +208,8 @@ class QueryOneFile(QueryFile):
             file_info[client_id] = {}
 
         file_info[client_id][os_supported] = actual_state
+
+        ##
         
         self.last_msg_id_log_transaction = msg_id
         self.update_results_in_disk(file_info)
