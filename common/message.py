@@ -27,6 +27,8 @@ MESSAGE_HEALTH_CHECK_ASK = 'health-check-ask'
 MESSAGE_HEALTH_CHECK_ACK = 'health-check-ack'
 MESSAGE_CONTAINER_NAME = 'container-name'
 
+MESSAGE_BATCH_TYPE = 'batch'
+
 MESSAGE_MASTER_INVALID_CLIENT = 'invalid-client'
 MESSAGE_MASTER_FINISHED_CLIENT = 'finished-client'
 
@@ -34,7 +36,8 @@ FALSE_STRING = "False"
 TRUE_STRING = "True"
 
 DATA_DELIMITER = "$|"
-FIELD_DELIMITER = '%$'
+FIELD_DELIMITER = '*%$*'
+BATCH_DELIMITER = '/&+'
 
 USELESS_ID = "bow_id"
 
@@ -624,3 +627,55 @@ class MessageFinishedClient(Message):
             return None
         
         return cls(message.client_id)
+
+
+
+        
+class MessageBatch(Message):
+    def __init__(self, client_id, message_id, message_batch: list[Message]):
+        self.batch = message_batch
+        message_payload = ""
+
+        for msg in message_batch:
+            message_payload += USELESS_ID + FIELD_DELIMITER + str(msg.client_id) + FIELD_DELIMITER + msg.message_type + FIELD_DELIMITER + msg.message_payload + BATCH_DELIMITER
+        
+        message_payload = message_payload[:-1*len(BATCH_DELIMITER)]
+        super().__init__(message_id, client_id, MESSAGE_BATCH_TYPE, message_payload)
+        
+    def get_batch_id(self):
+        #F1_M135
+        message_id_info = self.message_id.split("_")
+        #["F1", "M135"]
+        batch_id = message_id_info[1][1:]
+        #"135"
+        return int(batch_id)
+
+    def __str__(self) -> str:
+        rta = ""
+        rta += f"BatchMessage: Type: {self.message_type} BatchId: {self.message_id}\n"
+        i = 0
+        for msg in self.batch:
+            rta += f"Message {i}:\n"
+            rta += f"{msg.message_payload}\n"
+            i += 1
+        return rta
+        
+    @classmethod
+    def from_message(cls, message: Message) -> 'MessageBatch':
+        if message.message_type != MESSAGE_BATCH_TYPE:
+            return None
+        
+        batch_list_strings = message.message_payload.split(BATCH_DELIMITER)
+        batch_list_messages = []
+
+        for message_string in batch_list_strings:
+            msg_info = message_string.split(FIELD_DELIMITER)
+            msg_id = msg_info[0]
+            clt_id = msg_info[1]
+            msg_type = msg_info[2]
+            msg_payload = msg_info[3]
+            
+            message = Message(msg_id, clt_id, msg_type, msg_payload)
+            batch_list_messages.append(message)
+        
+        return cls(message.get_client_id(), message.get_message_id(), batch_list_messages)

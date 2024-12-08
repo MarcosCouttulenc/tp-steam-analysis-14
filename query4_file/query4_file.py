@@ -4,7 +4,7 @@ import os
 logging.basicConfig(level=logging.CRITICAL)
 
 from common.message import MessageReviewInfo
-from common.message import MessageQueryFourResult
+from common.message import MessageBatch, MessageQueryFourResult
 from common.protocol import *
 from common.query_file_worker import QueryFile
 
@@ -29,17 +29,23 @@ class QueryFourFile(QueryFile):
         except FileNotFoundError:
             pass
 
+        print(f"El file snapshot es {games_with_more_positive_reviews}")
         return games_with_more_positive_reviews
     
     def update_results(self, message):
-        msg_review_info = MessageReviewInfo.from_message(message)
-        client_id = str(msg_review_info.get_client_id())
-
+        client_id = str(message.get_client_id())
         games = self.get_file_info(client_id)
-        if not msg_review_info.review.game_name in games:
-            games[msg_review_info.review.game_name] = 0
+        msg_batch = MessageBatch.from_message(message)
 
-        games[msg_review_info.review.game_name] += 1
+        print(f"Mensaje a actualizar: {msg_batch}")
+
+        for msg in msg_batch.batch:
+            msg_review_info = MessageReviewInfo.from_message(msg)
+
+            if not msg_review_info.review.game_name in games:
+                games[msg_review_info.review.game_name] = 0
+
+            games[msg_review_info.review.game_name] += 1
 
         self.update_results_in_disk(client_id, games)
 
@@ -76,17 +82,23 @@ class QueryFourFile(QueryFile):
     ## Transaction Log
     ## --------------------------------------------------------------------------------
     def get_transaction_log(self, message):
-        msg_review_info = MessageReviewInfo.from_message(message)
-        client_id = str(msg_review_info.get_client_id())
-        file_info = self.get_file_info(client_id)
-        game_name = msg_review_info.review.game_name
+        transaction_log = ""
 
-        if game_name in file_info.keys():
-            cant_reviews = file_info[game_name] 
-        else:
-            cant_reviews = 0
+        client_id = str(message.get_client_id())
+        file_info = self.get_file_info(client_id)
+        msg_batch = MessageBatch.from_message(message)
+
+
+        for msg in msg_batch.batch:
+            msg_review_info = MessageReviewInfo.from_message(msg)
+            game_name = msg_review_info.review.game_name
+
+            if game_name in file_info.keys():
+                cant_reviews = file_info[game_name] 
+            else:
+                cant_reviews = 0
     
-        transaction_log = f"msg::{message.get_message_id()}|client::{client_id}|game::{game_name}|prev::{cant_reviews}|actual::{cant_reviews+1}"
+            transaction_log += f"msg::{message.get_message_id()}|client::{client_id}|game::{game_name}|prev::{cant_reviews}|actual::{cant_reviews+1}\n"
         return transaction_log 
 
     def recover_from_transaction_log(self):

@@ -203,16 +203,20 @@ class QueryFile:
 
     def handle_new_update(self, ch, method, properties, message: Message):
         self.cant_mensajes_procesados += 1
+        print(f"Cantidad de msj porocesados: {self.cant_mensajes_procesados}")
 
         if self.message_was_processed(message):
+            print(f"Message was processed. ID: {message.get_message_id()}")
             self.service_queues.ack(ch, method)
             return
         
         if message.is_eof():
+            print("Message is EOF")
             self.handle_eof(message, ch, method)
             return
 
         if self.last_msg_id_log_transaction == message.get_message_id():
+            print("Message was last transaction logged")
             self.service_queues.ack(ch, method)
             return
 
@@ -223,6 +227,7 @@ class QueryFile:
         self.last_seq_number_by_filter[message.get_filterid_from_message_id()] = message.get_seqnum_from_message_id()
         
         self.save_state_in_disk()
+
 
         self.service_queues.ack(ch, method)
 
@@ -300,7 +305,7 @@ class QueryFile:
         shutil.copy(path_origin, temp_path)
 
         with open(temp_path, 'a') as temp_file:
-            temp_file.write(data + "\n")
+            temp_file.write(data)
             temp_file.flush()
             os.fsync(temp_file.fileno())
         os.replace(temp_path, path_origin)

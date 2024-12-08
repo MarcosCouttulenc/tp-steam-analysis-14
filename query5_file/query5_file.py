@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.CRITICAL)
 from common.message import MessageReviewInfo
 from common.message import MessageQueryFiveResult
 from common.protocol import *
-from common.message import Message
+from common.message import Message, MessageBatch
 
 from common.query_file_worker import QueryFile, MAX_LOG_LEN
 
@@ -147,14 +147,18 @@ class QueryFiveFile(QueryFile):
         self.log_transaction_len[client_id] += 1
 
     def get_transaction_log(self, message):
-        msg_review_info = MessageReviewInfo.from_message(message)
-        client_id = str(msg_review_info.get_client_id())
-        game_name = msg_review_info.review.game_name
-        log_action = "positive" if msg_review_info.review.is_positive() else "negative"
-        transaction_log = f"msg::{message.get_message_id()}|client::{client_id}|game::{game_name}|game_id::{msg_review_info.review.game_id}|action::{log_action}"
+        transaction_log = ""
 
-        return transaction_log 
+        client_id = str(message.get_client_id())
+        msg_batch = MessageBatch.from_message(message)
 
+        for msg in msg_batch.batch:     
+            msg_review_info = MessageReviewInfo.from_message(msg)
+            game_name = msg_review_info.review.game_name
+            log_action = "positive" if msg_review_info.review.is_positive() else "negative"
+            transaction_log += f"msg::{message.get_message_id()}|client::{client_id}|game::{game_name}|game_id::{msg_review_info.review.game_id}|action::{log_action}\n"
+
+        return transaction_log
         
     def get_data_updated_with_transaction_log(self, client_id):
         path_logging_client = self.get_file_path_log_client(client_id)

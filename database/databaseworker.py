@@ -5,6 +5,7 @@ from common.message import MessageQueryGameDatabase
 from common.protocol import *
 from common.protocol_healthchecker import ProtocolHealthChecker, get_container_name
 from common.model.game import Game
+from common.message import MessageBatch
 
 import socket
 import errno
@@ -195,16 +196,19 @@ class DataBaseWorker():
             self.service_queues.ack(ch, method)
             return
         
-        msg_game_info = MessageGameInfo.from_message(message)
+        msg_batch = MessageBatch.from_message(message)
+        #msg_game_info = MessageGameInfo.from_message(message)
+        for batch in msg_batch.batch:
 
-        print(f"Me llega para guardar el juego {message}")
+            msg_game_info = MessageGameInfo.from_message(batch)
+            print(f"Me llega para guardar el juego {msg_game_info}")
 
-        game_actual = self.data_base.get_game(msg_game_info.get_client_id(), msg_game_info.game.id)
+            game_actual = self.data_base.get_game(msg_game_info.get_client_id(), msg_game_info.game.id)
 
-        if str(game_actual.id) == "-1":
-            self.log_transaction(message)
-            print(f"Voy a guardar el juego {msg_game_info.game.name}")
-            self.data_base.store_game(msg_game_info.get_client_id(), msg_game_info.game)
+            if str(game_actual.id) == "-1":
+                self.log_transaction(msg_game_info)
+                print(f"Voy a guardar el juego {msg_game_info.game.name}")
+                self.data_base.store_game(msg_game_info.get_client_id(), msg_game_info.game)
         
         self.service_queues.ack(ch, method)
 

@@ -37,7 +37,7 @@ class Client:
         self.send_games()
 
         print("Comienzo sleep")
-        time.sleep(180)
+        #time.sleep(180)
         print("Termino sleep")
         
         self.send_reviews()
@@ -115,7 +115,7 @@ class Client:
     def send_reviews(self):
         logging.info('action: send_reviews | result: start')
         
-        batch_size = 50
+        batch_size = 2500
         batch_list = []
         cant_sent = 0
 

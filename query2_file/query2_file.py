@@ -5,7 +5,7 @@ logging.basicConfig(level=logging.CRITICAL)
 
 from common.message import MessageGameInfo
 from common.message import MessageQueryTwoResult
-from common.message import MessageGameInfo
+from common.message import MessageGameInfo, MessageBatch
 from common.protocol import *
 from common.query_file_worker import QueryFile
 
@@ -36,11 +36,15 @@ class QueryTwoFile(QueryFile):
         return top_ten
 
     def update_results(self, message):
-        msg_game_info = MessageGameInfo.from_message(message)
-        client_id = str(msg_game_info.get_client_id())
-
+        client_id = str(message.get_client_id())
         top_games = self.get_file_info(client_id)
-        top_games.append((msg_game_info.game.name, msg_game_info.game.playTime))
+        msg_batch = MessageBatch.from_message(message)
+
+        for msg in msg_batch.batch:
+            msg_game_info = MessageGameInfo.from_message(msg)
+            client_id = str(msg_game_info.get_client_id())
+            top_games.append((msg_game_info.game.name, msg_game_info.game.playTime))
+
         self.update_results_in_disk(client_id, top_games)
     
     def get_file_info(self, client_id):
@@ -80,19 +84,22 @@ class QueryTwoFile(QueryFile):
     ## Transaction Log
     ## --------------------------------------------------------------------------------
     def get_transaction_log(self, message):
-        msg_game_info = MessageGameInfo.from_message(message)
-        client_id = str(msg_game_info.get_client_id())
+        transaction_log = ""
+
+        client_id = str(message.get_client_id())
         file_info = self.get_file_info(client_id)
-        
-        file_info_data = self.get_top_to_string(file_info)
-        #nombre_juego%!playtime%$nombre_juego%!playtime%$nombre_juego%!playtime
+        msg_batch = MessageBatch.from_message(message)
 
-        file_info.append((msg_game_info.game.name, msg_game_info.game.playTime))
-        file_info_new = self.get_top_games_sorted(file_info)
+        for msg in msg_batch.batch:
+            msg_game_info = MessageGameInfo.from_message(msg)
+            client_id = str(msg_game_info.get_client_id())
+            file_info.append((msg_game_info.game.name, msg_game_info.game.playTime))
+            
+            file_info_new = self.get_top_games_sorted(file_info)
+            file_info_new_data = self.get_top_to_string(file_info_new)
 
-        file_info_new_data = self.get_top_to_string(file_info_new)
+            transaction_log += f"msg::{message.get_message_id()}|client::{client_id}|actual::{file_info_new_data}\n"
 
-        transaction_log = f"msg::{message.get_message_id()}|client::{client_id}|prev::{file_info_data}|actual::{file_info_new_data}"
         return transaction_log 
     
     def get_top_to_string(self, top):
@@ -103,14 +110,10 @@ class QueryTwoFile(QueryFile):
         return top_data
     
     def get_top_from_string(self, top_data_string):
-        #print(f"string que viene: {top_data_string}")
         top_data = top_data_string.split("%$")
-        #print(f"top_data spliteado por %$: {top_data}")
         top_list = []
         for game_data in top_data:
-            #print(f"game_data: {game_data}")
             game_name_playTime = game_data.split("%!")
-            #print(f"game_name_playTime spliteado por %!: {game_name_playTime}")
             top_list.append((game_name_playTime[0], game_name_playTime[1]))
         return top_list
     
@@ -129,8 +132,7 @@ class QueryTwoFile(QueryFile):
 
             msg_id = data[0].split("::")[1]
             client_id = data[1].split("::")[1]
-            #previous_state = data[2].split("::")[1]
-            actual_state = data[3].split("::")[1]
+            actual_state = data[2].split("::")[1]
 
         file_info = self.get_file_info(client_id)
 

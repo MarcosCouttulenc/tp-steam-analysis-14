@@ -12,11 +12,12 @@ from common.sharding import Sharding
 from middleware.queue import ServiceQueues
 from common.message import MessageInvalidClient, MESSAGE_MASTER_INVALID_CLIENT
 from common.message import MessageFinishedClient, MESSAGE_MASTER_FINISHED_CLIENT
-from common.message import MessageReviewInfo
+from common.message import MessageGameInfo, MessageReviewInfo
 from common.message import MessageEndOfDataset
 from common.message import Message, string_to_boolean
 from common.protocol import Protocol
 from common.protocol_healthchecker import ProtocolHealthChecker, get_container_name
+from common.message import MessageBatch, USELESS_ID
 
 
 CHANNEL_NAME =  "rabbitmq"
@@ -446,11 +447,37 @@ class ReviewWorker:
             self.handle_eof(message, ch, method)
             return
         
-        msg_review_info = MessageReviewInfo.from_message(message)
-        
-        if self.validate_review(msg_review_info.review):
-            self.forward_message(message)
+        msg_batch = MessageBatch.from_message(message)
+        next_batch_list = []
 
+        for message in msg_batch.batch:
+            if not message or not message.is_review():
+                print(f"LLego algo que rompe: {message} FIN")
+                continue
+            
+            try:
+                msg_review_info = MessageReviewInfo.from_message(message)
+            except Exception as e:
+                print(f"Error al parsear el mensaje: {message}")
+                print(f"El batch fue {msg_batch}")
+                continue
+
+            if (self.validate_review(msg_review_info.review)):
+                next_batch_list.append(msg_review_info)
+        
+        if len(next_batch_list) <= 0:
+            self.service_queue_filter.ack(ch, method)
+            return
+        
+        new_batch_msg = MessageBatch(msg_batch.get_client_id(), USELESS_ID, next_batch_list)
+
+
+        # Lo reenviamos a la proxima instancia si es un mensaje valido
+        # if self.validate_game(msg_game_info.game):
+        #     self.forward_message(message)
+
+        self.forward_message(new_batch_msg)
+        
 
         #Actualizamos el diccionario
         self.last_seq_number_by_filter[msg_review_info.get_filterid_from_message_id()] = msg_review_info.get_seqnum_from_message_id()
@@ -505,23 +532,47 @@ class ReviewWorker:
     def forward_message(self, message):
         message_to_send = self.get_message_to_send(message)
 
-        msg_review_info = MessageReviewInfo.from_message(message)
+        #msg_review_info = MessageReviewInfo.from_message(message)
 
-        message_to_send.set_message_id(self.get_new_message_id())
+        #message_to_send.set_message_id(self.get_new_message_id())
 
         for queue_name_next, cant_queue_next in self.queues_destiny.items():
-            queue_next_id = Sharding.calculate_shard(msg_review_info.review.game_id, cant_queue_next)
+            if 'file' in queue_name_next:
+                self.forward_batch_to_file_or_db(message, queue_name_next, cant_queue_next)
+                continue
+            queue_next_id = Sharding.calculate_shard(message_to_send.get_batch_id(), cant_queue_next)
             queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
             self.service_queue_filter.push(queue_name_destiny, message_to_send)
 
     def get_message_to_send(self, message):
+        message.set_message_id(self.get_new_message_id())
         return message
 
     def get_new_message_id(self):
         self.actual_seq_number += 1
         return f"F{str(self.id)}_M{str(self.actual_seq_number)}"
 
+    def forward_batch_to_file_or_db(self, message_batch: MessageBatch, queue_name_next, cant_queue_next):
+        batches_to_send = {}
 
+        for msg in message_batch.batch:
+            game_id = -1
+            if msg.is_review():
+                msg_review_info = MessageReviewInfo.from_message(msg)
+                game_id = msg_review_info.review.game_id
+            elif msg.is_game():
+                msg_game_info = MessageGameInfo.from_message(msg)
+                game_id = msg_game_info.game.id
+            queue_next_id = str(Sharding.calculate_shard(game_id, cant_queue_next))
+            if not queue_next_id in batches_to_send.keys():
+                batches_to_send[queue_next_id] = []
+            batches_to_send[queue_next_id].append(msg)
+        
+        for queue_id, batch_list in batches_to_send.items():
+            msg_to_send = MessageBatch(message_batch.get_client_id(), message_batch.get_message_id(), batch_list)
+            queue_name_destiny = f"{queue_name_next}-{str(queue_id)}"
+            self.service_queue_filter.push(queue_name_destiny, msg_to_send)
+    
 
     def save_state_in_disk(self):
         last_seq_number_by_filter_data = "|".join(f"{key},{value}" for key, value in self.last_seq_number_by_filter.items())

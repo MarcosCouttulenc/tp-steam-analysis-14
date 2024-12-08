@@ -10,7 +10,8 @@ import signal
 
 from common.sharding import Sharding
 from middleware.queue import ServiceQueues
-from common.message import MessageGameInfo
+from common.message import MessageGameInfo, MessageReviewInfo
+from common.message import MessageBatch
 from common.message import MessageEndOfDataset
 from common.message import MessageInvalidClient, MESSAGE_MASTER_INVALID_CLIENT
 from common.message import MessageFinishedClient, MESSAGE_MASTER_FINISHED_CLIENT
@@ -18,6 +19,7 @@ from common.message import Message, string_to_boolean
 from common.protocol import Protocol
 from common.protocol_healthchecker import ProtocolHealthChecker, get_container_name
 from common.message import Message
+from common.message import MESSAGE_TYPE_REVIEW_DATA, MESSAGE_TYPE_GAME_DATA, USELESS_ID
 
 
 CHANNEL_NAME =  "rabbitmq"
@@ -447,16 +449,10 @@ class GameWorker:
     ## --------------------------------------------------------------------------------
     def process_filter(self):
         while self.running:
-            try:
-                queue_name_origin_id = f"{self.queue_name_origin}-{self.id}"
-                self.service_queues_filter.pop(queue_name_origin_id, self.process_message)
-            except:
-                print("Cerrando worker")
+            queue_name_origin_id = f"{self.queue_name_origin}-{self.id}"
+            self.service_queues_filter.pop(queue_name_origin_id, self.process_message)
     
     def process_message(self, ch, method, properties, message: Message):
-        #print(f"Me llega mensaje con id: {message.get_message_id()} \n")
-        #print(f"Dict: {self.last_seq_number_by_filter} \n")
-
         # Chequeamos si el mensaje ya fue procesado.
         if self.message_was_processed(message):
             print(f"El mensaje {message.get_message_id()} ya fue procesado \n")
@@ -469,14 +465,39 @@ class GameWorker:
             self.handle_eof(message, ch, method)
             return
         
-        msg_game_info = MessageGameInfo.from_message(message)
+        msg_batch = MessageBatch.from_message(message)
+        next_batch_list = []
+
+        for message in msg_batch.batch:
+            if not message or not message.is_game():
+                print(f"LLego algo que rompe: {message} FIN")
+                continue
+            
+            try:
+                msg_game_info = MessageGameInfo.from_message(message)
+            except Exception as e:
+                print(f"Error al parsear el mensaje: {message}")
+                print(f"El batch fue {msg_batch}")
+                continue
+
+            if (self.validate_game(msg_game_info.game)):
+                next_batch_list.append(msg_game_info)
+        
+        if len(next_batch_list) <= 0:
+            self.service_queues_filter.ack(ch, method)
+            return
+        
+        new_batch_msg = MessageBatch(msg_batch.get_client_id(), USELESS_ID, next_batch_list)
+
 
         # Lo reenviamos a la proxima instancia si es un mensaje valido
-        if self.validate_game(msg_game_info.game):
-            self.forward_message(message)
+        # if self.validate_game(msg_game_info.game):
+        #     self.forward_message(message)
 
+        self.forward_message(new_batch_msg)
+        
         # Actualizamos el diccionario
-        self.last_seq_number_by_filter[msg_game_info.get_filterid_from_message_id()] = msg_game_info.get_seqnum_from_message_id()
+        self.last_seq_number_by_filter[new_batch_msg.get_filterid_from_message_id()] = new_batch_msg.get_seqnum_from_message_id()
 
         # Bajamos la informacion a disco
         self.save_state_in_disk()
@@ -488,6 +509,7 @@ class GameWorker:
 
         self.cant_mensajes_procesados += 1
 
+        print(f"Cantidad de msj procesados: {self.cant_mensajes_procesados}")
 
         self.service_queues_filter.ack(ch, method)
 
@@ -511,7 +533,6 @@ class GameWorker:
         print("No debería llegar acá porque estoy muerto")
     
     def handle_eof(self, message: Message, ch, method):
-
         # Si ya proceso un eof de ese cliente lo descartamos
         client_id = str(message.get_client_id())
         if client_id in self.clients_pushed_eofs.keys():
@@ -532,16 +553,52 @@ class GameWorker:
     def forward_message(self, message):
         message_to_send = self.get_message_to_send(message)
 
-        msg_game_info = MessageGameInfo.from_message(message)
+        # msg_game_info = MessageGameInfo.from_message(message)
 
-        message_to_send.set_message_id(self.get_new_message_id())
+        # message_to_send.set_message_id(self.get_new_message_id())
 
         for queue_name_next, cant_queue_next in self.queues_destiny.items():
-            queue_next_id = Sharding.calculate_shard(msg_game_info.game.id, cant_queue_next)
+            if 'queue-bdd' in queue_name_next or ('file' in queue_name_next and 'query1-file' not in queue_name_next):
+                print("Se mandan datos a travez de [forward_batch_to_file_or_db]")
+                self.forward_batch_to_file_or_db(message_to_send, queue_name_next, cant_queue_next)
+                continue
+            queue_next_id = Sharding.calculate_shard(message_to_send.get_batch_id(), cant_queue_next)
             queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
             self.service_queues_filter.push(queue_name_destiny, message_to_send)
+    
+    # def forward_batch_to_db(self, message_batch,queue_name_next,cant_queue_next):
+        
+    #     for message in message_batch.batch:
+    #         msg_game_info = MessageGameInfo.from_message(message)
+    #         message_to_send = self.get_message_to_send(message)
+    #         queue_next_id = Sharding.calculate_shard(msg_game_info.game.id, cant_queue_next)
+    #         queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
+    #         self.service_queues_filter.push(queue_name_destiny, message_to_send)
+    
+    def forward_batch_to_file_or_db(self, message_batch: MessageBatch, queue_name_next, cant_queue_next):
+        batches_to_send = {}
+
+        for msg in message_batch.batch:
+            game_id = -1
+            if msg.is_review():
+                msg_review_info = MessageReviewInfo.from_message(msg)
+                game_id = msg_review_info.review.game_id
+            elif msg.is_game():
+                msg_game_info = MessageGameInfo.from_message(msg)
+                game_id = msg_game_info.game.id
+            queue_next_id = str(Sharding.calculate_shard(game_id, cant_queue_next))
+            if not queue_next_id in batches_to_send.keys():
+                batches_to_send[queue_next_id] = []
+            batches_to_send[queue_next_id].append(msg)
+        
+        for queue_id, batch_list in batches_to_send.items():
+            msg_to_send = MessageBatch(message_batch.get_client_id(), message_batch.get_message_id(), batch_list)
+            queue_name_destiny = f"{queue_name_next}-{str(queue_id)}"
+            self.service_queues_filter.push(queue_name_destiny, msg_to_send)
+    
             
-    def get_message_to_send(self, message):
+    def get_message_to_send(self, message: Message):
+        message.set_message_id(self.get_new_message_id())
         return message
 
     def get_new_message_id(self):

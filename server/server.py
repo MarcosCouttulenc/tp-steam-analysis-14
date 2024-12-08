@@ -10,6 +10,9 @@ from common.protocol import Protocol
 from common.protocol import *
 from middleware.queue import ServiceQueues
 from common.sharding import Sharding
+from common.message import MessageBatch
+from common.message import MessageEndOfDataset
+from common.message import MessageWelcomeClient
 
 CHANNEL_NAME =  "rabbitmq"
 QUEUE_GAMES = "queue-games"
@@ -103,24 +106,33 @@ class Server:
                 logging.critical(f'action: server_msg_received | result: invalid_msg | msg: {receive_batch}')
                 return
 
-            for message in receive_batch:
-                if message == None:
-                    continue
-                 
-                if message.is_game():
-                    msg_game_info = MessageGameInfo.from_message(message)
-                    self.forward_message(message, QUEUE_GAMES, self.cant_game_validators, service_queue_games, msg_game_info.game.id)
-                elif message.is_review():
-                    msg_review_info = MessageReviewInfo.from_message(message)
-                    self.forward_message(message, QUEUE_REVIEWS, self.cant_review_validators, service_queue_review, msg_review_info.review.game_id)
-                elif message.is_eof():
-                    msg_end_of_dataset = MessageEndOfDataset.from_message(message)
+            first_message = receive_batch[0]
+            
+            # Send eofs
+            if first_message.is_eof():
+                print("LLEgo EOF")
+                msg_end_of_dataset = MessageEndOfDataset.from_message(first_message)
 
-                    if msg_end_of_dataset.type == "Game":
-                        self.send_eofs_to_queue(msg_end_of_dataset, QUEUE_GAMES, self.cant_game_validators, service_queue_games)
-                    else:
-                        self.send_eofs_to_queue(msg_end_of_dataset, QUEUE_REVIEWS, self.cant_review_validators, service_queue_review)
-                        end_of_data = True
+                if msg_end_of_dataset.type == "Game":
+                    print("Era EOF de game")
+                    self.send_eofs_to_queue(msg_end_of_dataset, QUEUE_GAMES, self.cant_game_validators, service_queue_games)
+                else:
+                    print("Era EOF de Review")
+                    self.send_eofs_to_queue(msg_end_of_dataset, QUEUE_REVIEWS, self.cant_review_validators, service_queue_review)
+                    end_of_data = True
+                continue
+            
+            # Send batchs
+            client_id = first_message.get_client_id()
+            msg_batch = MessageBatch(client_id, self.get_new_message_id(), receive_batch)
+
+            if first_message.is_game():
+                self.forward_message(msg_batch, QUEUE_GAMES, self.cant_game_validators, service_queue_games)
+            elif first_message.is_review():
+                self.forward_message(msg_batch, QUEUE_REVIEWS, self.cant_review_validators, service_queue_review)
+
+            print(numero_menasje_recibido)
+                
     
     def send_eofs_to_queue(self, msg_end_of_dataset, destiny_queue, cant_workers, service_queue):
         for id in range(1, cant_workers + 1):
@@ -131,12 +143,9 @@ class Server:
             
             service_queue.push(queue_name_destiny, msg_end_of_dataset)
 
-    def forward_message(self, message, queue_name_next, cant_queue_next, service_queue, game_id):
-        message.set_message_id(self.get_new_message_id())
-        queue_next_id = Sharding.calculate_shard(game_id, cant_queue_next)
+    def forward_message(self, message: MessageBatch, queue_name_next, cant_queue_next, service_queue):
+        queue_next_id = Sharding.calculate_shard(message.get_batch_id(), cant_queue_next)
         queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
-        if message.get_message_id() == "S1_M4":
-            print(f"Forwarding message to {queue_name_destiny}, y el mensaje es {message}/n")
         service_queue.push(queue_name_destiny, message)
 
     def get_new_message_id(self):

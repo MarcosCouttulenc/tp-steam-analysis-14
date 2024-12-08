@@ -5,6 +5,7 @@ from collections import defaultdict
 logging.basicConfig(level=logging.CRITICAL)
 
 from common.message import Message
+from common.message import MessageBatch
 from common.message import MessageQueryOneUpdate
 from common.message import MessageQueryOneResult
 from common.protocol import *
@@ -64,27 +65,34 @@ class QueryOneFile(QueryFile):
         
         if not client_id in file_info.keys():
             file_info[client_id] = {"linux": 0, "mac": 0, "windows": 0}
-
-
-        #file_info = defaultdict(lambda: {"linux": 0, "mac": 0, "windows": 0}, file_info)
         
         return (file_info[client_id]["linux"], file_info[client_id]["mac"], file_info[client_id]["windows"])
+    
 
     def update_results(self, message):
         print(f"Por actualiar la query1_File: {message}")
-        msg_query_one_file_update = MessageQueryOneUpdate.from_message(message)
-        client_id = str(msg_query_one_file_update.get_client_id())
 
+        
         file_info = self.get_file_info()
-        file_info = defaultdict(lambda: {"linux": 0, "mac": 0, "windows": 0}, file_info)
 
-        os_field = msg_query_one_file_update.op_system_supported.lower()
-        if os_field in file_info[client_id]:
-            file_info[client_id][os_field] += 1
+        print(f"Antes de actualizar: {file_info}\n")
+        client_id = str(message.get_client_id())
+        msg_batch = MessageBatch.from_message(message)
+
+        for msg in msg_batch.batch:
+            msg_query_one_file_update = MessageQueryOneUpdate.from_message(msg)
+            client_id = str(msg_query_one_file_update.get_client_id())
+
+            file_info = defaultdict(lambda: {"linux": 0, "mac": 0, "windows": 0}, file_info)
+
+            os_field = msg_query_one_file_update.op_system_supported.lower()
+            if os_field in file_info[client_id]:
+                file_info[client_id][os_field] += 1
+        
+        print(f"Despues de actualizar: {file_info}\n")
         
         self.update_results_in_disk(file_info)
 
-        
 
     def update_results_in_disk(self, file_info):
         with open(self.file_path, mode='w', newline='') as file:
@@ -170,15 +178,22 @@ class QueryOneFile(QueryFile):
     ## --------------------------------------------------------------------------------
 
     def get_transaction_log(self, message: Message):
-        msg_query_one_file_update = MessageQueryOneUpdate.from_message(message)
-        client_id = str(message.get_client_id())
-        os_supported = msg_query_one_file_update.op_system_supported
-    
-        file_info = self.get_file_info()
-        file_info = defaultdict(lambda: {"linux": 0, "mac": 0, "windows": 0}, file_info)
-        previous_state = file_info[client_id][os_supported]
+        transaction_log = ""
 
-        transaction_log = f"msg::{message.get_message_id()}|client::{client_id}|os::{os_supported}|prev::{previous_state}|actual::{previous_state + 1}"
+        file_info = self.get_file_info()
+        client_id = str(message.get_client_id())
+        msg_batch = MessageBatch.from_message(message)
+
+        for msg in msg_batch.batch:
+            print(f"msg : {msg}")
+            msg_query_one_file_update = MessageQueryOneUpdate.from_message(msg)
+            os_supported = msg_query_one_file_update.op_system_supported
+        
+            file_info = defaultdict(lambda: {"linux": 0, "mac": 0, "windows": 0}, file_info)
+            previous_state = file_info[client_id][os_supported]
+
+            transaction_log += f"msg::{message.get_message_id()}|client::{client_id}|os::{os_supported}|prev::{previous_state}|actual::{previous_state + 1} \n"
+
         return transaction_log
     
     def recover_from_transaction_log(self):
