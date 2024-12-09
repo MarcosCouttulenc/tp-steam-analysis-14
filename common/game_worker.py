@@ -489,11 +489,6 @@ class GameWorker:
         
         new_batch_msg = MessageBatch(msg_batch.get_client_id(), USELESS_ID, next_batch_list)
 
-
-        # Lo reenviamos a la proxima instancia si es un mensaje valido
-        # if self.validate_game(msg_game_info.game):
-        #     self.forward_message(message)
-
         self.forward_message(new_batch_msg)
         
         # Actualizamos el diccionario
@@ -502,14 +497,7 @@ class GameWorker:
         # Bajamos la informacion a disco
         self.save_state_in_disk()
 
-
-        #print(f"Voy procesando {self.cant_mensajes_procesados}")
-        #if (self.cant_mensajes_procesados == 1000 and int(self.id) == 1):
-        #    self.simulate_failure()
-
         self.cant_mensajes_procesados += 1
-
-        print(f"Cantidad de msj procesados: {self.cant_mensajes_procesados}")
 
         self.service_queues_filter.ack(ch, method)
 
@@ -553,27 +541,14 @@ class GameWorker:
     def forward_message(self, message):
         message_to_send = self.get_message_to_send(message)
 
-        # msg_game_info = MessageGameInfo.from_message(message)
-
-        # message_to_send.set_message_id(self.get_new_message_id())
-
         for queue_name_next, cant_queue_next in self.queues_destiny.items():
             if 'queue-bdd' in queue_name_next or ('file' in queue_name_next and 'query1-file' not in queue_name_next):
-                print("Se mandan datos a travez de [forward_batch_to_file_or_db]")
                 self.forward_batch_to_file_or_db(message_to_send, queue_name_next, cant_queue_next)
                 continue
             queue_next_id = Sharding.calculate_shard(message_to_send.get_batch_id(), cant_queue_next)
             queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
             self.service_queues_filter.push(queue_name_destiny, message_to_send)
-    
-    # def forward_batch_to_db(self, message_batch,queue_name_next,cant_queue_next):
-        
-    #     for message in message_batch.batch:
-    #         msg_game_info = MessageGameInfo.from_message(message)
-    #         message_to_send = self.get_message_to_send(message)
-    #         queue_next_id = Sharding.calculate_shard(msg_game_info.game.id, cant_queue_next)
-    #         queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
-    #         self.service_queues_filter.push(queue_name_destiny, message_to_send)
+            
     
     def forward_batch_to_file_or_db(self, message_batch: MessageBatch, queue_name_next, cant_queue_next):
         batches_to_send = {}

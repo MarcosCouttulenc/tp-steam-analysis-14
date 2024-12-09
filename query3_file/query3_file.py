@@ -40,7 +40,7 @@ class QueryThreeFile(QueryFile):
 
 
     def update_results(self, message):
-        print("Actualizando resultados")
+        #print("Actualizando resultados")
         client_id = str(message.get_client_id())
         games = self.get_file_info(client_id)
         msg_batch = MessageBatch.from_message(message)
@@ -117,11 +117,11 @@ class QueryThreeFile(QueryFile):
             os.makedirs(os.path.dirname(self.path_logging), exist_ok=True)
             return
         
-        print("Empieza recuperacion del log \n")
+        #print("Empieza recuperacion del log \n")
         with open(self.path_logging, 'r') as file:
             line = file.readline().strip()
 
-            print(f"Nos levantamos y el log tiene: {line}")
+            #print(f"Nos levantamos y el log tiene: {line}")
 
             data = line.split("|")
 
@@ -135,7 +135,7 @@ class QueryThreeFile(QueryFile):
         to_print = "No estaba en el dict"
         if game_name in file_info.keys():
             to_print = file_info[game_name]
-        print(f"Antes de recuperar: {to_print}")
+        #print(f"Antes de recuperar: {to_print}")
         
         file_info[game_name] = actual_state
 

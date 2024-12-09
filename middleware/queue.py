@@ -49,6 +49,7 @@ class ServiceQueues:
             self.channel.start_consuming()
         except pika.exceptions.AMQPConnectionError:
             print("[pop] Desconectado de rabbit")
+            
         except Exception as e:
             raise e
 

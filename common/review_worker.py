@@ -486,11 +486,6 @@ class ReviewWorker:
         #Bajamos la informacion a disco
         self.save_state_in_disk()
 
-        print(f"Voy procesando {self.cant_mensajes_procesados}")
-        #tirar abajo el container si queremos testear
-        #if (self.cant_mensajes_procesados == 300 and int(self.id) == 1):
-        #    self.simulate_failure()
-
         self.cant_mensajes_procesados += 1
         self.service_queue_filter.ack(ch, method)
 
@@ -522,8 +517,10 @@ class ReviewWorker:
 
         self.service_queue_filter.push(self.queue_name_origin_eof, message)
         self.last_seq_number_by_filter[message.get_filterid_from_message_id()] = message.get_seqnum_from_message_id()
-        self.save_state_in_disk()
         self.clients_pushed_eofs[client_id] = True
+
+        self.save_state_in_disk()
+        
         self.service_queue_filter.ack(ch, method)
 
     def validate_review(self, review):

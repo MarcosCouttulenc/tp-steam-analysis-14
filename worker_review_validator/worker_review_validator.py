@@ -12,6 +12,7 @@ from common.message import MessageQueryGameDatabase
 from common.message import MessageReviewInfo
 from common.message import *
 from common.sharding import Sharding
+from common.message import MessageBatch, USELESS_ID
 
 from common.review_worker import  ReviewWorker
 
@@ -88,25 +89,32 @@ class WorkerReviewValidator(ReviewWorker):
             
 
     def forward_message(self, message):
-        messageRI = MessageReviewInfo.from_message(message)
-        print("Envio consulta a la bdd")
-        game = self.get_game_from_db(message.get_client_id(), messageRI.review.game_id)
-        print(f"Me devolvio la bdd: {game.name}")
 
-        if game.id == "-1":
-            print(f"No encontre el juego")
-            return
+        message_batch = MessageBatch.from_message(message)
+        next_batch_list = []
+        for msg in message_batch.batch:
 
-        messageRI.review.set_genre(game.genre)
+            messageRI = MessageReviewInfo.from_message(msg)
+            #print("Envio consulta a la bdd")
+            game = self.get_game_from_db(message.get_client_id(), messageRI.review.game_id)
+            #print(f"Me devolvio la bdd: {game.name}")
 
-        message_to_push = MessageReviewInfo(message.message_id, message.get_client_id(), messageRI.review)
+            if game.id == "-1":
+                print(f"No encontre el juego")
+                continue
 
-        message_to_push.set_message_id(self.get_new_message_id())
+            messageRI.review.set_genre(game.genre)
+
+            message_to_push = MessageReviewInfo(USELESS_ID, message.get_client_id(), messageRI.review)
+
+            next_batch_list.append(message_to_push)
+
+        next_batch_msg = MessageBatch(message.get_client_id(), self.get_new_message_id(), next_batch_list)
 
         for queue_name_next, cant_queue_next in self.queues_destiny.items():
-            queue_next_id = Sharding.calculate_shard(messageRI.review.game_id, cant_queue_next)
+            queue_next_id = Sharding.calculate_shard(next_batch_msg.get_batch_id(), cant_queue_next)
             queue_name_destiny = f"{queue_name_next}-{str(queue_next_id)}"
-            self.service_queues.push(queue_name_destiny, message_to_push)
+            self.service_queues.push(queue_name_destiny, next_batch_msg)
             
 
     def get_game_from_db(self, client_id, game_id) -> Game:
@@ -114,7 +122,6 @@ class WorkerReviewValidator(ReviewWorker):
 
         bdd_ip = f"{self.db_games_ip}_{bdd_ident}"
         bdd_port = self.bdd_ip_ports[bdd_ip]
-        print(f"Por consultar a ip:{bdd_ip}, puerto: {bdd_port}")
 
         while True:
             try:

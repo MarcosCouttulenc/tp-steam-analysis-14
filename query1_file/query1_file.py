@@ -70,12 +70,8 @@ class QueryOneFile(QueryFile):
     
 
     def update_results(self, message):
-        print(f"Por actualiar la query1_File: {message}")
-
-        
         file_info = self.get_file_info()
 
-        print(f"Antes de actualizar: {file_info}\n")
         client_id = str(message.get_client_id())
         msg_batch = MessageBatch.from_message(message)
 
@@ -88,8 +84,6 @@ class QueryOneFile(QueryFile):
             os_field = msg_query_one_file_update.op_system_supported.lower()
             if os_field in file_info[client_id]:
                 file_info[client_id][os_field] += 1
-        
-        print(f"Despues de actualizar: {file_info}\n")
         
         self.update_results_in_disk(file_info)
 
@@ -185,14 +179,13 @@ class QueryOneFile(QueryFile):
         msg_batch = MessageBatch.from_message(message)
 
         for msg in msg_batch.batch:
-            print(f"msg : {msg}")
             msg_query_one_file_update = MessageQueryOneUpdate.from_message(msg)
             os_supported = msg_query_one_file_update.op_system_supported
         
             file_info = defaultdict(lambda: {"linux": 0, "mac": 0, "windows": 0}, file_info)
             previous_state = file_info[client_id][os_supported]
 
-            transaction_log += f"msg::{message.get_message_id()}|client::{client_id}|os::{os_supported}|prev::{previous_state}|actual::{previous_state + 1} \n"
+            transaction_log += f"msg::{message.get_message_id()}|client::{client_id}|os::{os_supported}|prev::{previous_state}|actual::{previous_state + 1}\n"
 
         return transaction_log
     
@@ -201,38 +194,25 @@ class QueryOneFile(QueryFile):
             os.makedirs(os.path.dirname(self.path_logging), exist_ok=True)
             return
             
-        print("Empieza recuperacion del log \n")
         with open(self.path_logging, 'r') as file:
             line = file.readline().strip()
-
-            print(f"Nos levantamos y el log tiene: {line}")
 
             data = line.split("|")
 
             msg_id = data[0].split("::")[1]
             client_id = data[1].split("::")[1]
             os_supported = data[2].split("::")[1]
-            #previous_state = data[3].split(":")[1]
             actual_state = data[4].split("::")[1]
 
         file_info = self.get_file_info()
-
-        print(f"Antes de recuperar: {file_info}")
 
         if not client_id in file_info.keys():
             file_info[client_id] = {}
 
         file_info[client_id][os_supported] = actual_state
-
-        ##
         
         self.last_msg_id_log_transaction = msg_id
         self.update_results_in_disk(file_info)
-
-        file_info_then = self.get_file_info()
-
-        print(f"Last transaction log id: {msg_id}\n")
-        print(f"Luego de ejecutar recuperacion: {file_info_then}")
 
 
     

@@ -6,6 +6,7 @@ from common.model.review import Review
 
 class EnglishWorker(ReviewWorker):
     def validate_review(self, review: Review):
+        #review.print_review()
         idioma, confianza = langid.classify(review.review_text)
         return (idioma == 'en')
 

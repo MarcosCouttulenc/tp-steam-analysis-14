@@ -24,3 +24,6 @@ class Review:
     def is_negative(self):
         return int(self.score) < 0
     
+    def print_review(self):
+        print(f"Game: {self.game_name} | Review: {self.review_text} | Score: {self.score} | Genre: {self.game_genre}")
+    

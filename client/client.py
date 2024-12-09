@@ -93,19 +93,19 @@ class Client:
 
                     if len(batch_list) == batch_size:
                         self.protocol.send_batch(batch_list)
-                        logging.info(f'Client_{self.client_id} action: send_games | result: success | msg: sent {len(batch_list)} games')
+                        #logging.info(f'Client_{self.client_id} action: send_games | result: success | msg: sent {len(batch_list)} games')
                         batch_list = []
                     
                     numero_mensaje_enivado += 1
 
                 if len(batch_list) > 0:
                     self.protocol.send_batch(batch_list)
-                    logging.info(f'Client_{self.client_id} action: send_games | result: success | msg: sent {len(batch_list)} games')
+                    #logging.info(f'Client_{self.client_id} action: send_games | result: success | msg: sent {len(batch_list)} games')
                     batch_list = []
                 
                 message_id = f"C_{self.client_id}_GAME_EOF"
                 self.protocol.send_batch([MessageEndOfDataset(message_id, self.client_id, "Game")])
-                logging.critical(" All Games sent")
+                #logging.critical(" All Games sent")
 
         except Exception as e:
             print("\n\n\n ERROR AL LEER CSV DE JUEGOS \n\n\n")
@@ -115,7 +115,7 @@ class Client:
     def send_reviews(self):
         logging.info('action: send_reviews | result: start')
         
-        batch_size = 2500
+        batch_size = 100
         batch_list = []
         cant_sent = 0
 
@@ -158,7 +158,7 @@ class Client:
             
     def ask_for_results(self):
         print("Comienzo a pedirle resultados al result responser")
-        logging.info(f'Client_{self.client_id} action: ask_for_results | result: start')
+        #logging.info(f'Client_{self.client_id} action: ask_for_results | result: start')
 
         while True:
             result_responser_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -102,8 +102,6 @@ class DataBaseWorker():
             msg_query = MessageQueryGameDatabase.from_message(msg)
 
             game = self.data_base.get_game(msg_query.get_client_id(), msg_query.game_id)
-
-            print(f"Me pidieron el juego {msg_query.game_id} y respondo {game.name}")
             
             msg_game_info = MessageGameInfo(msg_query.message_id, msg_query.get_client_id(), game)
 
@@ -201,13 +199,11 @@ class DataBaseWorker():
         for batch in msg_batch.batch:
 
             msg_game_info = MessageGameInfo.from_message(batch)
-            print(f"Me llega para guardar el juego {msg_game_info}")
 
             game_actual = self.data_base.get_game(msg_game_info.get_client_id(), msg_game_info.game.id)
 
             if str(game_actual.id) == "-1":
                 self.log_transaction(msg_game_info)
-                print(f"Voy a guardar el juego {msg_game_info.game.name}")
                 self.data_base.store_game(msg_game_info.get_client_id(), msg_game_info.game)
         
         self.service_queues.ack(ch, method)

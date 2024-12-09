@@ -10,6 +10,8 @@ from common.message import Message, MessageBatch
 
 from common.query_file_worker import QueryFile, MAX_LOG_LEN
 
+DELIMITER_TRANSACTION_LOG = "$|^"
+
 class QueryFiveFile(QueryFile):
     def get_message_result_from_file_snapshot(self, client_id, file_snapshot):
         message_result = MessageQueryFiveResult(client_id, file_snapshot)
@@ -18,36 +20,7 @@ class QueryFiveFile(QueryFile):
 
     def get_file_snapshot(self, client_id):
         return self.get_file_info(client_id)
-
-    '''
-    def get_file_snapshot(self, client_id):
-        # Ahora la file snapshot va a ser de la forma: [[id, name, pos, neg], [id, name, pos, neg]]
-        # y van a ser TODOS los juegos
-        file_snapshot = []
-        
-        data = self.get_file_info(client_id)
-
-        percentil_90 = self.get_percentil_90(data)
-
-        for name, game_info in sorted(data.items(), key=lambda x: x[1][2], reverse=False):
-            if game_info[1] > percentil_90:
-                file_snapshot.append((game_info[2], name))
-
-        return file_snapshot[:10]
-    '''
     
-    '''
-    def get_percentil_90(self, data):
-        if len(data) == 0:
-            return None
-
-        neg_reviews = [neg for pos, neg, id in data.values()]
-        neg_reviews_sorted = sorted(neg_reviews)
-        percentil_90_pos = int(0.90 * (len(neg_reviews_sorted) - 1))
-
-        percentil_90 = neg_reviews_sorted[percentil_90_pos]
-        return percentil_90
-    '''
 
     def update_results(self, message):
         client_id = str(message.get_client_id())
@@ -156,7 +129,7 @@ class QueryFiveFile(QueryFile):
             msg_review_info = MessageReviewInfo.from_message(msg)
             game_name = msg_review_info.review.game_name
             log_action = "positive" if msg_review_info.review.is_positive() else "negative"
-            transaction_log += f"msg::{message.get_message_id()}|client::{client_id}|game::{game_name}|game_id::{msg_review_info.review.game_id}|action::{log_action}\n"
+            transaction_log += f"msg::{message.get_message_id()}$|^client::{client_id}$|^game::{game_name}$|^game_id::{msg_review_info.review.game_id}$|^action::{log_action}\n"
 
         return transaction_log
         
@@ -173,26 +146,36 @@ class QueryFiveFile(QueryFile):
         #Leo el archivo de log y le impacto a file_info cada uno de los logs
         with open(path_logging_client, "r") as file:
             for line in file.readlines():
-                data = line.strip().split("|")
-                msg_id = data[0].split("::")[1]
-                client_id = data[1].split("::")[1]
-                game_name = data[2].split("::")[1]
-                game_id = data[3].split("::")[1]
-                log_action = data[4].split("::")[1]
-        
-                aux = []
-                if not game_name in file_info.keys():
-                    aux = [0, 0, game_id]
-                else:
-                    aux = file_info[game_name]
-                
-                if (log_action == "positive"):
-                    aux[0] += 1
-                else:
-                    aux[1] += 1
 
-                file_info[game_name] = aux
-                self.last_msg_id_log_transaction = msg_id
+                try:
+                    data = line.strip().split(DELIMITER_TRANSACTION_LOG)
+                    msg_id = data[0].split("::")[1]
+                    client_id = data[1].split("::")[1]
+                    game_name = data[2].split("::")[1]
+                    game_id = data[3].split("::")[1]
+                    log_action = data[4].split("::")[1]
+            
+                    aux = []
+                    if not game_name in file_info.keys():
+                        aux = [0, 0, game_id]
+                    else:
+                        aux = file_info[game_name]
+                    
+                    if (log_action == "positive"):
+                        aux[0] += 1
+                    else:
+                        aux[1] += 1
+
+                    file_info[game_name] = aux
+                    self.last_msg_id_log_transaction = msg_id
+                except Exception as e:
+                    print(f"Error en la linea {line}")
+
+                    #lanzamos la exce
+                    raise e
+                    
+
+               
 
         return file_info
         

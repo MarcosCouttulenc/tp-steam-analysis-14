@@ -109,6 +109,10 @@ class Server:
             first_message = receive_batch[0]
             
             # Send eofs
+            while first_message == None:
+                receive_batch.pop(0)
+                first_message = receive_batch[0]
+
             if first_message.is_eof():
                 print("LLEgo EOF")
                 msg_end_of_dataset = MessageEndOfDataset.from_message(first_message)
@@ -131,7 +135,7 @@ class Server:
             elif first_message.is_review():
                 self.forward_message(msg_batch, QUEUE_REVIEWS, self.cant_review_validators, service_queue_review)
 
-            print(numero_menasje_recibido)
+            #print(numero_menasje_recibido)
                 
     
     def send_eofs_to_queue(self, msg_end_of_dataset, destiny_queue, cant_workers, service_queue):

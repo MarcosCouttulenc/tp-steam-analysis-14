@@ -21,14 +21,6 @@ MAX_LOG_LEN = 1000
 
 class QueryFile:
     def __init__(self, queue_name_origin, file_path, result_query_port, listen_backlog,ip_healthchecker, port_healthchecker, path_status_info, listen_to_result_responser_port, id):
-        print(f"queue_name_origin: {queue_name_origin}")
-        print(f"file_path: {file_path}")
-        print(f"result_query_port: {result_query_port}")
-        print(f"listen_backlog: {listen_backlog}")
-        print(f"ip_healthchecker: {ip_healthchecker}")
-        print(f"port_healthchecker: {port_healthchecker}")
-        print(f"path_status_info: {path_status_info}")
-        print(f"listen_to_result_responser_port: {listen_to_result_responser_port}")
         
         self.file_path = file_path
         
@@ -59,7 +51,6 @@ class QueryFile:
         self.listen_to_result_responser_port = listen_to_result_responser_port
         self.id = id
         self.queue_name_origin = f"{queue_name_origin}-{self.id}"
-        print(f"queue_name_origin: {self.queue_name_origin}")
 
         self.log_transaction_len = {}
 
@@ -203,7 +194,6 @@ class QueryFile:
 
     def handle_new_update(self, ch, method, properties, message: Message):
         self.cant_mensajes_procesados += 1
-        print(f"Cantidad de msj porocesados: {self.cant_mensajes_procesados}")
 
         if self.message_was_processed(message):
             print(f"Message was processed. ID: {message.get_message_id()}")
