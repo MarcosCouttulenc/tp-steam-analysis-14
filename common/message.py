@@ -645,6 +645,7 @@ class MessageBatch(Message):
     def get_batch_id(self):
         #F1_M135
         message_id_info = self.message_id.split("_")
+        print(f" message_id_info: {message_id_info}")
         #["F1", "M135"]
         batch_id = message_id_info[1][1:]
         #"135"
@@ -675,7 +676,7 @@ class MessageBatch(Message):
             msg_type = msg_info[2]
             msg_payload = msg_info[3]
             
-            message = Message(msg_id, clt_id, msg_type, msg_payload)
-            batch_list_messages.append(message)
+            msg = Message(msg_id, clt_id, msg_type, msg_payload)
+            batch_list_messages.append(msg)
         
         return cls(message.get_client_id(), message.get_message_id(), batch_list_messages)

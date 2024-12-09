@@ -71,8 +71,8 @@ class WorkerReviewValidator(ReviewWorker):
                 self.socket_slave = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.socket_slave.connect((self.ip_master, self.port_master))
                 break
-            except (ConnectionRefusedError, ConnectionError):
-                print("[SLAVE] no me pude conectar al master, retry.")
+            except Exception as e:
+                print(f"[SLAVE] Error: {e}")
                 time.sleep(5)
                 continue
 
@@ -128,8 +128,8 @@ class WorkerReviewValidator(ReviewWorker):
                 db_games = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 db_games.connect((bdd_ip, bdd_port))
     
-            except:
-                print(f"Bdd se cayo, retry de conexion")
+            except Exception as e:
+                print(f"Bdd se cayo, retry de conexion. Error: {e}")
                 time.sleep(5)
                 continue
 

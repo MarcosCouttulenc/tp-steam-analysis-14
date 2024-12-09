@@ -12,11 +12,11 @@ class WINDOWSWorker(GameWorker):
         msg_batch = MessageBatch.from_message(message)
         next_batch_list = []
 
-        for message in msg_batch.batch:
-            msg_query_one_update = MessageQueryOneUpdate(message.message_id, message.get_client_id(), "windows")
+        for msg in msg_batch.batch:
+            msg_query_one_update = MessageQueryOneUpdate(msg.message_id, msg.get_client_id(), "windows")
             next_batch_list.append(msg_query_one_update)
 
-        new_batch_msg = MessageBatch(msg_batch.get_client_id(), self.get_new_message_id(), next_batch_list)
+        new_batch_msg = MessageBatch(msg_batch.get_client_id(), msg_batch.get_message_id(), next_batch_list)
         return new_batch_msg
 
     def get_new_message_id(self):

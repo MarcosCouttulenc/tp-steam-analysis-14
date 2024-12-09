@@ -281,8 +281,8 @@ class ReviewWorker:
                 self.socket_slave = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.socket_slave.connect((self.ip_master, self.port_master))
                 break
-            except (ConnectionRefusedError, ConnectionError):
-                print("[SLAVE] no me pude conectar al master, retry.")
+            except Exception as e:
+                print(f"[SLAVE] Error: {e}")
                 time.sleep(4)
                 continue
 
@@ -480,7 +480,7 @@ class ReviewWorker:
         
 
         #Actualizamos el diccionario
-        self.last_seq_number_by_filter[msg_review_info.get_filterid_from_message_id()] = msg_review_info.get_seqnum_from_message_id()
+        self.last_seq_number_by_filter[msg_batch.get_filterid_from_message_id()] = msg_batch.get_seqnum_from_message_id()
 
         
         #Bajamos la informacion a disco

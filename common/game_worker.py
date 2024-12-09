@@ -301,8 +301,8 @@ class GameWorker:
                 self.socket_slave = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.socket_slave.connect((self.ip_master, self.port_master))
                 break
-            except (ConnectionRefusedError, ConnectionError):
-                #print("[SLAVE] no me pude conectar al master, retry.")
+            except Exception as e:
+                print(f"[SLAVE] Error: {e}")
                 time.sleep(4)
                 continue
 
@@ -487,23 +487,30 @@ class GameWorker:
             self.service_queues_filter.ack(ch, method)
             return
         
-        new_batch_msg = MessageBatch(msg_batch.get_client_id(), USELESS_ID, next_batch_list)
+        new_batch_msg = MessageBatch(msg_batch.get_client_id(), self.get_new_message_id(), next_batch_list)
+
+        #print(f"Antes de llamar a forward message. Message ID: {new_batch_msg.get_message_id()}")
 
         self.forward_message(new_batch_msg)
         
         # Actualizamos el diccionario
-        self.last_seq_number_by_filter[new_batch_msg.get_filterid_from_message_id()] = new_batch_msg.get_seqnum_from_message_id()
+        self.last_seq_number_by_filter[msg_batch.get_filterid_from_message_id()] = msg_batch.get_seqnum_from_message_id()
+
+        #if (self.cant_mensajes_procesados == 350 and self.id == "1"):
+        #    self.simulate_failure()
 
         # Bajamos la informacion a disco
         self.save_state_in_disk()
 
         self.cant_mensajes_procesados += 1
 
+        print(self.cant_mensajes_procesados)
+
         self.service_queues_filter.ack(ch, method)
 
     def simulate_failure(self):
         #para asegurarme que ya me conecte al healthchecker
-        #time.sleep(8)
+        time.sleep(8)
         print("Me caigo")
         print(f"Seq Number {self.actual_seq_number} \n")
         print(f"Dict: {self.last_seq_number_by_filter} \n")
@@ -540,6 +547,7 @@ class GameWorker:
 
     def forward_message(self, message):
         message_to_send = self.get_message_to_send(message)
+        #print(f"Dsp de obtener el message_to_send: {message_to_send.get_message_id()}")
 
         for queue_name_next, cant_queue_next in self.queues_destiny.items():
             if 'queue-bdd' in queue_name_next or ('file' in queue_name_next and 'query1-file' not in queue_name_next):
@@ -573,7 +581,6 @@ class GameWorker:
     
             
     def get_message_to_send(self, message: Message):
-        message.set_message_id(self.get_new_message_id())
         return message
 
     def get_new_message_id(self):
@@ -589,6 +596,8 @@ class GameWorker:
 
         filter = message.get_filterid_from_message_id()
         seq_num = message.get_seqnum_from_message_id()
+
+        print(f"Por verificar: <{(filter, seq_num)}> se encuentra en: <{self.last_seq_number_by_filter.items()}> ")
 
         return (filter,seq_num) in self.last_seq_number_by_filter.items()
 

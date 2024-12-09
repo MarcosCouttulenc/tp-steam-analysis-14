@@ -52,6 +52,8 @@ def get_container_name():
     # Retornar el nombre del contenedor
     return container_id
 
+import subprocess
+
 class ProtocolHealthChecker:
     def __init__(self, socket):
         self.protocol = Protocol(socket)

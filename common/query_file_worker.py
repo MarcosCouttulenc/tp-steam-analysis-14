@@ -141,7 +141,7 @@ class QueryFile:
                 # Ciclo de health check
                 while healthchecker_protocol.wait_for_health_check():
                     healthchecker_protocol.health_check_ack()
-            except (socket.error, ConnectionError) as e:
+            except Exception as e:
                 print(f"Error en la conexión con el healthchecker: {e}")
                 time.sleep(5)
     
@@ -253,6 +253,8 @@ class QueryFile:
 
         filter = message.get_filterid_from_message_id()
         seq_num = message.get_seqnum_from_message_id()
+
+        print(f"Por verificar: <{(filter, seq_num)}> se encuentra en: <{self.last_seq_number_by_filter.items()}> ")
 
         return (filter,seq_num) in self.last_seq_number_by_filter.items()
     

@@ -34,6 +34,7 @@ class Client:
         
         self.get_welcome_message()
 
+        time.sleep(5)
         self.send_games()
 
         print("Comienzo sleep")
@@ -161,8 +162,17 @@ class Client:
         #logging.info(f'Client_{self.client_id} action: ask_for_results | result: start')
 
         while True:
-            result_responser_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            result_responser_sock.connect((self.result_responser_ip, int(self.listen_result_query_port)))
+
+            while True:
+                try:
+                    result_responser_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    result_responser_sock.connect((self.result_responser_ip, int(self.listen_result_query_port)))
+                    break
+                except Exception as e:
+                    print(f"Error: {e}")
+                    time.sleep(5)
+
+                
 
             protocol_result_responser = Protocol(result_responser_sock)
             protocol_result_responser.send(MessageClientAskResults(self.client_id))

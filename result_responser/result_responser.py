@@ -390,8 +390,8 @@ class ResultResponser:
                 client_query_node_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 client_query_node_sock.connect((query_file_ip, int(query_file_port)))
                 break
-            except:
-                print(f"[Fallo {query_file_name}] Nodo {query_file_port} caido, retry")
+            except Exception as e:
+                print(f"[Fallo {query_file_name}] Nodo {query_file_port} caido, retry. Error: {e}")
                 time.sleep(5)
                 continue
 
