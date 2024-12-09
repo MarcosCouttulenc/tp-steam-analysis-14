@@ -45,6 +45,8 @@ class DataBaseWorker():
         self.running_threads = []
 
         self.init_file_state()
+
+        self.cantidad_juegos = 0
     
     def init_file_state(self):
         if not os.path.exists(self.path_status_info):
@@ -78,6 +80,7 @@ class DataBaseWorker():
         while self.running_queue:
             self.service_queues.pop(self.queue_name_origin, self.process_message)
         
+        print(f"Juegos procesados totales: {self.cantidad_juegos}")
 
         purge_eofs = threading.Thread(
             target = self.process_purge_eofs 
@@ -188,15 +191,16 @@ class DataBaseWorker():
             self.service_queues.ack(ch, method)
             return
         
-        # Procesamiento de guardado en base de datos.
-        if self.last_msg_id_log_transaction == message.get_message_id():
-            print(f"msg filtrado por log: {message}")
-            self.service_queues.ack(ch, method)
-            return
+        # # Procesamiento de guardado en base de datos.
+        # if self.last_msg_id_log_transaction == message.get_message_id():
+        #     print(f"msg filtrado por log: {message}")
+        #     self.service_queues.ack(ch, method)
+        #     return
         
         msg_batch = MessageBatch.from_message(message)
         #msg_game_info = MessageGameInfo.from_message(message)
         for batch in msg_batch.batch:
+            
 
             msg_game_info = MessageGameInfo.from_message(batch)
 
@@ -205,6 +209,9 @@ class DataBaseWorker():
             if str(game_actual.id) == "-1":
                 self.log_transaction(msg_game_info)
                 self.data_base.store_game(msg_game_info.get_client_id(), msg_game_info.game)
+        
+            self.cantidad_juegos += 1
+            #print(f"juegos procesados: {self.cantidad_juegos}")
         
         self.service_queues.ack(ch, method)
 
@@ -238,6 +245,7 @@ class DataBaseWorker():
         
         print("Empieza recuperacion del log \n")
         with open(self.path_logging, 'r') as file:
+
             line = file.readline().strip()
 
             print(f"Nos levantamos y el log tiene: {line}")

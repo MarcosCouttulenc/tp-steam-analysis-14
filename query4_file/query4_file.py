@@ -93,7 +93,10 @@ class QueryFourFile(QueryFile):
             if game_name in file_info.keys():
                 cant_reviews = file_info[game_name] 
             else:
+                file_info[game_name] = 0
                 cant_reviews = 0
+
+            file_info[game_name] += 1
     
             transaction_log += f"msg::{message.get_message_id()}|client::{client_id}|game::{game_name}|prev::{cant_reviews}|actual::{cant_reviews+1}\n"
         return transaction_log 
@@ -105,23 +108,25 @@ class QueryFourFile(QueryFile):
         
         #print("Empieza recuperacion del log \n")
         with open(self.path_logging, 'r') as file:
-            line = file.readline().strip()
-            data = line.split("|")
+            for line in file.readlines():
+                line = line.strip()
+                data = line.split("|")
 
-            msg_id = data[0].split("::")[1]
-            client_id = data[1].split("::")[1]
-            game_name = data[2].split("::")[1]
-            previous_state = data[3].split("::")[1]
-            actual_state = data[4].split("::")[1]
+                msg_id = data[0].split("::")[1]
+                client_id = data[1].split("::")[1]
+                game_name = data[2].split("::")[1]
+                previous_state = data[3].split("::")[1]
+                actual_state = data[4].split("::")[1]
 
-        file_info = self.get_file_info(client_id)
+                file_info = self.get_file_info(client_id)
 
-        to_print = "No estaba en el dict"
-        if game_name in file_info.keys():
-            to_print = file_info[game_name]
-        #print(f"Antes de recuperar: {to_print}")
+                to_print = "No estaba en el dict"
+                if game_name in file_info.keys():
+                    to_print = file_info[game_name]
+                #print(f"Antes de recuperar: {to_print}")
+                
+                file_info[game_name] = actual_state
+
+                self.update_results_in_disk(client_id, file_info)
         
-        file_info[game_name] = actual_state
-
         self.last_msg_id_log_transaction = msg_id
-        self.update_results_in_disk(client_id, file_info)

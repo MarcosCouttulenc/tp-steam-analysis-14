@@ -254,7 +254,7 @@ class QueryFile:
         filter = message.get_filterid_from_message_id()
         seq_num = message.get_seqnum_from_message_id()
 
-        print(f"Por verificar: <{(filter, seq_num)}> se encuentra en: <{self.last_seq_number_by_filter.items()}> ")
+        #print(f"Por verificar: <{(filter, seq_num)}> se encuentra en: <{self.last_seq_number_by_filter.items()}> ")
 
         return (filter,seq_num) in self.last_seq_number_by_filter.items()
     

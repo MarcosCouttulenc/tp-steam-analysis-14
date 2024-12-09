@@ -124,24 +124,22 @@ class QueryTwoFile(QueryFile):
             
         print("Empieza recuperacion del log \n")
         with open(self.path_logging, 'r') as file:
-            line = file.readline().strip()
+            for line in file.readlines():
+                line = line.strip()
 
-            print(f"Nos levantamos y el log tiene: {line}")
+                print(f"Nos levantamos y el log tiene: {line}")
 
-            data = line.split("|")
+                data = line.split("|")
 
-            msg_id = data[0].split("::")[1]
-            client_id = data[1].split("::")[1]
-            actual_state = data[2].split("::")[1]
+                msg_id = data[0].split("::")[1]
+                client_id = data[1].split("::")[1]
+                actual_state = data[2].split("::")[1]
 
-        file_info = self.get_file_info(client_id)
+                actual_file_info = self.get_top_from_string(actual_state)
+                
+                self.last_msg_id_log_transaction = msg_id
 
-        print(f"Antes de recuperar: {file_info}")
-
-        actual_file_info = self.get_top_from_string(actual_state)
-        
-        self.last_msg_id_log_transaction = msg_id
-        self.update_results_in_disk(client_id, actual_file_info)
+                self.update_results_in_disk(client_id, actual_file_info)
 
         file_info_then = self.get_file_info(client_id)
 

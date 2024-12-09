@@ -185,6 +185,8 @@ class QueryOneFile(QueryFile):
             file_info = defaultdict(lambda: {"linux": 0, "mac": 0, "windows": 0}, file_info)
             previous_state = file_info[client_id][os_supported]
 
+            file_info[client_id][os_supported] += 1
+
             transaction_log += f"msg::{message.get_message_id()}|client::{client_id}|os::{os_supported}|prev::{previous_state}|actual::{previous_state + 1}\n"
 
         return transaction_log
@@ -193,26 +195,33 @@ class QueryOneFile(QueryFile):
         if not os.path.exists(self.path_logging):
             os.makedirs(os.path.dirname(self.path_logging), exist_ok=True)
             return
-            
-        with open(self.path_logging, 'r') as file:
-            line = file.readline().strip()
-
-            data = line.split("|")
-
-            msg_id = data[0].split("::")[1]
-            client_id = data[1].split("::")[1]
-            os_supported = data[2].split("::")[1]
-            actual_state = data[4].split("::")[1]
 
         file_info = self.get_file_info()
 
-        if not client_id in file_info.keys():
-            file_info[client_id] = {}
+        print(f"File info antes de recuperarse: {file_info}")
+            
+        with open(self.path_logging, 'r') as file:
+            for line in file.readlines():
+                print(line)
 
-        file_info[client_id][os_supported] = actual_state
+                line = line.strip()
+
+                
+                data = line.split("|")
+
+                msg_id = data[0].split("::")[1]
+                client_id = data[1].split("::")[1]
+                os_supported = data[2].split("::")[1]
+                actual_state = data[4].split("::")[1]
+
+                if not client_id in file_info.keys():
+                    file_info[client_id] = {}
+
+                file_info[client_id][os_supported] = actual_state
         
-        self.last_msg_id_log_transaction = msg_id
         self.update_results_in_disk(file_info)
+        self.last_msg_id_log_transaction = msg_id
+        
 
 
     

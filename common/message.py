@@ -645,7 +645,7 @@ class MessageBatch(Message):
     def get_batch_id(self):
         #F1_M135
         message_id_info = self.message_id.split("_")
-        print(f" message_id_info: {message_id_info}")
+        #print(f" message_id_info: {message_id_info}")
         #["F1", "M135"]
         batch_id = message_id_info[1][1:]
         #"135"

@@ -54,7 +54,7 @@ class DataBase:
             # Formato: ID;Nombre;Género
             file.write(game_entry)
             self._update_index(index_name,game.id, position)
-            print(f"Juego guardado! {game_entry}")
+            #print(f"Juego guardado! {game_entry}")
 
     def get_game(self, client_id, game_id):
         # Busca la posición del juego en el índice y lo recupera desde el archivo
