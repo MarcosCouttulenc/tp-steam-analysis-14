@@ -179,9 +179,9 @@ class ReviewWorker:
                 if (not healthchecker_protocol.send_container_name(get_container_name())):
                     continue
 
-                # ciclo de checkeo de health
-                while healthchecker_protocol.wait_for_health_check():
-                    healthchecker_protocol.health_check_ack()
+                # # ciclo de checkeo de health
+                # while healthchecker_protocol.wait_for_health_check():
+                #     healthchecker_protocol.health_check_ack()
 
             except (socket.error, ConnectionError) as e:
                 print(f"Error en la conexión con el healthchecker: {e}")

@@ -17,6 +17,7 @@ class HealthChecker:
         self.running = True
         self.docker_client = docker.DockerClient(base_url="unix://var/run/docker.sock")
         self.file_name_connected_containers = "connected_containers.txt"
+        self.file_lock = threading.Lock()
         self.init_signals()
 
     def init_signals(self):
@@ -78,10 +79,39 @@ class HealthChecker:
         my_healthchecker_process.start()
         processes.append(my_healthchecker_process)
 
+
+        # Lanzamos proceso que realiaz el health-check a todos
+        health_check_process = threading.Thread(
+            target = self.process_health_check_all 
+        )
+        health_check_process.start()
+        processes.append(health_check_process)
+
         # Esperamos a que los procesos finalicen y joineamos
         for process in processes:
             process.join()
     
+
+    def process_health_check_all(self):
+        while self.running:
+            my_containers_name = self.get_containers_name_from_file()
+
+            print(f"[process_health_check_all] se van a levantar {len(my_containers_name)} containers")
+            for container_name in my_containers_name:
+                if (not self.is_node_running(container_name)):
+                    print(f"[process_health_check_all] el contenedor {container_name} no esta corriendo")
+                    self.restart_node(container_name)
+            
+        sleep(5)
+    
+    def get_containers_name_from_file(self):
+        my_containers_name = []
+        with self.file_lock:
+            if (os.path.isfile(self.file_name_connected_containers)):
+                with open(self.file_name_connected_containers, "r") as file:
+                    for line in file.readlines():
+                        my_containers_name.append(line.strip())
+        return my_containers_name
 
     def process_my_healthchecker(self):
         # Conectamos al socket del mi healthchecker, si algo sale mal me
@@ -105,20 +135,15 @@ class HealthChecker:
             if (not healthchecker_protocol.send_container_name(get_container_name())):
                 continue
 
-            # ciclo de checkeo de health
-            while healthchecker_protocol.wait_for_health_check():
-                healthchecker_protocol.health_check_ack()
+            # # ciclo de checkeo de health
+            # while healthchecker_protocol.wait_for_health_check():
+            #     healthchecker_protocol.health_check_ack()
 
     def process_accept_new_connection(self):
         print(f"[process_accept_new_connection] Iniciando...")
 
         # Apenas me levanto, lo primero que hago es revivir todos los nodos que dependian de mi (si es que alguno murio).
-        my_containers_name = []
-        if (os.path.isfile(self.file_name_connected_containers)):
-            print("[process_accept_new_connection] encontro el archivo")
-            with open(self.file_name_connected_containers, "r") as file:
-                for line in file.readlines():
-                    my_containers_name.append(line.strip())
+        my_containers_name = self.get_containers_name_from_file()
 
         print(f"[process_accept_new_connection] se van a levantar {len(my_containers_name)} containers")
         for container_name in my_containers_name:
@@ -126,8 +151,8 @@ class HealthChecker:
                 print(f"el contenedor {container_name} no esta corriendo")
                 self.restart_node(container_name)
 
-        if (os.path.isfile(self.file_name_connected_containers)):
-            os.remove(self.file_name_connected_containers)
+        # if (os.path.isfile(self.file_name_connected_containers)):
+        #     os.remove(self.file_name_connected_containers)
 
 
         # Esperamos que los nodos que tengo que cuidar se conecten a mi.
@@ -167,32 +192,37 @@ class HealthChecker:
 
         container_name = container.name
 
-        with open(self.file_name_connected_containers, "a") as file:
-            file.write(container_name + '\n')
+        my_containers_name = self.get_containers_name_from_file()
+        if container_name in my_containers_name:
+            return
+
+        with self.file_lock:
+            with open(self.file_name_connected_containers, "a") as file:
+                file.write(container_name + '\n')
 
         
         #if (container_name == "worker_windows_1"):
         #    print("Empezando a monitorear worker_windows_1")
         
-        print(f"empezando a monitorear: {container_name}")
+        # print(f"empezando a monitorear: {container_name}")
 
-        while True:
-            try:
-                if (not healthchecker_protocol.health_check_ask(container_name)):
-                    print(f"Error en nodo {container_name}")
-                    print(f"Reiniciando nodo {container_name}")
-                    self.restart_node(container_name)
-                    break
+        # while True:
+        #     try:
+        #         if (not healthchecker_protocol.health_check_ask(container_name)):
+        #             print(f"Error en nodo {container_name}")
+        #             print(f"Reiniciando nodo {container_name}")
+        #             self.restart_node(container_name)
+        #             break
 
-                if (not healthchecker_protocol.wait_for_node_ack(container_name)):
-                    print(f"Error en nodo {container_name}")
-                    print(f"Reiniciando nodo {container_name}")
-                    self.restart_node(container_name)
-                    break
+        #         if (not healthchecker_protocol.wait_for_node_ack(container_name)):
+        #             print(f"Error en nodo {container_name}")
+        #             print(f"Reiniciando nodo {container_name}")
+        #             self.restart_node(container_name)
+        #             break
 
-                sleep(TIME_BETWEEN_HEALTH_CHECKS)
-            except Exception as e:
-                print(f"Error en nodo {container_name}: {e}")
-                print(f"Reiniciando nodo {container_name}")
-                self.restart_node(container_name)
-                break
+        #         sleep(TIME_BETWEEN_HEALTH_CHECKS)
+        #     except Exception as e:
+        #         print(f"Error en nodo {container_name}: {e}")
+        #         print(f"Reiniciando nodo {container_name}")
+        #         self.restart_node(container_name)
+        #         break
