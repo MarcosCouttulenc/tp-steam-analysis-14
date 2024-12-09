@@ -52,15 +52,15 @@ class WorkerReviewValidator(ReviewWorker):
             queue_name_origin_id = f"{self.queue_name_origin}-{self.id}"
 
             try:
-                self.service_queues.pop(queue_name_origin_id, self.process_message)
+                self.service_queues.insecure_pop(queue_name_origin_id, self.process_message)
             except Exception as e:
-                if "Channel is closed" in str(e):
-                    time.sleep(5)  # Espera 5 segundos antes de reintentar
-                    self.service_queues = ServiceQueues(CHANNEL_NAME)
-                    self.service_queue_filter = ServiceQueues(CHANNEL_NAME)
-                    continue
-                else:
-                    break
+                print("Reconectando con rabbit")
+                time.sleep(5)  # Espera 5 segundos antes de reintentar
+                self.service_queues = ServiceQueues(CHANNEL_NAME)
+                self.service_queue_filter = ServiceQueues(CHANNEL_NAME)
+                print("Conectado!")
+                continue
+                
 
     def process_control_slave_eof_handler(self):
         time.sleep(5)

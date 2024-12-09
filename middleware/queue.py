@@ -49,9 +49,25 @@ class ServiceQueues:
             self.channel.start_consuming()
         except pika.exceptions.AMQPConnectionError:
             print("[pop] Desconectado de rabbit")
+            return False
             
         except Exception as e:
             raise e
+    
+    def insecure_pop(self, queue_name: str, callback):
+        message_serializer = MessageSerializer()
+        self.channel.queue_declare(queue=queue_name, durable=True)
+
+        def new_callback(ch, method, properties, body):
+            message = message_serializer.deserialize(body.strip())
+            callback(ch, method, properties, message)
+
+        self.channel.basic_consume(
+            queue=queue_name, 
+            on_message_callback=new_callback,
+        )
+
+        self.channel.start_consuming()
 
     def pop_non_blocking(self, queue_name: str, callback):
         try:
